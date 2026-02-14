@@ -1,16 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
+import AiUsageBadge from '../components/AiUsageBadge';
+import UpgradeModal from '../components/UpgradeModal';
 import { useAuth } from '../context/AuthContext';
 import { useChatMessages } from '../hooks/useChatMessages';
+import { useAiUsage } from '../hooks/useAiUsage';
 import { RootwiseAIService } from '../services/geminiService';
+import { isPro, BETA_MODE } from '../services/planService';
 
 const AiNexusPage: React.FC = () => {
+  const navigate = useNavigate();
   const { profile } = useAuth();
   const { messages, addMessage, fetchMessages } = useChatMessages(profile?.id);
+  const aiUsage = useAiUsage();
   const [inputMessage, setInputMessage] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const aiService = useRef(new RootwiseAIService());
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const plan = profile?.plan || 'free';
+  const hasPro = isPro(plan);
 
   useEffect(() => {
     if (profile?.id) fetchMessages();
@@ -22,6 +33,12 @@ const AiNexusPage: React.FC = () => {
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !profile) return;
+
+    // Check if user can send (free plan rate limit)
+    if (!hasPro && !BETA_MODE && !aiUsage.canChat) {
+      setShowUpgrade(true);
+      return;
+    }
 
     await addMessage('user', inputMessage);
     const msgText = inputMessage;
@@ -38,6 +55,8 @@ const AiNexusPage: React.FC = () => {
     await addMessage('ai', response || "I'm listening. Tell me more about your goals.");
 
     setIsAiLoading(false);
+    // Refresh usage counters after sending
+    aiUsage.refresh();
   };
 
   return (
@@ -52,11 +71,52 @@ const AiNexusPage: React.FC = () => {
         <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg">
           ✨
         </div>
-        <div>
+        <div className="flex-1">
           <h2 className="text-2xl font-bold">Nexus AI Mentor</h2>
           <p className="text-sm text-slate-500">Your intelligent bridge to community wisdom.</p>
         </div>
+        {/* AI Usage indicator for free users */}
+        {!hasPro && !BETA_MODE && (
+          <div className="hidden md:flex items-center gap-4 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+            <AiUsageBadge
+              used={aiUsage.messagesUsed}
+              limit={aiUsage.messageLimit}
+              label="msgs left today"
+              compact
+            />
+            <button
+              onClick={() => setShowUpgrade(true)}
+              className="text-xs text-indigo-600 font-bold hover:underline whitespace-nowrap"
+            >
+              Go Unlimited →
+            </button>
+          </div>
+        )}
+        {hasPro && (
+          <div className="hidden md:flex items-center gap-2 bg-indigo-50 px-3 py-1.5 rounded-full">
+            <span className="text-xs text-indigo-600 font-bold">∞ Unlimited</span>
+          </div>
+        )}
       </div>
+
+      {/* Usage bar for free users (mobile + desktop) */}
+      {!hasPro && !BETA_MODE && (
+        <div className="mb-4 p-3 bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <AiUsageBadge
+            used={aiUsage.messagesUsed}
+            limit={aiUsage.messageLimit}
+            label="AI Messages Today"
+          />
+          {!aiUsage.canChat && (
+            <div className="mt-2 flex items-center justify-between">
+              <span className="text-xs text-red-500 font-medium">Daily limit reached</span>
+              <button onClick={() => setShowUpgrade(true)} className="text-xs text-indigo-600 font-bold hover:underline">
+                Upgrade to Pro →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex-1 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col mb-4">
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -140,6 +200,13 @@ const AiNexusPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <UpgradeModal
+        isOpen={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        feature="Unlimited AI Mentor"
+        requiredPlan="pro"
+      />
     </div>
   );
 };

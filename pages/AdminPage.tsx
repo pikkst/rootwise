@@ -5,7 +5,7 @@ import {
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { isOrg } from '../services/planService';
+import { isOrg, canAddOrgMember, remainingOrgSlots, PLAN_LIMITS } from '../services/planService';
 import { redirectToCheckout } from '../services/stripeService';
 import { supabase } from '../services/supabase';
 import { Profile, getInitials } from '../types';
@@ -37,6 +37,15 @@ const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'communities' | 'reports'>('overview');
   const [inviteEmail, setInviteEmail] = useState('');
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null);
+
+  // Community creation form
+  const [showCreate, setShowCreate] = useState(false);
+  const [newCommName, setNewCommName] = useState('');
+  const [newCommIcon, setNewCommIcon] = useState('🌱');
+  const [newCommDesc, setNewCommDesc] = useState('');
+  const [newCommCategory, setNewCommCategory] = useState('Growth');
+  const [newCommColor, setNewCommColor] = useState('#6366f1');
+  const [creating, setCreating] = useState(false);
 
   const plan = profile?.plan || 'free';
   const hasOrg = isOrg(plan);
@@ -155,9 +164,56 @@ const AdminPage: React.FC = () => {
 
   const handleInvite = () => {
     if (!inviteEmail.trim()) return;
+
+    // Enforce member limit
+    const currentCount = stats?.totalMembers ?? 0;
+    if (!canAddOrgMember(plan, currentCount)) {
+      const max = PLAN_LIMITS.org.maxOrgMembers;
+      showToast('error', `Member limit reached (${currentCount}/${max}). Remove a member or contact support.`);
+      return;
+    }
+
     // In a real app, this would send an email invitation
-    showToast('success', `Invitation sent to ${inviteEmail}! They'll receive a link to join.`);
+    const remaining = remainingOrgSlots(plan, currentCount) - 1;
+    showToast('success', `Invitation sent to ${inviteEmail}! ${remaining} seats remaining.`);
     setInviteEmail('');
+  };
+
+  const handleCreateCommunity = async () => {
+    if (!profile || !newCommName.trim()) return;
+    setCreating(true);
+    try {
+      const { data, error } = await supabase.from('communities').insert({
+        name: newCommName.trim(),
+        icon: newCommIcon,
+        description: newCommDesc.trim() || null,
+        category: newCommCategory,
+        created_by: profile.id,
+        brand_color: newCommColor,
+      }).select().single();
+
+      if (error) throw error;
+
+      // Auto-join as admin
+      await supabase.from('community_members').insert({
+        community_id: data.id,
+        user_id: profile.id,
+        role: 'admin',
+      });
+
+      showToast('success', `🎉 "${newCommName}" community created!`);
+      setNewCommName('');
+      setNewCommDesc('');
+      setNewCommIcon('🌱');
+      setNewCommCategory('Growth');
+      setNewCommColor('#6366f1');
+      setShowCreate(false);
+      fetchAdminData(); // Refresh
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to create community');
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleExportReport = () => {
@@ -273,7 +329,7 @@ const AdminPage: React.FC = () => {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                   <p className="text-sm text-slate-500 mb-1">Total Members</p>
                   <p className="text-3xl font-black text-indigo-600">{stats.totalMembers}</p>
-                  <p className="text-xs text-slate-400 mt-1">of 50 max</p>
+                  <p className="text-xs text-slate-400 mt-1">of {PLAN_LIMITS.org.maxOrgMembers} max</p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                   <p className="text-sm text-slate-500 mb-1">Communities</p>
@@ -332,7 +388,14 @@ const AdminPage: React.FC = () => {
                 </div>
                 <p className="text-xs text-slate-400 mt-2">
                   Members will receive an email with a link to join your organization.
-                  {stats && <span className="font-medium"> ({stats.totalMembers}/50 seats used)</span>}
+                  {stats && (
+                    <span className={`font-medium ${
+                      remainingOrgSlots(plan, stats.totalMembers) <= 5 ? 'text-amber-600' : ''
+                    }`}>
+                      {' '}({stats.totalMembers}/{PLAN_LIMITS.org.maxOrgMembers} seats used
+                      {remainingOrgSlots(plan, stats.totalMembers) <= 5 && ` — ${remainingOrgSlots(plan, stats.totalMembers)} remaining`})
+                    </span>
+                  )}
                 </p>
               </div>
 
@@ -383,6 +446,97 @@ const AdminPage: React.FC = () => {
           {/* Communities Tab */}
           {activeTab === 'communities' && (
             <div className="space-y-6">
+              {/* Create Community */}
+              {!showCreate ? (
+                <button
+                  onClick={() => setShowCreate(true)}
+                  className="w-full py-4 border-2 border-dashed border-slate-300 text-slate-500 rounded-3xl font-bold hover:border-indigo-400 hover:text-indigo-600 transition-all"
+                >
+                  + Create Branded Community
+                </button>
+              ) : (
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-lg">New Branded Community</h3>
+                    <button onClick={() => setShowCreate(false)} className="text-slate-400 hover:text-slate-600 text-xl">×</button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-600">Name</label>
+                      <input
+                        type="text"
+                        value={newCommName}
+                        onChange={(e) => setNewCommName(e.target.value)}
+                        placeholder="e.g. Acme Growth Team"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-600">Category</label>
+                      <select
+                        value={newCommCategory}
+                        onChange={(e) => setNewCommCategory(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                      >
+                        <option value="Growth">Growth</option>
+                        <option value="Mindfulness">Mindfulness</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Learning">Learning</option>
+                        <option value="Career">Career</option>
+                        <option value="Custom">Custom</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-600">Icon (emoji)</label>
+                      <input
+                        type="text"
+                        value={newCommIcon}
+                        onChange={(e) => setNewCommIcon(e.target.value)}
+                        maxLength={4}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-center text-2xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-600">Brand Color</label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="color"
+                          value={newCommColor}
+                          onChange={(e) => setNewCommColor(e.target.value)}
+                          className="w-12 h-12 rounded-xl border border-slate-200 cursor-pointer"
+                        />
+                        <span className="text-sm text-slate-500 font-mono">{newCommColor}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-600">Description</label>
+                    <textarea
+                      value={newCommDesc}
+                      onChange={(e) => setNewCommDesc(e.target.value)}
+                      placeholder="What is this community about?"
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => setShowCreate(false)}
+                      className="px-5 py-2 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleCreateCommunity}
+                      disabled={!newCommName.trim() || creating}
+                      className="px-6 py-2 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-all disabled:opacity-50"
+                    >
+                      {creating ? 'Creating...' : '🏘️ Create Community'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {communities.map((c) => (
                   <div

@@ -52,3 +52,24 @@ export async function redirectToCheckout(plan: 'pro' | 'org') {
     window.location.href = url;
   }
 }
+
+export async function openBillingPortal(): Promise<string | null> {
+  const { data, error } = await supabase.functions.invoke('stripe-portal', {});
+
+  if (error) {
+    console.error('Portal error:', error);
+    return null;
+  }
+
+  const url = data?.url;
+  if (url) {
+    window.location.href = url;
+  }
+  return url || null;
+}
+
+export async function cancelSubscription(): Promise<boolean> {
+  // Cancellation is handled through the Stripe billing portal
+  const url = await openBillingPortal();
+  return !!url;
+}

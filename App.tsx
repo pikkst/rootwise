@@ -15,6 +15,7 @@ import ProfilePage from './pages/ProfilePage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import MatchingPage from './pages/MatchingPage';
 import AdminPage from './pages/AdminPage';
+import PricingPage from './pages/PricingPage';
 
 /** Wrapper that redirects unauthenticated users to /auth */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -43,6 +44,7 @@ const AppRoutes: React.FC = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route
             path="/dashboard"
             element={

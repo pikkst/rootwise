@@ -2,11 +2,14 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuestCard from '../components/QuestCard';
 import SEOHead from '../components/SEOHead';
+import AiUsageBadge from '../components/AiUsageBadge';
+import UpgradeModal from '../components/UpgradeModal';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
+import { useAiUsage } from '../hooks/useAiUsage';
 import { RootwiseAIService } from '../services/geminiService';
-import { PLAN_LIMITS, isPro } from '../services/planService';
+import { PLAN_LIMITS, isPro, BETA_MODE, getEffectivePlan } from '../services/planService';
 
 const CATEGORIES = ['All', 'Technology', 'Environment', 'Finance', 'Arts', 'Lifestyle', 'Education', 'History'];
 
@@ -15,9 +18,16 @@ const QuestsPage: React.FC = () => {
   const { profile } = useAuth();
   const { showToast } = useToast();
   const { quests, loading, filter, setFilter, joinQuest, completeQuest, createQuest } = useQuests();
+  const aiUsage = useAiUsage();
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [completingQuestId, setCompletingQuestId] = useState<string | null>(null);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState('');
   const aiService = useRef(new RootwiseAIService());
+
+  const plan = profile?.plan || 'free';
+  const hasPro = isPro(plan);
+  const effectivePlan = getEffectivePlan(plan);
 
   const handleJoinQuest = async (id: string) => {
     if (!profile) {
@@ -52,6 +62,12 @@ const QuestsPage: React.FC = () => {
       navigate('/auth');
       return;
     }
+    // Check rate limit for free users
+    if (!hasPro && !BETA_MODE && !aiUsage.canGenerateQuest) {
+      setUpgradeFeature('AI Quest Generation');
+      setShowUpgrade(true);
+      return;
+    }
     setIsAiLoading(true);
     try {
       const data = await aiService.current.generateQuest('Creative Growth', profile.role);
@@ -76,6 +92,7 @@ const QuestsPage: React.FC = () => {
       showToast('error', 'Failed to generate quest. Please try again.');
     }
     setIsAiLoading(false);
+    aiUsage.refresh();
   };
 
   return (
@@ -90,17 +107,34 @@ const QuestsPage: React.FC = () => {
         <div>
           <h2 className="text-3xl font-bold text-slate-800">Explore Quests</h2>
           <p className="text-slate-500">Find a mission that matches your skills or curiosity.</p>
-          {profile && !isPro(profile.plan || 'free') && (() => {
+          {profile && !isPro(profile.plan || 'free') && !BETA_MODE && (() => {
             const activeCount = quests.filter(q => q.participants.includes(profile.id) && q.status === 'active').length;
             const max = PLAN_LIMITS.free.maxActiveQuests;
             return (
-              <p className="text-xs text-amber-600 mt-1 font-medium">
-                Active quests: {activeCount}/{max} (Free plan) — <button onClick={() => navigate('/profile')} className="underline">Upgrade for unlimited</button>
-              </p>
+              <div>
+                <p className="text-xs text-amber-600 mt-1 font-medium">
+                  Active quests: {activeCount}/{max} (Free plan) — <button onClick={() => { setUpgradeFeature('Unlimited Quests'); setShowUpgrade(true); }} className="underline">Upgrade for unlimited</button>
+                </p>
+              </div>
             );
           })()}
+          {hasPro && (
+            <p className="text-xs text-emerald-600 mt-1 font-medium">
+              ∞ Unlimited quests{BETA_MODE && plan === 'free' ? ' (beta)' : ''}
+            </p>
+          )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {!hasPro && !BETA_MODE && (
+            <div className="hidden md:block">
+              <AiUsageBadge
+                used={aiUsage.questGensUsed}
+                limit={aiUsage.questGenLimit}
+                label="quest gens left"
+                compact
+              />
+            </div>
+          )}
           <button
             onClick={handleGenerateQuest}
             disabled={isAiLoading}
@@ -183,6 +217,13 @@ const QuestsPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      <UpgradeModal
+        isOpen={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        feature={upgradeFeature}
+        requiredPlan="pro"
+      />
     </div>
   );
 };

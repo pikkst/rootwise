@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
+import PlanBadge from '../components/PlanBadge';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
+import { usePlan } from '../hooks/usePlan';
 import { profileToUser, getInitials } from '../types';
-import { redirectToCheckout } from '../services/stripeService';
+import { redirectToCheckout, openBillingPortal } from '../services/stripeService';
+import { PLAN_FEATURES, BETA_MODE } from '../services/planService';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { profile, updateProfile, signOut } = useAuth();
   const { showToast } = useToast();
   const { quests } = useQuests();
+  const planInfo = usePlan();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [billingLoading, setBillingLoading] = useState(false);
 
   // Local edit state
   const [editName, setEditName] = useState(profile?.name ?? '');
@@ -172,13 +177,12 @@ const ProfilePage: React.FC = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-500">Plan</span>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                        profile.plan === 'pro' ? 'bg-indigo-100 text-indigo-700' :
-                        profile.plan === 'org' ? 'bg-amber-100 text-amber-700' :
-                        'bg-slate-100 text-slate-600'
-                      }`}>
-                        {profile.plan || 'free'}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <PlanBadge plan={profile.plan || 'free'} isBeta={BETA_MODE} size="md" />
+                        {BETA_MODE && (!profile.plan || profile.plan === 'free') && (
+                          <span className="text-[10px] text-emerald-600 font-medium">Pro active</span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-500">Total XP</span>
@@ -194,17 +198,67 @@ const ProfilePage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                {(!profile.plan || profile.plan === 'free') && (
-                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white">
-                    <h4 className="font-bold mb-2">Upgrade to Pro</h4>
-                    <p className="text-sm text-indigo-100 mb-4">Unlimited AI mentor, quest generation, and more.</p>
+
+                {/* Subscription Management */}
+                {planInfo.subscription ? (
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200">
+                    <h4 className="font-bold mb-3">Subscription</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-slate-500">Status</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                          planInfo.subscription.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                          planInfo.subscription.status === 'trialing' ? 'bg-blue-100 text-blue-700' :
+                          planInfo.subscription.status === 'cancelling' ? 'bg-amber-100 text-amber-700' :
+                          'bg-slate-100 text-slate-600'
+                        }`}>
+                          {planInfo.subscription.status.charAt(0).toUpperCase() + planInfo.subscription.status.slice(1)}
+                        </span>
+                      </div>
+                      {planInfo.subscription.current_period_end && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-500">
+                            {planInfo.subscription.status === 'cancelling' ? 'Ends' : 'Renews'}
+                          </span>
+                          <span className="text-sm font-medium">
+                            {new Date(planInfo.subscription.current_period_end).toLocaleDateString()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     <button
-                      onClick={() => redirectToCheckout('pro')}
-                      className="w-full py-2 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors"
+                      onClick={async () => {
+                        setBillingLoading(true);
+                        await openBillingPortal();
+                        setBillingLoading(false);
+                      }}
+                      disabled={billingLoading}
+                      className="w-full mt-4 py-2 border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:border-indigo-400 hover:text-indigo-600 transition-all disabled:opacity-50"
                     >
-                      Upgrade — $9.99/mo
+                      {billingLoading ? 'Loading...' : '⚙️ Manage Billing'}
                     </button>
                   </div>
+                ) : (
+                  /* Upgrade card for free users */
+                  (!profile.plan || profile.plan === 'free') && (
+                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white">
+                      <h4 className="font-bold mb-2">Upgrade to Pro</h4>
+                      <p className="text-sm text-indigo-100 mb-3">Unlock all features:</p>
+                      <ul className="space-y-1.5 mb-4">
+                        {PLAN_FEATURES.pro.map((f) => (
+                          <li key={f.label} className="flex items-center gap-2 text-sm text-indigo-100">
+                            <span className="text-amber-300">✓</span> {f.label}
+                          </li>
+                        ))}
+                      </ul>
+                      <button
+                        onClick={() => redirectToCheckout('pro')}
+                        className="w-full py-2 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors"
+                      >
+                        {BETA_MODE ? '🎉 Free During Beta' : 'Upgrade — $9.99/mo'}
+                      </button>
+                    </div>
+                  )
                 )}
               </div>
             </div>
