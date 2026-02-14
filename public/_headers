@@ -1,0 +1,9 @@
+/* SPA fallback — Cloudflare Pages will serve index.html for all unmatched routes */
+/* This enables React Router to handle client-side routing correctly */
+
+/*
+  This _redirects file tells Cloudflare Pages to serve index.html
+  for any path that doesn't match a static file.
+  This is critical for SPA routing to work.
+*/
+/* Redirect all requests to index.html for client-side routing */

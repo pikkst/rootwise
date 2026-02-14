@@ -1,0 +1,8 @@
+{
+  "name": "Rootwise: Intergenerational Wisdom Hub",
+  "description": "A captivating SaaS platform connecting generations through collaborative 'Quests', shared wisdom, and AI-powered productivity tools to combat loneliness and foster lifelong learning.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

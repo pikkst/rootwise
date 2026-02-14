@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Sitemap: https://rootwise.site/sitemap.xml
+
+# Disallow private routes from indexing
+User-agent: *
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /ai-nexus
