@@ -36,10 +36,10 @@ const DashboardPage: React.FC = () => {
         .limit(30);
 
       if (data && data.length > 0) {
-        // Aggregate by day
+        // Aggregate by date (not weekday name)
         const byDay: Record<string, number> = {};
         data.forEach((entry: { xp_gained: number; created_at: string }) => {
-          const day = new Date(entry.created_at).toLocaleDateString('en-US', { weekday: 'short' });
+          const day = new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
           byDay[day] = (byDay[day] || 0) + entry.xp_gained;
         });
         setXpHistory(Object.entries(byDay).map(([name, xp]) => ({ name, xp })));

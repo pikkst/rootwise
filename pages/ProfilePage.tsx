@@ -76,19 +76,20 @@ const ProfilePage: React.FC = () => {
         <div className="h-48 bg-gradient-to-r from-indigo-500 to-purple-600 relative">
           <div className="absolute -bottom-16 left-8">
             <div className="relative group">
-              <img
-                src={currentUser.avatar || undefined}
-                alt={currentUser.name}
-                className="w-32 h-32 rounded-3xl border-4 border-white object-cover shadow-lg bg-slate-100"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              {!currentUser.avatar && (
-                <div className="w-32 h-32 rounded-3xl border-4 border-white shadow-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold">
-                  {getInitials(currentUser.name)}
-                </div>
-              )}
+              {currentUser.avatar ? (
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  className="w-32 h-32 rounded-3xl border-4 border-white object-cover shadow-lg bg-slate-100"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <div className={`w-32 h-32 rounded-3xl border-4 border-white shadow-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold ${currentUser.avatar ? 'hidden' : ''}`}>
+                {getInitials(currentUser.name)}
+              </div>
               {isEditingProfile && (
                 <div className="absolute inset-0 bg-black/40 rounded-3xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <span className="text-white text-xs font-bold">Change Image</span>

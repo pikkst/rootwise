@@ -32,7 +32,9 @@ export class RootwiseAIService {
           }
         }
       });
-      return JSON.parse(response.text ?? '');
+      const text = response.text;
+      if (!text) return null;
+      return JSON.parse(text);
     } catch (error) {
       console.error("Gemini Error:", error);
       return null;
@@ -61,22 +63,9 @@ export class RootwiseAIService {
     }
   }
 
-  async generateQuestImage(prompt: string): Promise<string | null> {
-    try {
-      const response = await this.ai.models.generateContent({
-        model: 'gemini-2.0-flash',
-        contents: `A beautiful, symbolic, high-quality 3D digital art piece representing: ${prompt}. Clean, modern, uplifting style.`,
-      });
-
-      for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData) {
-          return `data:image/png;base64,${part.inlineData.data}`;
-        }
-      }
-      return null;
-    } catch (error) {
-      console.error("Image Generation Error:", error);
-      return null;
-    }
+  async generateQuestImage(_prompt: string): Promise<string | null> {
+    // Image generation requires a dedicated image model (e.g., Imagen)
+    // gemini-2.0-flash is text-only and cannot generate images
+    return null;
   }
 }

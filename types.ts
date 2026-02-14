@@ -203,8 +203,11 @@ export interface XpHistoryEntry {
 
 /** Generate initials from a name */
 export function getInitials(name: string): string {
+  if (!name || !name.trim()) return '?';
   return name
+    .trim()
     .split(' ')
+    .filter((n) => n.length > 0)
     .map((n) => n[0])
     .join('')
     .toUpperCase()
