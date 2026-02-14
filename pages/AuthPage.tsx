@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SEOHead from '../components/SEOHead';
@@ -12,8 +12,15 @@ const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect to dashboard once user state is confirmed after login
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,10 +33,9 @@ const AuthPage: React.FC = () => {
         const { error } = await signIn(email, password);
         if (error) {
           setError(error);
-        } else {
-          navigate('/dashboard');
-          return; // Don't setLoading(false) — we're navigating away
         }
+        // Don't navigate here — the useEffect above will handle it
+        // once onAuthStateChange sets the user
       } else {
         if (!name.trim()) {
           setError('Please enter your name.');
