@@ -161,6 +161,18 @@ const DashboardPage: React.FC = () => {
               >
                 🤝 Join a Community
               </button>
+              <button
+                onClick={() => navigate('/matching')}
+                className="w-full py-3 bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl text-sm hover:bg-white/30 transition-colors text-left px-4"
+              >
+                🔗 Find Matches
+              </button>
+              <button
+                onClick={() => navigate('/analytics')}
+                className="w-full py-3 bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl text-sm hover:bg-white/30 transition-colors text-left px-4"
+              >
+                📊 View Analytics
+              </button>
             </div>
           </section>
 

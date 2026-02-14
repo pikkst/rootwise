@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
 import { Quest, dbQuestToQuest, DbQuest } from '../types';
+import { canJoinQuest } from '../services/planService';
+import { Plan } from '../services/stripeService';
 
 export function useQuests() {
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -48,6 +50,20 @@ export function useQuests() {
     const quest = quests.find((q) => q.id === questId);
     if (quest && quest.participants.includes(userId)) {
       return { error: 'Already joined this quest' };
+    }
+
+    // Enforce quest limit based on plan
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', userId)
+      .single();
+    const plan = (profileData?.plan as Plan) || 'free';
+    const activeCount = quests.filter(
+      (q) => q.participants.includes(userId) && q.status === 'active'
+    ).length;
+    if (!canJoinQuest(plan, activeCount)) {
+      return { error: 'Free plan allows only 3 active quests. Upgrade to Pro for unlimited!' };
     }
 
     const { error } = await supabase.from('quest_participants').insert({

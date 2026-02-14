@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getInitials } from '../types';
+import { isPro, isOrg } from '../services/planService';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
@@ -15,6 +16,8 @@ const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
+  const [showMore, setShowMore] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
 
   // Hide nav on landing and auth pages
   if (location.pathname === '/' || location.pathname === '/auth') return null;
@@ -22,6 +25,27 @@ const Navigation: React.FC = () => {
   const avatarUrl = profile?.avatar_url || '';
   const userName = profile?.name || user?.email || '';
   const initials = getInitials(userName);
+  const plan = profile?.plan || 'free';
+  const hasPro = isPro(plan);
+  const hasOrg = isOrg(plan);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setShowMore(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // Pro/Org nav items for "More" menu
+  const moreItems = [
+    { path: '/analytics', label: 'Analytics', icon: '📊', requiresPro: true },
+    { path: '/matching', label: 'Matching', icon: '🔗', requiresPro: true },
+    { path: '/admin', label: 'Admin', icon: '👑', requiresOrg: true },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 py-3 px-6 md:top-0 md:bottom-auto md:border-b md:border-t-0 z-50">
@@ -32,7 +56,7 @@ const Navigation: React.FC = () => {
         >
           <span>ROOTWISE</span>
         </div>
-        <div className="flex items-center gap-2 md:gap-8 justify-center flex-1 md:flex-none md:w-auto">
+        <div className="flex items-center gap-2 md:gap-6 justify-center flex-1 md:flex-none md:w-auto">
           {navItems.map((item) => (
             <button
               key={item.path}
@@ -47,7 +71,52 @@ const Navigation: React.FC = () => {
               <span className="text-[10px] md:text-sm">{item.label}</span>
             </button>
           ))}
-          {/* Mobile profile button */}
+
+          {/* More menu (desktop) — shows Pro/Org features */}
+          <div className="hidden md:block relative" ref={moreRef}>
+            <button
+              onClick={() => setShowMore(!showMore)}
+              className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
+                ['/analytics', '/matching', '/admin'].includes(location.pathname)
+                  ? 'text-indigo-600 bg-indigo-50 font-semibold'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <span className="text-base">⋯</span>
+              <span className="text-sm">More</span>
+            </button>
+            {showMore && (
+              <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-2xl border border-slate-200 shadow-xl py-2 z-50">
+                {moreItems.map((item) => {
+                  const locked = (item.requiresPro && !hasPro) || (item.requiresOrg && !hasOrg);
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => {
+                        navigate(item.path);
+                        setShowMore(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+                        location.pathname === item.path
+                          ? 'bg-indigo-50 text-indigo-600 font-bold'
+                          : 'text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span>{item.icon}</span>
+                      <span>{item.label}</span>
+                      {locked && (
+                        <span className="ml-auto text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-400 rounded-full font-bold">
+                          {item.requiresOrg ? 'ORG' : 'PRO'}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile profile + more */}
           <button
             onClick={() => navigate('/profile')}
             className={`flex flex-col items-center gap-1 px-3 py-1 rounded-full transition-all md:hidden ${
@@ -57,7 +126,7 @@ const Navigation: React.FC = () => {
             }`}
           >
             <span className="text-xl">👤</span>
-            <span className="text-[10px]">Profile</span>
+            <span className="text-[10px]">More</span>
           </button>
         </div>
         <div className="hidden md:flex items-center gap-3">

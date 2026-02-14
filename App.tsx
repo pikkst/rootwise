@@ -12,6 +12,9 @@ import QuestsPage from './pages/QuestsPage';
 import CommunityPage from './pages/CommunityPage';
 import AiNexusPage from './pages/AiNexusPage';
 import ProfilePage from './pages/ProfilePage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import MatchingPage from './pages/MatchingPage';
+import AdminPage from './pages/AdminPage';
 
 /** Wrapper that redirects unauthenticated users to /auth */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -63,6 +66,30 @@ const AppRoutes: React.FC = () => {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute>
+                <AnalyticsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/matching"
+            element={
+              <ProtectedRoute>
+                <MatchingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminPage />
               </ProtectedRoute>
             }
           />

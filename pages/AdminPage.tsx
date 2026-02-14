@@ -1,0 +1,520 @@
+import React, { useEffect, useState } from 'react';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from 'recharts';
+import SEOHead from '../components/SEOHead';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { isOrg } from '../services/planService';
+import { redirectToCheckout } from '../services/stripeService';
+import { supabase } from '../services/supabase';
+import { Profile, getInitials } from '../types';
+
+interface CommunityWithMembers {
+  id: string;
+  name: string;
+  icon: string;
+  description: string | null;
+  category: string;
+  memberCount: number;
+  members: Profile[];
+}
+
+interface OrgStats {
+  totalMembers: number;
+  totalCommunities: number;
+  totalQuests: number;
+  totalXp: number;
+  memberActivity: { name: string; members: number }[];
+}
+
+const AdminPage: React.FC = () => {
+  const { profile } = useAuth();
+  const { showToast } = useToast();
+  const [communities, setCommunities] = useState<CommunityWithMembers[]>([]);
+  const [stats, setStats] = useState<OrgStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'communities' | 'reports'>('overview');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null);
+
+  const plan = profile?.plan || 'free';
+  const hasOrg = isOrg(plan);
+
+  useEffect(() => {
+    if (!profile?.id || !hasOrg) {
+      setLoading(false);
+      return;
+    }
+    fetchAdminData();
+  }, [profile?.id, hasOrg]);
+
+  const fetchAdminData = async () => {
+    if (!profile) return;
+    setLoading(true);
+
+    // Fetch communities created by this user
+    const { data: comms } = await supabase
+      .from('communities')
+      .select('*')
+      .eq('created_by', profile.id);
+
+    if (!comms || comms.length === 0) {
+      // Also check communities where user is admin
+      const { data: memberComms } = await supabase
+        .from('community_members')
+        .select('community_id')
+        .eq('user_id', profile.id)
+        .eq('role', 'admin');
+
+      if (memberComms && memberComms.length > 0) {
+        const commIds = memberComms.map((m) => m.community_id);
+        const { data: adminComms } = await supabase
+          .from('communities')
+          .select('*')
+          .in('id', commIds);
+        if (adminComms) {
+          await loadCommunityMembers(adminComms);
+        }
+      }
+      setLoading(false);
+      return;
+    }
+
+    await loadCommunityMembers(comms);
+    setLoading(false);
+  };
+
+  const loadCommunityMembers = async (comms: any[]) => {
+    const commIds = comms.map((c) => c.id);
+
+    // Fetch all members of these communities
+    const { data: members } = await supabase
+      .from('community_members')
+      .select('community_id, user_id')
+      .in('community_id', commIds);
+
+    const memberUserIds = [...new Set((members ?? []).map((m) => m.user_id))];
+
+    // Fetch member profiles
+    const { data: profiles } = memberUserIds.length > 0
+      ? await supabase.from('profiles').select('*').in('id', memberUserIds)
+      : { data: [] };
+
+    const profileMap: Record<string, Profile> = {};
+    (profiles ?? []).forEach((p: Profile) => { profileMap[p.id] = p; });
+
+    // Build community data
+    const enriched: CommunityWithMembers[] = comms.map((c) => {
+      const commMembers = (members ?? [])
+        .filter((m) => m.community_id === c.id)
+        .map((m) => profileMap[m.user_id])
+        .filter(Boolean);
+      return {
+        id: c.id,
+        name: c.name,
+        icon: c.icon,
+        description: c.description,
+        category: c.category,
+        memberCount: commMembers.length,
+        members: commMembers,
+      };
+    });
+
+    setCommunities(enriched);
+    if (enriched.length > 0 && !selectedCommunity) {
+      setSelectedCommunity(enriched[0].id);
+    }
+
+    // Calculate stats
+    const totalMembers = memberUserIds.length;
+    const allProfiles = profiles ?? [];
+    const totalXp = allProfiles.reduce((sum: number, p: Profile) => sum + (p.xp || 0), 0);
+
+    // Get quests created by members
+    const { count: questCount } = await supabase
+      .from('quest_participants')
+      .select('*', { count: 'exact', head: true })
+      .in('user_id', memberUserIds);
+
+    // Member activity by role
+    const roleCount: Record<string, number> = {};
+    allProfiles.forEach((p: Profile) => {
+      roleCount[p.role] = (roleCount[p.role] || 0) + 1;
+    });
+    const memberActivity = Object.entries(roleCount).map(([name, members]) => ({ name, members }));
+
+    setStats({
+      totalMembers,
+      totalCommunities: enriched.length,
+      totalQuests: questCount ?? 0,
+      totalXp,
+      memberActivity,
+    });
+  };
+
+  const handleInvite = () => {
+    if (!inviteEmail.trim()) return;
+    // In a real app, this would send an email invitation
+    showToast('success', `Invitation sent to ${inviteEmail}! They'll receive a link to join.`);
+    setInviteEmail('');
+  };
+
+  const handleExportReport = () => {
+    if (!stats || !communities.length) return;
+
+    const report = [
+      'Rootwise Organization Report',
+      `Generated: ${new Date().toLocaleDateString()}`,
+      '',
+      '--- Summary ---',
+      `Total Members: ${stats.totalMembers}`,
+      `Total Communities: ${stats.totalCommunities}`,
+      `Total Quest Participations: ${stats.totalQuests}`,
+      `Total XP Earned: ${stats.totalXp}`,
+      '',
+      '--- Communities ---',
+      ...communities.map((c) => `${c.icon} ${c.name}: ${c.memberCount} members`),
+      '',
+      '--- Members ---',
+      ...communities.flatMap((c) =>
+        c.members.map((m) => `  [${c.name}] ${m.name} — ${m.role}, Level ${m.level}, ${m.xp} XP`)
+      ),
+    ].join('\n');
+
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rootwise-report-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('success', 'Report downloaded!');
+  };
+
+  // Upgrade wall for non-org users
+  if (!hasOrg) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 pt-24 pb-32">
+        <SEOHead title="Admin Dashboard - Rootwise" description="Manage your organization." path="/admin" />
+        <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
+          <div className="w-20 h-20 bg-amber-50 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-6">👑</div>
+          <h2 className="text-3xl font-black text-slate-800 mb-4">Organization Dashboard</h2>
+          <p className="text-slate-500 max-w-md mx-auto mb-2">
+            Manage up to 50 members, create branded communities, track team analytics, and download reports.
+          </p>
+          <p className="text-slate-400 text-sm mb-8">Available on the Organization plan.</p>
+          <button
+            onClick={() => redirectToCheckout('org')}
+            className="px-8 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/30"
+          >
+            Upgrade to Organization — $49/mo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const selectedComm = communities.find((c) => c.id === selectedCommunity);
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
+      <SEOHead title="Admin Dashboard - Rootwise" description="Manage your organization." path="/admin" />
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+            <span className="text-amber-500">👑</span> Admin Dashboard
+          </h2>
+          <p className="text-slate-500">Manage your organization, members, and communities.</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExportReport}
+            className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2"
+          >
+            📥 Export Report
+          </button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+        {(['overview', 'members', 'communities', 'reports'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-5 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all ${
+              activeTab === tab
+                ? 'bg-indigo-600 text-white'
+                : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300'
+            }`}
+          >
+            {tab === 'overview' && '📊 '}
+            {tab === 'members' && '👥 '}
+            {tab === 'communities' && '🏘️ '}
+            {tab === 'reports' && '📋 '}
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="text-center py-20">
+          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-500">Loading admin data...</p>
+        </div>
+      ) : (
+        <>
+          {/* Overview Tab */}
+          {activeTab === 'overview' && stats && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                  <p className="text-sm text-slate-500 mb-1">Total Members</p>
+                  <p className="text-3xl font-black text-indigo-600">{stats.totalMembers}</p>
+                  <p className="text-xs text-slate-400 mt-1">of 50 max</p>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                  <p className="text-sm text-slate-500 mb-1">Communities</p>
+                  <p className="text-3xl font-black text-emerald-600">{stats.totalCommunities}</p>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                  <p className="text-sm text-slate-500 mb-1">Quest Activity</p>
+                  <p className="text-3xl font-black text-amber-600">{stats.totalQuests}</p>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                  <p className="text-sm text-slate-500 mb-1">Total XP</p>
+                  <p className="text-3xl font-black text-purple-600">{stats.totalXp}</p>
+                </div>
+              </div>
+
+              {stats.memberActivity.length > 0 && (
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                  <h3 className="text-lg font-bold mb-4">Member Roles Distribution</h3>
+                  <div className="h-48">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={stats.memberActivity}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                        <YAxis axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                        <Bar dataKey="members" fill="#6366f1" radius={[8, 8, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Members Tab */}
+          {activeTab === 'members' && (
+            <div className="space-y-6">
+              {/* Invite section */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold mb-4">Invite New Member</h3>
+                <div className="flex gap-3">
+                  <input
+                    type="email"
+                    placeholder="Enter email address..."
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
+                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  />
+                  <button
+                    onClick={handleInvite}
+                    className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all"
+                  >
+                    Send Invite
+                  </button>
+                </div>
+                <p className="text-xs text-slate-400 mt-2">
+                  Members will receive an email with a link to join your organization.
+                  {stats && <span className="font-medium"> ({stats.totalMembers}/50 seats used)</span>}
+                </p>
+              </div>
+
+              {/* Member list */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-slate-100">
+                  <h3 className="font-bold">All Members ({communities.reduce((s, c) => s + c.memberCount, 0)})</h3>
+                </div>
+                <div className="divide-y divide-slate-100">
+                  {communities.flatMap((c) =>
+                    c.members.map((m) => (
+                      <div key={`${c.id}-${m.id}`} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                            {m.avatar_url ? (
+                              <img src={m.avatar_url} alt={m.name} className="w-full h-full object-cover" />
+                            ) : (
+                              getInitials(m.name)
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-800 text-sm">{m.name}</p>
+                            <p className="text-xs text-slate-400">{c.icon} {c.name}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                            m.role === 'Sage' ? 'bg-amber-100 text-amber-700' :
+                            m.role === 'Seeker' ? 'bg-blue-100 text-blue-700' :
+                            'bg-purple-100 text-purple-700'
+                          }`}>{m.role}</span>
+                          <span className="text-xs text-slate-500">Level {m.level}</span>
+                          <span className="text-xs font-medium text-indigo-600">{m.xp} XP</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  {communities.length === 0 && (
+                    <div className="p-10 text-center text-slate-400">
+                      <p>No members yet. Create a community and invite people!</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Communities Tab */}
+          {activeTab === 'communities' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {communities.map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => setSelectedCommunity(c.id)}
+                    className={`bg-white p-6 rounded-3xl border-2 shadow-sm hover:shadow-lg transition-all cursor-pointer ${
+                      selectedCommunity === c.id ? 'border-indigo-500' : 'border-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-3xl">{c.icon}</span>
+                      <div>
+                        <h4 className="font-bold text-slate-800">{c.name}</h4>
+                        <p className="text-xs text-slate-400">{c.category}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-500 mb-3 line-clamp-2">{c.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-indigo-600">{c.memberCount} members</span>
+                      <span className="px-2 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-lg">Branded</span>
+                    </div>
+                  </div>
+                ))}
+                {communities.length === 0 && (
+                  <div className="col-span-3 text-center py-20 text-slate-400">
+                    <p className="text-6xl mb-4">🏘️</p>
+                    <p className="font-bold text-xl mb-2">No branded communities</p>
+                    <p>Create a community from the Community Hub to manage it here.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Selected community details */}
+              {selectedComm && (
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-lg flex items-center gap-2">
+                      <span>{selectedComm.icon}</span> {selectedComm.name} — Members
+                    </h3>
+                    <span className="text-sm text-slate-500">{selectedComm.memberCount} members</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {selectedComm.members.map((m) => (
+                      <div key={m.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
+                          {getInitials(m.name)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-800 truncate">{m.name}</p>
+                          <p className="text-xs text-slate-400">{m.role} · {m.xp} XP</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Reports Tab */}
+          {activeTab === 'reports' && (
+            <div className="space-y-6">
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                <h3 className="text-lg font-bold mb-6">Organization Reports</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-6 border border-slate-200 rounded-2xl hover:border-indigo-300 transition-all cursor-pointer" onClick={handleExportReport}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">📊</span>
+                      <h4 className="font-bold">Full Organization Report</h4>
+                    </div>
+                    <p className="text-sm text-slate-500 mb-4">Complete overview of members, communities, quests, and XP across your organization.</p>
+                    <span className="text-indigo-600 text-sm font-bold">Download .txt →</span>
+                  </div>
+
+                  <div className="p-6 border border-slate-200 rounded-2xl hover:border-indigo-300 transition-all cursor-pointer" onClick={() => {
+                    if (!communities.length) return;
+                    const csv = [
+                      'Name,Role,Level,XP,Community',
+                      ...communities.flatMap((c) =>
+                        c.members.map((m) => `"${m.name}","${m.role}",${m.level},${m.xp},"${c.name}"`)
+                      ),
+                    ].join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `rootwise-members-${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('success', 'Member report downloaded!');
+                  }}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">👥</span>
+                      <h4 className="font-bold">Member Activity Report</h4>
+                    </div>
+                    <p className="text-sm text-slate-500 mb-4">CSV export of all members with their roles, levels, and XP.</p>
+                    <span className="text-indigo-600 text-sm font-bold">Download .csv →</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary stats for report */}
+              {stats && (
+                <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                  <h3 className="text-lg font-bold mb-4">Quick Stats Summary</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div>
+                      <p className="text-2xl font-black text-slate-800">{stats.totalMembers}</p>
+                      <p className="text-sm text-slate-500">Members</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-black text-slate-800">{stats.totalCommunities}</p>
+                      <p className="text-sm text-slate-500">Communities</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-black text-slate-800">{stats.totalQuests}</p>
+                      <p className="text-sm text-slate-500">Quest Actions</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-black text-slate-800">{stats.totalXp}</p>
+                      <p className="text-sm text-slate-500">Total XP</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default AdminPage;

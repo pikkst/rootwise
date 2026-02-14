@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
 import { RootwiseAIService } from '../services/geminiService';
+import { PLAN_LIMITS, isPro } from '../services/planService';
 
 const CATEGORIES = ['All', 'Technology', 'Environment', 'Finance', 'Arts', 'Lifestyle', 'Education', 'History'];
 
@@ -89,6 +90,15 @@ const QuestsPage: React.FC = () => {
         <div>
           <h2 className="text-3xl font-bold text-slate-800">Explore Quests</h2>
           <p className="text-slate-500">Find a mission that matches your skills or curiosity.</p>
+          {profile && !isPro(profile.plan || 'free') && (() => {
+            const activeCount = quests.filter(q => q.participants.includes(profile.id) && q.status === 'active').length;
+            const max = PLAN_LIMITS.free.maxActiveQuests;
+            return (
+              <p className="text-xs text-amber-600 mt-1 font-medium">
+                Active quests: {activeCount}/{max} (Free plan) — <button onClick={() => navigate('/profile')} className="underline">Upgrade for unlimited</button>
+              </p>
+            );
+          })()}
         </div>
         <div className="flex gap-2">
           <button
