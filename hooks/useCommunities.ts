@@ -50,7 +50,7 @@ export function useCommunities() {
         )
       );
     }
-    return { error };
+    return { error: error?.message ?? null };
   };
 
   const leaveCommunity = async (communityId: string, userId: string) => {
@@ -68,7 +68,7 @@ export function useCommunities() {
         )
       );
     }
-    return { error };
+    return { error: error?.message ?? null };
   };
 
   return {

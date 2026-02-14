@@ -174,7 +174,7 @@ const AdminPage: React.FC = () => {
     }
 
     // In a real app, this would send an email invitation
-    const remaining = remainingOrgSlots(plan, currentCount) - 1;
+    const remaining = remainingOrgSlots(currentCount) - 1;
     showToast('success', `Invitation sent to ${inviteEmail}! ${remaining} seats remaining.`);
     setInviteEmail('');
   };
@@ -390,10 +390,10 @@ const AdminPage: React.FC = () => {
                   Members will receive an email with a link to join your organization.
                   {stats && (
                     <span className={`font-medium ${
-                      remainingOrgSlots(plan, stats.totalMembers) <= 5 ? 'text-amber-600' : ''
+                      remainingOrgSlots(stats.totalMembers) <= 5 ? 'text-amber-600' : ''
                     }`}>
                       {' '}({stats.totalMembers}/{PLAN_LIMITS.org.maxOrgMembers} seats used
-                      {remainingOrgSlots(plan, stats.totalMembers) <= 5 && ` — ${remainingOrgSlots(plan, stats.totalMembers)} remaining`})
+                      {remainingOrgSlots(stats.totalMembers) <= 5 && ` — ${remainingOrgSlots(stats.totalMembers)} remaining`})
                     </span>
                   )}
                 </p>

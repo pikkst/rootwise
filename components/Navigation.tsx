@@ -20,16 +20,6 @@ const Navigation: React.FC = () => {
   const [showMore, setShowMore] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
-  // Hide nav on landing and auth pages
-  if (location.pathname === '/' || location.pathname === '/auth') return null;
-
-  const avatarUrl = profile?.avatar_url || '';
-  const userName = profile?.name || user?.email || '';
-  const initials = getInitials(userName);
-  const plan = profile?.plan || 'free';
-  const hasPro = isPro(plan);
-  const hasOrg = isOrg(plan);
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -40,6 +30,9 @@ const Navigation: React.FC = () => {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  // Hide nav on landing and auth pages
+  if (location.pathname === '/' || location.pathname === '/auth') return null;
 
   // Pro/Org nav items for "More" menu
   const moreItems = [
