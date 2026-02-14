@@ -1,8 +1,9 @@
 // Gemini Proxy — keeps API key server-side
-// Deploy: supabase functions deploy gemini-proxy
+// Deploy: supabase functions deploy gemini-proxy --no-verify-jwt
 // Env vars needed: GEMINI_API_KEY
 
 import { corsHeaders } from '../_shared/cors.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!;
 const GEMINI_MODEL = 'gemini-2.0-flash';
@@ -15,6 +16,30 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    // Verify user is authenticated (manual check since --no-verify-jwt)
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Not authenticated' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { action, payload } = await req.json();
 
     if (action === 'chat') {
