@@ -21,26 +21,32 @@ const AuthPage: React.FC = () => {
     setSuccess(null);
     setLoading(true);
 
-    if (isLogin) {
-      const { error } = await signIn(email, password);
-      if (error) {
-        setError(error);
+    try {
+      if (isLogin) {
+        const { error } = await signIn(email, password);
+        if (error) {
+          setError(error);
+        } else {
+          navigate('/dashboard');
+          return; // Don't setLoading(false) — we're navigating away
+        }
       } else {
-        navigate('/dashboard');
+        if (!name.trim()) {
+          setError('Please enter your name.');
+          setLoading(false);
+          return;
+        }
+        const { error } = await signUp(email, password, name);
+        if (error) {
+          setError(error);
+        } else {
+          setSuccess('Account created! Check your email to verify, then log in.');
+          setIsLogin(true);
+        }
       }
-    } else {
-      if (!name.trim()) {
-        setError('Please enter your name.');
-        setLoading(false);
-        return;
-      }
-      const { error } = await signUp(email, password, name);
-      if (error) {
-        setError(error);
-      } else {
-        setSuccess('Account created! Check your email to verify, then log in.');
-        setIsLogin(true);
-      }
+    } catch (err: unknown) {
+      console.error('Auth error:', err);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.');
     }
     setLoading(false);
   };

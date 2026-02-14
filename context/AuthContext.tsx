@@ -30,12 +30,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    if (data) setProfile(data as Profile);
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (data) setProfile(data as Profile);
+    } catch (err) {
+      console.error('fetchProfile error:', err);
+    }
   };
 
   const refreshProfile = async () => {
@@ -50,6 +54,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         fetchProfile(session.user.id);
       }
+      setLoading(false);
+    }).catch((err) => {
+      console.error('getSession error:', err);
       setLoading(false);
     });
 
@@ -81,11 +88,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error: error?.message ?? null };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error: error?.message ?? null };
+    } catch (err) {
+      console.error('signIn exception:', err);
+      return { error: err instanceof Error ? err.message : 'Sign in failed' };
+    }
   };
 
   const signOut = async () => {
