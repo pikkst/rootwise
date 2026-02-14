@@ -41,7 +41,7 @@ const AiNexusPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 pt-24 pb-32 h-screen flex flex-col">
+    <div className="max-w-4xl mx-auto px-6 pt-24 pb-32 min-h-screen flex flex-col">
       <SEOHead
         title="Nexus AI Mentor - Rootwise"
         description="Get personalized guidance from Rootwise's AI mentor. Find quests, learn skills, and connect with community partners."
@@ -123,7 +123,7 @@ const AiNexusPage: React.FC = () => {
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
               placeholder="Ask Nexus anything..."
               className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-6 pr-14 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
             />

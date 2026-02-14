@@ -2,11 +2,13 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useCommunities } from '../hooks/useCommunities';
 
 const CommunityPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { showToast } = useToast();
   const {
     communities,
     userCommunities,
@@ -27,9 +29,19 @@ const CommunityPage: React.FC = () => {
     }
 
     if (userCommunities.includes(communityId)) {
-      await leaveCommunity(communityId, profile.id);
+      const result = await leaveCommunity(communityId, profile.id);
+      if (result.error) {
+        showToast('error', result.error.message || 'Failed to leave group');
+      } else {
+        showToast('info', 'Left community');
+      }
     } else {
-      await joinCommunity(communityId, profile.id);
+      const result = await joinCommunity(communityId, profile.id);
+      if (result.error) {
+        showToast('error', result.error.message || 'Failed to join group');
+      } else {
+        showToast('success', 'Joined community!');
+      }
     }
   };
 

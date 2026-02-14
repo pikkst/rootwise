@@ -11,10 +11,10 @@ export class RootwiseAIService {
   async generateQuest(topic: string, userLevel: string) {
     try {
       const response = await this.ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.0-flash',
         contents: `Create a productive multi-generational 'Quest' for the topic: ${topic}. 
         The quest should be achievable for a ${userLevel} user. 
-        Return JSON with: title, description (compelling), 3 actionable steps, and a category.`,
+        Return JSON with: title, description (compelling), 3 actionable steps, and a category (one of: Technology, Environment, Finance, Arts, Lifestyle, Education, History).`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
@@ -32,39 +32,42 @@ export class RootwiseAIService {
           }
         }
       });
-      return JSON.parse(response.text);
+      return JSON.parse(response.text ?? '');
     } catch (error) {
       console.error("Gemini Error:", error);
       return null;
     }
   }
 
-  async getAiMentorResponse(history: { role: string, parts: { text: string }[] }[]) {
+  async getAiMentorResponse(history: { role: string; parts: { text: string }[] }[]): Promise<string> {
     try {
+      // Build proper multi-turn contents array
+      const contents = history.map((h) => ({
+        role: h.role === 'user' ? 'user' : 'model',
+        parts: h.parts.map((p) => ({ text: p.text })),
+      }));
+
       const response = await this.ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: { parts: history.map(h => ({ text: h.parts[0].text })) },
+        model: 'gemini-2.0-flash',
+        contents,
         config: {
-          systemInstruction: "You are Rootwise AI, a wise and encouraging mentor. You help connect generations through shared wisdom and roots. Your tone is warm, patient, and highly productive. Encourage users to share their unique life perspectives regardless of age."
+          systemInstruction: "You are Rootwise AI, a wise and encouraging mentor for an intergenerational wisdom platform. You help connect generations through shared wisdom and roots. Your tone is warm, patient, and highly productive. Encourage users to share their unique life perspectives regardless of age. When asked about quests, suggest collaborative activities between different generations. Keep responses concise but meaningful — aim for 2-4 paragraphs max."
         }
       });
-      return response.text;
+      return response.text ?? "I'm having a little trouble right now. Please try again.";
     } catch (error) {
       console.error("AI Mentor Error:", error);
-      return "I'm having a little trouble connecting right now, but I'm still here to support your growth journey.";
+      return "I'm having a little trouble connecting right now, but I'm still here to support your growth journey. Please try again in a moment.";
     }
   }
 
-  async generateQuestImage(prompt: string) {
+  async generateQuestImage(prompt: string): Promise<string | null> {
     try {
       const response = await this.ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: { parts: [{ text: `A beautiful, symbolic, high-quality 3D digital art piece representing: ${prompt}. Clean, modern, uplifting style.` }] },
-        config: {
-          imageConfig: { aspectRatio: "16:9" }
-        }
+        model: 'gemini-2.0-flash',
+        contents: `A beautiful, symbolic, high-quality 3D digital art piece representing: ${prompt}. Clean, modern, uplifting style.`,
       });
-      
+
       for (const part of response.candidates?.[0]?.content?.parts || []) {
         if (part.inlineData) {
           return `data:image/png;base64,${part.inlineData.data}`;
@@ -73,7 +76,7 @@ export class RootwiseAIService {
       return null;
     } catch (error) {
       console.error("Image Generation Error:", error);
-      return "https://picsum.photos/800/450";
+      return null;
     }
   }
 }

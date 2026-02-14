@@ -44,6 +44,12 @@ export function useQuests() {
   }, [fetchQuests]);
 
   const joinQuest = async (questId: string, userId: string) => {
+    // Check if already a participant
+    const quest = quests.find((q) => q.id === questId);
+    if (quest && quest.participants.includes(userId)) {
+      return { error: 'Already joined this quest' };
+    }
+
     const { error } = await supabase.from('quest_participants').insert({
       quest_id: questId,
       user_id: userId,
@@ -58,43 +64,45 @@ export function useQuests() {
         )
       );
     }
-    return { error };
+    return { error: error?.message ?? null };
   };
 
   const completeQuest = async (questId: string, userId: string) => {
     // Mark participant as completed
-    await supabase
+    const { error: participantError } = await supabase
       .from('quest_participants')
       .update({ completed: true })
       .eq('quest_id', questId)
       .eq('user_id', userId);
 
-    // Award XP
+    if (participantError) return { error: participantError.message };
+
+    // Award XP atomically via RPC
     const quest = quests.find((q) => q.id === questId);
     if (quest) {
-      await supabase.rpc('increment_xp', { user_id: userId, amount: quest.rewardXP }).catch(() => {
-        // Fallback: direct update if RPC doesn't exist
-        supabase
-          .from('profiles')
-          .select('xp')
-          .eq('id', userId)
-          .single()
-          .then(({ data }) => {
-            if (data) {
-              supabase
-                .from('profiles')
-                .update({ xp: (data as { xp: number }).xp + quest.rewardXP })
-                .eq('id', userId);
-            }
-          });
-      });
+      await supabase.rpc('increment_xp', { p_user_id: userId, p_amount: quest.rewardXP });
+    }
+
+    // Check if all participants completed — if so, mark quest as completed
+    const { data: participants } = await supabase
+      .from('quest_participants')
+      .select('completed')
+      .eq('quest_id', questId);
+
+    const allCompleted = participants && participants.length > 0 && participants.every((p: { completed: boolean }) => p.completed);
+    if (allCompleted) {
+      await supabase.from('quests').update({ status: 'completed' }).eq('id', questId);
     }
 
     setQuests((prev) =>
       prev.map((q) =>
-        q.id === questId ? { ...q, status: 'completed' as const } : q
+        q.id === questId
+          ? { ...q, status: allCompleted ? ('completed' as const) : q.status }
+          : q
       )
     );
+
+    return { error: null };
   };
 
   const createQuest = async (

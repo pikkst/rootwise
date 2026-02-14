@@ -173,7 +173,7 @@ BEGIN
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'name', NEW.email),
-    COALESCE(NEW.raw_user_meta_data->>'avatar_url', 'https://i.pravatar.cc/150?u=' || NEW.id)
+    NULL
   );
   RETURN NEW;
 END;
@@ -199,6 +199,38 @@ CREATE TRIGGER profiles_updated_at
 CREATE TRIGGER quests_updated_at
   BEFORE UPDATE ON quests
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Atomic XP increment (avoids race conditions)
+CREATE OR REPLACE FUNCTION increment_xp(p_user_id UUID, p_amount INTEGER)
+RETURNS void AS $$
+BEGIN
+  UPDATE profiles
+  SET xp = xp + p_amount,
+      level = GREATEST(1, (xp + p_amount) / 500 + 1)
+  WHERE id = p_user_id;
+
+  -- Record XP history for growth chart
+  INSERT INTO xp_history (user_id, xp_gained, source)
+  VALUES (p_user_id, p_amount, 'quest_completion');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 8. XP History (for growth chart)
+CREATE TABLE IF NOT EXISTS xp_history (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  xp_gained INTEGER NOT NULL,
+  source TEXT DEFAULT 'quest_completion',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE xp_history ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own XP history" ON xp_history
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "System can insert XP history" ON xp_history
+  FOR INSERT WITH CHECK (true);
 
 -- ============================================================
 -- SEED DATA: Default communities

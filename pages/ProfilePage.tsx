@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
-import { profileToUser } from '../types';
+import { profileToUser, getInitials } from '../types';
 
 const ProfilePage: React.FC = () => {
-  const { profile, updateProfile } = useAuth();
+  const navigate = useNavigate();
+  const { profile, updateProfile, signOut } = useAuth();
+  const { showToast } = useToast();
   const { quests } = useQuests();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
 
@@ -17,7 +21,11 @@ const ProfilePage: React.FC = () => {
   const [editInterests, setEditInterests] = useState<string[]>(profile?.interests ?? []);
   const [editAvatar, setEditAvatar] = useState(profile?.avatar_url ?? '');
 
-  if (!profile) return null;
+  if (!profile) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+    </div>
+  );
 
   const currentUser = profileToUser(profile);
   const completedQuests = quests.filter(
@@ -44,6 +52,7 @@ const ProfilePage: React.FC = () => {
       interests: editInterests,
       avatar_url: editAvatar || null,
     });
+    showToast('success', 'Profile updated!');
     setIsEditingProfile(false);
   };
 
@@ -68,10 +77,18 @@ const ProfilePage: React.FC = () => {
           <div className="absolute -bottom-16 left-8">
             <div className="relative group">
               <img
-                src={currentUser.avatar}
+                src={currentUser.avatar || undefined}
                 alt={currentUser.name}
                 className="w-32 h-32 rounded-3xl border-4 border-white object-cover shadow-lg bg-slate-100"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
               />
+              {!currentUser.avatar && (
+                <div className="w-32 h-32 rounded-3xl border-4 border-white shadow-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold">
+                  {getInitials(currentUser.name)}
+                </div>
+              )}
               {isEditingProfile && (
                 <div className="absolute inset-0 bg-black/40 rounded-3xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <span className="text-white text-xs font-bold">Change Image</span>

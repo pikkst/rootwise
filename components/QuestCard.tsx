@@ -2,6 +2,30 @@
 import React from 'react';
 import { Quest } from '../types';
 
+// Category to emoji mapping for quest images
+const categoryEmoji: Record<string, string> = {
+  Technology: '💻',
+  Environment: '🌿',
+  Finance: '💰',
+  Arts: '🎨',
+  Lifestyle: '🏡',
+  Education: '🎓',
+  History: '📜',
+  General: '⚡',
+};
+
+// Color gradients per category
+const categoryGradient: Record<string, string> = {
+  Technology: 'from-blue-500 to-cyan-500',
+  Environment: 'from-emerald-500 to-teal-500',
+  Finance: 'from-amber-500 to-orange-500',
+  Arts: 'from-pink-500 to-rose-500',
+  Lifestyle: 'from-violet-500 to-purple-500',
+  Education: 'from-indigo-500 to-blue-500',
+  History: 'from-yellow-600 to-amber-500',
+  General: 'from-slate-500 to-slate-600',
+};
+
 interface QuestCardProps {
   quest: Quest;
   isParticipant?: boolean;
@@ -11,15 +35,23 @@ interface QuestCardProps {
 
 const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onComplete }) => {
   const isCompleted = quest.status === 'completed';
+  const emoji = categoryEmoji[quest.category] || '⚡';
+  const gradient = categoryGradient[quest.category] || categoryGradient.General;
 
   return (
     <div className={`bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-all ${isCompleted ? 'opacity-75 grayscale-[0.5]' : ''}`}>
-      <div className="h-40 bg-slate-200 relative">
-        <img 
-          src={quest.imageUrl || `https://picsum.photos/seed/${quest.id}/800/400`} 
-          alt={quest.title}
-          className="w-full h-full object-cover"
-        />
+      <div className="h-40 relative">
+        {quest.imageUrl ? (
+          <img
+            src={quest.imageUrl}
+            alt={quest.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+            <span className="text-6xl opacity-80">{emoji}</span>
+          </div>
+        )}
         <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-lg text-xs font-bold text-indigo-600 shadow-sm">
           {isCompleted ? '✓ COMPLETED' : `+${quest.rewardXP} XP`}
         </div>
@@ -35,21 +67,25 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onC
           {quest.description}
         </p>
         <div className="flex items-center justify-between">
-          <div className="flex -space-x-2">
-            {quest.participants.slice(0, 3).map((p, i) => (
-              <img 
+          <div className="flex -space-x-2 items-center">
+            {quest.participants.slice(0, 3).map((_, i) => (
+              <div
                 key={i}
-                className="w-8 h-8 rounded-full border-2 border-white object-cover" 
-                src={`https://picsum.photos/seed/user${p}/100/100`} 
-                alt="user"
-              />
+                className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-[10px] font-bold"
+              >
+                {i + 1}
+              </div>
             ))}
             {quest.participants.length > 3 && (
               <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] text-slate-500 font-medium">
                 +{quest.participants.length - 3}
               </div>
             )}
-            {quest.participants.length === 0 && <span className="text-[10px] text-slate-400 font-medium pl-2">Be the first!</span>}
+            <span className="text-[10px] text-slate-400 font-medium pl-2">
+              {quest.participants.length === 0
+                ? 'Be the first!'
+                : `${quest.participants.length} joined`}
+            </span>
           </div>
           
           {isCompleted ? (

@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import Navigation from './components/Navigation';
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
@@ -77,7 +78,9 @@ const App: React.FC = () => {
     <HelmetProvider>
       <BrowserRouter>
         <AuthProvider>
-          <AppRoutes />
+          <ToastProvider>
+            <AppRoutes />
+          </ToastProvider>
         </AuthProvider>
       </BrowserRouter>
     </HelmetProvider>

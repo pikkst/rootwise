@@ -30,22 +30,16 @@ const LandingPage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/auth')}
               className="px-10 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xl hover:scale-105 transition-all shadow-2xl hover:shadow-indigo-500/40"
             >
               Start My Quest →
             </button>
-            <button className="px-10 py-5 border-2 border-white/40 backdrop-blur-sm rounded-2xl font-bold text-xl hover:bg-white/10 transition-all">
-              Watch the Vision
-            </button>
           </div>
           
-          <div className="mt-16 flex items-center justify-center -space-x-4">
-            {[1,2,3,4,5].map(i => (
-              <img key={i} className="w-14 h-14 rounded-full border-4 border-white object-cover" src={`https://picsum.photos/seed/face${i}/100/100`} alt="Community member" />
-            ))}
-            <div className="w-14 h-14 rounded-full bg-amber-400 border-4 border-white flex items-center justify-center text-indigo-900 font-bold text-sm">
-              +10k
+          <div className="mt-16 flex items-center justify-center">
+            <div className="px-6 py-3 bg-white/20 backdrop-blur-md rounded-full text-sm font-bold">
+              Join the movement of intergenerational learning
             </div>
           </div>
         </div>
@@ -90,7 +84,7 @@ const LandingPage: React.FC = () => {
               <div className="absolute inset-0 bg-indigo-600/5 rounded-[40px] rotate-3"></div>
               <div className="relative bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold">K</div>
+                  <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold">R</div>
                   <span className="font-bold text-slate-400">QUEST ACTIVE</span>
                 </div>
                 <h3 className="text-3xl font-black mb-4">Restore a 1970s Camera</h3>

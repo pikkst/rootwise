@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import QuestCard from '../components/QuestCard';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
 import { RootwiseAIService } from '../services/geminiService';
 
@@ -11,6 +12,7 @@ const CATEGORIES = ['All', 'Technology', 'Environment', 'Finance', 'Arts', 'Life
 const QuestsPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { showToast } = useToast();
   const { quests, loading, filter, setFilter, joinQuest, completeQuest, createQuest } = useQuests();
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [completingQuestId, setCompletingQuestId] = useState<string | null>(null);
@@ -21,7 +23,12 @@ const QuestsPage: React.FC = () => {
       navigate('/auth');
       return;
     }
-    await joinQuest(id, profile.id);
+    const result = await joinQuest(id, profile.id);
+    if (result.error) {
+      showToast('error', result.error);
+    } else {
+      showToast('success', 'Joined quest successfully!');
+    }
   };
 
   const handleCompleteQuest = (id: string) => {
@@ -30,7 +37,12 @@ const QuestsPage: React.FC = () => {
 
   const confirmCompletion = async () => {
     if (!completingQuestId || !profile) return;
-    await completeQuest(completingQuestId, profile.id);
+    const result = await completeQuest(completingQuestId, profile.id);
+    if (result.error) {
+      showToast('error', result.error);
+    } else {
+      showToast('success', 'Quest completed! XP awarded.');
+    }
     setCompletingQuestId(null);
   };
 
@@ -58,9 +70,11 @@ const QuestsPage: React.FC = () => {
           steps: data.steps,
           createdBy: profile.id,
         });
+        showToast('success', `Quest "${data.title}" created!`);
       }
     } catch (err) {
       console.error('Quest generation error:', err);
+      showToast('error', 'Failed to generate quest. Please try again.');
     }
     setIsAiLoading(false);
   };

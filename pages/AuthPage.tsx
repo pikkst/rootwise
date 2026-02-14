@@ -61,7 +61,7 @@ const AuthPage: React.FC = () => {
             onClick={() => navigate('/')}
           >
             <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">
-              K
+              R
             </div>
             <span className="text-2xl font-black text-indigo-600">ROOTWISE</span>
           </div>

@@ -78,6 +78,7 @@ export interface User {
   interests: string[];
   avatar: string;
   xp: number;
+  level: number;
 }
 
 /** Convert Supabase profile to legacy User shape */
@@ -89,8 +90,9 @@ export function profileToUser(p: Profile): User {
     role: p.role,
     skills: p.skills ?? [],
     interests: p.interests ?? [],
-    avatar: p.avatar_url ?? `https://i.pravatar.cc/150?u=${p.id}`,
+    avatar: p.avatar_url ?? '',
     xp: p.xp,
+    level: p.level,
   };
 }
 
@@ -191,12 +193,20 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
-export enum AppView {
-  LANDING = 'LANDING',
-  DASHBOARD = 'DASHBOARD',
-  QUESTS = 'QUESTS',
-  COMMUNITY = 'COMMUNITY',
-  AI_NEXUS = 'AI_NEXUS',
-  PROFILE = 'PROFILE',
-  AUTH = 'AUTH',
+export interface XpHistoryEntry {
+  id: string;
+  user_id: string;
+  xp_gained: number;
+  source: string;
+  created_at: string;
+}
+
+/** Generate initials from a name */
+export function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 }
