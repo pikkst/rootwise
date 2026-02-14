@@ -1,71 +1,68 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { supabase } from './supabase';
 
 export class RootwiseAIService {
-  private ai: GoogleGenAI;
+  private async callProxy(action: string, payload: Record<string, unknown>) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token || '';
 
-  constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    const res = await supabase.functions.invoke('gemini-proxy', {
+      body: { action, payload },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.error) throw new Error(res.error.message);
+    return res.data;
   }
 
   async generateQuest(topic: string, userLevel: string) {
     try {
-      const response = await this.ai.models.generateContent({
-        model: 'gemini-2.0-flash',
-        contents: `Create a productive multi-generational 'Quest' for the topic: ${topic}. 
-        The quest should be achievable for a ${userLevel} user. 
-        Return JSON with: title, description (compelling), 3 actionable steps, and a category (one of: Technology, Environment, Finance, Arts, Lifestyle, Education, History).`,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              title: { type: Type.STRING },
-              description: { type: Type.STRING },
-              steps: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING }
-              },
-              category: { type: Type.STRING }
-            },
-            required: ["title", "description", "steps", "category"]
-          }
-        }
+      // Check rate limit first
+      const { data: usage } = await supabase.rpc('check_ai_usage', {
+        p_user_id: (await supabase.auth.getUser()).data.user?.id,
+        p_type: 'quest_gen',
       });
-      const text = response.text;
-      if (!text) return null;
-      return JSON.parse(text);
+      if (usage && !usage.allowed) {
+        return { error: `Daily quest generation limit reached (${usage.limit}/day). Upgrade to Pro for unlimited.` };
+      }
+
+      const result = await this.callProxy('generateQuest', { topic, userLevel });
+      return result.quest || null;
     } catch (error) {
-      console.error("Gemini Error:", error);
+      console.error("Quest generation error:", error);
       return null;
     }
   }
 
   async getAiMentorResponse(history: { role: string; parts: { text: string }[] }[]): Promise<string> {
     try {
-      // Build proper multi-turn contents array
+      // Check rate limit
+      const { data: usage } = await supabase.rpc('check_ai_usage', {
+        p_user_id: (await supabase.auth.getUser()).data.user?.id,
+        p_type: 'chat',
+      });
+      if (usage && !usage.allowed) {
+        return `You've reached your daily AI chat limit (${usage.limit} messages/day). Upgrade to Pro for unlimited AI mentoring!`;
+      }
+
       const contents = history.map((h) => ({
         role: h.role === 'user' ? 'user' : 'model',
         parts: h.parts.map((p) => ({ text: p.text })),
       }));
 
-      const response = await this.ai.models.generateContent({
-        model: 'gemini-2.0-flash',
-        contents,
-        config: {
-          systemInstruction: "You are Rootwise AI, a wise and encouraging mentor for an intergenerational wisdom platform. You help connect generations through shared wisdom and roots. Your tone is warm, patient, and highly productive. Encourage users to share their unique life perspectives regardless of age. When asked about quests, suggest collaborative activities between different generations. Keep responses concise but meaningful — aim for 2-4 paragraphs max."
-        }
-      });
-      return response.text ?? "I'm having a little trouble right now. Please try again.";
+      const systemInstruction = "You are Rootwise AI, a wise and encouraging mentor for an intergenerational wisdom platform. You help connect generations through shared wisdom and roots. Your tone is warm, patient, and highly productive. Encourage users to share their unique life perspectives regardless of age. When asked about quests, suggest collaborative activities between different generations. Keep responses concise but meaningful — aim for 2-4 paragraphs max.";
+
+      const result = await this.callProxy('chat', { contents, systemInstruction });
+      return result.text ?? "I'm having a little trouble right now. Please try again.";
     } catch (error) {
       console.error("AI Mentor Error:", error);
-      return "I'm having a little trouble connecting right now, but I'm still here to support your growth journey. Please try again in a moment.";
+      return "I'm having a little trouble connecting right now. Please try again in a moment.";
     }
   }
 
   async generateQuestImage(_prompt: string): Promise<string | null> {
-    // Image generation requires a dedicated image model (e.g., Imagen)
-    // gemini-2.0-flash is text-only and cannot generate images
+    // Image generation requires a dedicated image model
     return null;
   }
 }
+

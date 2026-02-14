@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
+import { redirectToCheckout } from '../services/stripeService';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -269,7 +270,7 @@ const LandingPage: React.FC = () => {
                 <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> Advanced analytics</li>
                 <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> Priority matching</li>
               </ul>
-              <button onClick={() => navigate('/auth')} className="w-full py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition-all">
+              <button onClick={() => redirectToCheckout('pro')} className="w-full py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition-all">
                 Start Free Trial
               </button>
             </div>
@@ -288,7 +289,7 @@ const LandingPage: React.FC = () => {
                 <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> Branded communities</li>
                 <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> Reporting & analytics</li>
               </ul>
-              <button onClick={() => window.location.href = 'mailto:hello@rootwise.site'} className="w-full py-3 border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:border-indigo-400 hover:text-indigo-600 transition-all">
+              <button onClick={() => redirectToCheckout('org')} className="w-full py-3 border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:border-indigo-400 hover:text-indigo-600 transition-all">
                 Contact Us
               </button>
             </div>

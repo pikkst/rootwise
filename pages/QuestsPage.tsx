@@ -54,19 +54,17 @@ const QuestsPage: React.FC = () => {
     setIsAiLoading(true);
     try {
       const data = await aiService.current.generateQuest('Creative Growth', profile.role);
+      if (data?.error) {
+        showToast('info', data.error);
+        setIsAiLoading(false);
+        return;
+      }
       if (data) {
-        let imgUrl: string | undefined;
-        try {
-          const img = await aiService.current.generateQuestImage(data.title);
-          imgUrl = img || undefined;
-        } catch { /* ignore image gen failures */ }
-
         await createQuest({
           title: data.title,
           description: data.description,
           category: data.category,
           rewardXP: 150,
-          imageUrl: imgUrl,
           steps: data.steps,
           createdBy: profile.id,
         });

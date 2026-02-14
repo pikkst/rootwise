@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
 import { profileToUser, getInitials } from '../types';
+import { redirectToCheckout } from '../services/stripeService';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -170,6 +171,16 @@ const ProfilePage: React.FC = () => {
                   <h4 className="font-bold mb-4">Legacy Stats</h4>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
+                      <span className="text-sm text-slate-500">Plan</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                        profile.plan === 'pro' ? 'bg-indigo-100 text-indigo-700' :
+                        profile.plan === 'org' ? 'bg-amber-100 text-amber-700' :
+                        'bg-slate-100 text-slate-600'
+                      }`}>
+                        {profile.plan || 'free'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-500">Total XP</span>
                       <span className="font-bold">{currentUser.xp}</span>
                     </div>
@@ -183,6 +194,18 @@ const ProfilePage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                {(!profile.plan || profile.plan === 'free') && (
+                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white">
+                    <h4 className="font-bold mb-2">Upgrade to Pro</h4>
+                    <p className="text-sm text-indigo-100 mb-4">Unlimited AI mentor, quest generation, and more.</p>
+                    <button
+                      onClick={() => redirectToCheckout('pro')}
+                      className="w-full py-2 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors"
+                    >
+                      Upgrade — $9.99/mo
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ) : (

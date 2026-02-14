@@ -64,6 +64,8 @@ export interface Profile {
   avatar_url: string | null;
   xp: number;
   level: number;
+  plan: 'free' | 'pro' | 'org';
+  stripe_customer_id: string | null;
   created_at: string;
   updated_at: string;
 }
