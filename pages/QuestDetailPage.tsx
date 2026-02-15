@@ -28,6 +28,9 @@ const QuestDetailPage: React.FC = () => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [messageText, setMessageText] = useState('');
   const [currentMember, setCurrentMember] = useState<QuestMember | null>(null);
+  const [joiningQuest, setJoiningQuest] = useState(false);
+  const [submittingProof, setSubmittingProof] = useState(false);
+  const [proofText, setProofText] = useState('');
 
   useEffect(() => {
     if (!questId || !profile?.id) return;
@@ -127,6 +130,67 @@ const QuestDetailPage: React.FC = () => {
       }
     } catch (err) {
       showToast('error', 'An error occurred');
+    }
+  };
+
+  const handleJoinQuest = async () => {
+    if (!questId || !profile?.id || joiningQuest) return;
+
+    setJoiningQuest(true);
+    try {
+      const { error } = await supabase.from('quest_members').insert({
+        quest_id: questId,
+        user_id: profile.id,
+        role: 'learner',
+        status: 'active',
+        joined_at: new Date().toISOString(),
+        proof_submitted: null,
+        proof_verified: false,
+      });
+
+      if (error) {
+        showToast('error', error.message || 'Failed to join quest');
+      } else {
+        showToast('success', 'Successfully joined the quest!');
+        await fetchQuestDetails();
+      }
+    } catch (err) {
+      showToast('error', 'An error occurred while joining');
+    } finally {
+      setJoiningQuest(false);
+    }
+  };
+
+  const handleSubmitProof = async () => {
+    if (!proofText.trim() || !questId || !profile?.id || submittingProof) return;
+
+    setSubmittingProof(true);
+    try {
+      const proofData = {
+        type: 'text',
+        content: proofText,
+      };
+
+      const { error } = await supabase
+        .from('quest_members')
+        .update({
+          proof_submitted: proofData,
+          proof_submitted_at: new Date().toISOString(),
+        })
+        .eq('quest_id', questId)
+        .eq('user_id', profile.id);
+
+      if (error) {
+        showToast('error', 'Failed to submit proof');
+      } else {
+        setProofText('');
+        await fetchQuestDetails();
+        showToast('success', 'Proof submitted! Waiting for mentor verification.');
+      }
+    } catch (err) {
+      showToast('error', 'An error occurred');
+    } finally {
+      setSubmittingProof(false);
     }
   };
 
@@ -466,12 +530,18 @@ const QuestDetailPage: React.FC = () => {
                         <div className="bg-slate-50 rounded-lg p-6">
                           <p className="text-slate-600 mb-4">Submit proof of completion for verification</p>
                           <textarea
-                            placeholder="Describe your proof of completion..."
+                            value={proofText}
+                            onChange={(e) => setProofText(e.target.value)}
+                            placeholder="Describe your proof of completion (e.g., project link, certificate, description)..."
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
                             rows={4}
                           />
-                          <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                            Submit Proof
+                          <button
+                            onClick={handleSubmitProof}
+                            disabled={submittingProof || !proofText.trim()}
+                            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {submittingProof ? 'Submitting...' : 'Submit Proof'}
                           </button>
                         </div>
                       )}
@@ -490,13 +560,11 @@ const QuestDetailPage: React.FC = () => {
 
             {!isMember && (
               <button
-                onClick={() => {
-                  if (!profile) navigate('/auth');
-                  // handleJoinQuest
-                }}
-                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold mb-4"
+                onClick={handleJoinQuest}
+                disabled={joiningQuest}
+                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Join Quest
+                {joiningQuest ? 'Joining...' : 'Join Quest'}
               </button>
             )}
 
