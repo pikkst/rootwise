@@ -34,6 +34,14 @@ const Navigation: React.FC = () => {
   // Hide nav on landing and auth pages
   if (location.pathname === '/' || location.pathname === '/auth') return null;
 
+  // Derived values from profile
+  const plan = profile?.plan || 'free';
+  const hasPro = isPro(plan);
+  const hasOrg = isOrg(plan);
+  const userName = profile?.name || 'User';
+  const initials = profile ? getInitials(profile.name) : '??';
+  const avatarUrl = profile?.avatar_url || '';
+
   // Pro/Org nav items for "More" menu
   const moreItems = [
     { path: '/analytics', label: 'Analytics', icon: '📊', requiresPro: true },
