@@ -8,7 +8,7 @@ import { useToast } from '../context/ToastContext';
 import { isOrg, canAddOrgMember, remainingOrgSlots, PLAN_LIMITS } from '../services/planService';
 import { redirectToCheckout } from '../services/stripeService';
 import { supabase } from '../services/supabase';
-import { Profile, getInitials } from '../types';
+import { Profile, UserReport, getInitials } from '../types';
 
 interface CommunityWithMembers {
   id: string;
@@ -47,6 +47,10 @@ interface TrendPoint {
   posts: number;
 }
 
+interface UserReportWithReporter extends UserReport {
+  reporterName?: string;
+}
+
 const AdminPage: React.FC = () => {
   const { profile } = useAuth();
   const { showToast } = useToast();
@@ -57,6 +61,9 @@ const AdminPage: React.FC = () => {
   const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'traffic' | 'members' | 'communities' | 'reports'>('overview');
+  const [moderationReports, setModerationReports] = useState<UserReportWithReporter[]>([]);
+  const [reportStatusFilter, setReportStatusFilter] = useState<UserReport['status'] | 'all'>('all');
+  const [reportNoteDrafts, setReportNoteDrafts] = useState<Record<string, string>>({});
   const [inviteEmail, setInviteEmail] = useState('');
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null);
 
@@ -98,7 +105,7 @@ const AdminPage: React.FC = () => {
     setIsPlatformAdmin(platformAdmin);
 
     if (platformAdmin) {
-      await Promise.all([fetchPlatformData(), fetchAllCommunitiesData()]);
+      await Promise.all([fetchPlatformData(), fetchAllCommunitiesData(), fetchModerationReports()]);
       setLoading(false);
       return;
     }
@@ -232,6 +239,112 @@ const AdminPage: React.FC = () => {
 
     await loadCommunityMembers(comms);
     setLoading(false);
+  };
+
+  const fetchModerationReports = async () => {
+    const { data, error } = await supabase
+      .from('user_reports')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200);
+
+    if (error) {
+      setModerationReports([]);
+      return;
+    }
+
+    const reports = (data as UserReport[]) ?? [];
+    const reporterIds = [...new Set(reports.map((r) => r.reporter_id))];
+    let reporterNameMap: Record<string, string> = {};
+
+    if (reporterIds.length > 0) {
+      const { data: reporters } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .in('id', reporterIds);
+
+      (reporters ?? []).forEach((p: { id: string; name: string }) => {
+        reporterNameMap[p.id] = p.name;
+      });
+    }
+
+    setModerationReports(
+      reports.map((report) => ({
+        ...report,
+        reporterName: reporterNameMap[report.reporter_id] ?? report.reporter_id,
+      }))
+    );
+
+    setReportNoteDrafts(
+      reports.reduce<Record<string, string>>((acc, report) => {
+        acc[report.id] = report.admin_note ?? '';
+        return acc;
+      }, {})
+    );
+  };
+
+  const handleModerationStatus = async (reportId: string, status: UserReport['status']) => {
+    if (!profile?.id) return;
+    const { error } = await supabase
+      .from('user_reports')
+      .update({
+        status,
+        reviewed_by: profile.id,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', reportId);
+
+    if (error) {
+      showToast('error', error.message || 'Failed to update report status');
+      return;
+    }
+
+    showToast('success', `Report marked as ${status.replace('_', ' ')}`);
+    setModerationReports((prev) =>
+      prev.map((r) =>
+        r.id === reportId
+          ? {
+              ...r,
+              status,
+              reviewed_by: profile.id,
+              reviewed_at: new Date().toISOString(),
+            }
+          : r
+      )
+    );
+  };
+
+  const handleSaveAdminNote = async (reportId: string) => {
+    if (!profile?.id) return;
+    const adminNote = (reportNoteDrafts[reportId] ?? '').trim();
+
+    const { error } = await supabase
+      .from('user_reports')
+      .update({
+        admin_note: adminNote || null,
+        reviewed_by: profile.id,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', reportId);
+
+    if (error) {
+      showToast('error', error.message || 'Failed to save admin note');
+      return;
+    }
+
+    showToast('success', 'Admin note saved');
+    setModerationReports((prev) =>
+      prev.map((r) =>
+        r.id === reportId
+          ? {
+              ...r,
+              admin_note: adminNote || null,
+              reviewed_by: profile.id,
+              reviewed_at: new Date().toISOString(),
+            }
+          : r
+      )
+    );
   };
 
   const loadCommunityMembers = async (comms: any[]) => {
@@ -858,7 +971,7 @@ const AdminPage: React.FC = () => {
           {activeTab === 'reports' && (
             <div className="space-y-6">
               <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 className="text-lg font-bold mb-6">{isPlatformAdmin ? 'Platform Reports' : 'Organization Reports'}</h3>
+                <h3 className="text-lg font-bold mb-6">{isPlatformAdmin ? 'Platform Moderation & Reports' : 'Organization Reports'}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-6 border border-slate-200 rounded-2xl hover:border-indigo-300 transition-all cursor-pointer" onClick={isPlatformAdmin ? handleExportPlatformReport : handleExportReport}>
@@ -901,8 +1014,96 @@ const AdminPage: React.FC = () => {
                 </div>
               </div>
 
+              {isPlatformAdmin && (
+                <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+                    <h3 className="text-lg font-bold">Incoming Reports</h3>
+                    <select
+                      value={reportStatusFilter}
+                      onChange={(e) => setReportStatusFilter(e.target.value as UserReport['status'] | 'all')}
+                      className="px-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
+                    >
+                      <option value="all">All statuses</option>
+                      <option value="open">Open</option>
+                      <option value="in_review">In review</option>
+                      <option value="resolved">Resolved</option>
+                      <option value="dismissed">Dismissed</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-3">
+                    {moderationReports
+                      .filter((r) => reportStatusFilter === 'all' || r.status === reportStatusFilter)
+                      .map((report) => (
+                        <div key={report.id} className="border border-slate-200 rounded-2xl p-4">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 font-semibold">{report.report_type}</span>
+                            <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 font-semibold">{report.status}</span>
+                            <span className="text-xs px-2 py-1 rounded-full bg-amber-50 text-amber-700 font-semibold">{report.severity}</span>
+                            <span className="text-xs text-slate-400">by {report.reporterName}</span>
+                            <span className="text-xs text-slate-400">{new Date(report.created_at).toLocaleString()}</span>
+                          </div>
+                          <p className="font-bold text-slate-800">{report.title}</p>
+                          <p className="text-sm text-slate-600 mt-1">{report.description}</p>
+                          <div className="mt-2 text-xs text-slate-500 space-x-4">
+                            <span>Target user: {report.target_user_id ?? '—'}</span>
+                            <span>Target post: {report.target_post_id ?? '—'}</span>
+                          </div>
+                          <div className="mt-3">
+                            <label className="text-xs font-semibold text-slate-600 block mb-1">Admin note</label>
+                            <textarea
+                              value={reportNoteDrafts[report.id] ?? ''}
+                              onChange={(e) =>
+                                setReportNoteDrafts((prev) => ({
+                                  ...prev,
+                                  [report.id]: e.target.value,
+                                }))
+                              }
+                              rows={2}
+                              placeholder="Internal moderation note..."
+                              className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
+                            />
+                            <div className="mt-2">
+                              <button
+                                onClick={() => handleSaveAdminNote(report.id)}
+                                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                              >
+                                Save Note
+                              </button>
+                            </div>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <button
+                              onClick={() => handleModerationStatus(report.id, 'in_review')}
+                              className="px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+                            >
+                              Mark In Review
+                            </button>
+                            <button
+                              onClick={() => handleModerationStatus(report.id, 'resolved')}
+                              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                            >
+                              Resolve
+                            </button>
+                            <button
+                              onClick={() => handleModerationStatus(report.id, 'dismissed')}
+                              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white hover:bg-rose-700"
+                            >
+                              Dismiss
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+
+                    {moderationReports.filter((r) => reportStatusFilter === 'all' || r.status === reportStatusFilter).length === 0 && (
+                      <p className="text-sm text-slate-500">No reports in this filter.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Summary stats for report */}
-              {stats && (
+              {!isPlatformAdmin && stats && (
                 <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                   <h3 className="text-lg font-bold mb-4">Quick Stats Summary</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

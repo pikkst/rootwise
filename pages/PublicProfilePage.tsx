@@ -374,6 +374,12 @@ const PublicProfilePage: React.FC = () => {
                   >
                     {friendStatus === 'accepted' ? 'Friends' : friendStatus === 'pending' ? 'Request sent' : 'Add Friend'}
                   </button>
+                  <button
+                    onClick={() => navigate(`/reports?type=user&targetUserId=${viewedProfile.id}`)}
+                    className="px-5 py-2 bg-rose-50 text-rose-700 rounded-xl font-bold"
+                  >
+                    Report User
+                  </button>
                 </>
               )}
             </div>
@@ -455,6 +461,12 @@ const PublicProfilePage: React.FC = () => {
                       {post.likedByMe ? '♥' : '♡'} {post.likeCount}
                     </button>
                     <span>{post.comments?.length ?? 0} Comments</span>
+                    <button
+                      onClick={() => navigate(`/reports?type=post&targetUserId=${viewedProfile.id}&targetPostId=${post.id}`)}
+                      className="font-semibold text-rose-600"
+                    >
+                      Report Post
+                    </button>
                   </div>
 
                   <div className="mt-4 border-t border-slate-100 pt-4 space-y-3">

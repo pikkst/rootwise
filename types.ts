@@ -96,6 +96,11 @@ export interface Database {
         Insert: Omit<PlatformAdmin, 'created_at'>;
         Update: Partial<PlatformAdmin>;
       };
+      user_reports: {
+        Row: UserReport;
+        Insert: Omit<UserReport, 'id' | 'created_at' | 'updated_at' | 'reviewed_at'>;
+        Update: Partial<UserReport>;
+      };
     };
     Views: {
       community_with_member_count: {
@@ -362,6 +367,24 @@ export interface PlatformAdmin {
   role: 'super_admin' | 'admin';
   created_by: string | null;
   created_at: string;
+}
+
+export interface UserReport {
+  id: string;
+  reporter_id: string;
+  report_type: 'user' | 'post' | 'bug' | 'suggestion' | 'other';
+  target_user_id: string | null;
+  target_post_id: string | null;
+  severity: 'low' | 'medium' | 'high';
+  title: string;
+  description: string;
+  source_path: string | null;
+  status: 'open' | 'in_review' | 'resolved' | 'dismissed';
+  admin_note: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 /** Generate initials from a name */

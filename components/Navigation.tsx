@@ -47,6 +47,7 @@ const Navigation: React.FC = () => {
     { path: '/analytics', label: 'Analytics', icon: '📊', requiresPro: true },
     { path: '/matching', label: 'Matching', icon: '🔗', requiresPro: true },
     { path: '/admin', label: 'Admin', icon: '👑', requiresOrg: true },
+    { path: '/reports', label: 'Report', icon: '🚩', requiresPro: false, requiresOrg: false },
     { path: '/pricing', label: 'Pricing', icon: '💎', requiresPro: false, requiresOrg: false },
   ];
 
@@ -80,7 +81,7 @@ const Navigation: React.FC = () => {
             <button
               onClick={() => setShowMore(!showMore)}
               className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
-                ['/analytics', '/matching', '/admin'].includes(location.pathname)
+                ['/analytics', '/matching', '/admin', '/reports'].includes(location.pathname)
                   ? 'text-indigo-600 bg-indigo-50 font-semibold'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
