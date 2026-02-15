@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-export type Plan = 'free' | 'pro' | 'org';
+export type Plan = 'free' | 'pro' | 'org' | 'admin';
 
 export interface Subscription {
   user_id: string;

@@ -90,8 +90,29 @@ DECLARE
   v_plan TEXT;
   v_count INTEGER;
   v_limit INTEGER;
+  v_is_admin BOOLEAN := FALSE;
 BEGIN
-  -- Get user plan
+  -- Check if user is platform admin (no limits for admins)
+  SELECT EXISTS(SELECT 1 FROM platform_admins WHERE user_id = p_user_id) INTO v_is_admin;
+  
+  IF v_is_admin THEN
+    -- Platform admins have unlimited usage - just increment and return success
+    INSERT INTO ai_usage (user_id, usage_date)
+    VALUES (p_user_id, CURRENT_DATE)
+    ON CONFLICT (user_id, usage_date) DO NOTHING;
+    
+    IF p_type = 'chat' THEN
+      UPDATE ai_usage SET message_count = message_count + 1 
+      WHERE user_id = p_user_id AND usage_date = CURRENT_DATE;
+    ELSE
+      UPDATE ai_usage SET quest_gen_count = quest_gen_count + 1 
+      WHERE user_id = p_user_id AND usage_date = CURRENT_DATE;
+    END IF;
+    
+    RETURN json_build_object('allowed', true, 'remaining', 999999, 'limit', 999999, 'plan', 'admin');
+  END IF;
+
+  -- Get user plan for non-admin users
   SELECT plan INTO v_plan FROM profiles WHERE id = p_user_id;
   v_plan := COALESCE(v_plan, 'free');
 
@@ -397,8 +418,32 @@ ALTER TABLE quests
   ADD COLUMN IF NOT EXISTS skills_required TEXT[] DEFAULT '{}',
   ADD COLUMN IF NOT EXISTS age_range_min INTEGER,
   ADD COLUMN IF NOT EXISTS age_range_max INTEGER,
-  ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('draft', 'published', 'matched', 'in_progress', 'submitted', 'verified', 'completed')) DEFAULT 'draft',
   ADD COLUMN IF NOT EXISTS community_id UUID REFERENCES communities(id) ON DELETE SET NULL;
+
+-- Update status constraint to support new statuses (drop old, add new)
+DO $$ BEGIN
+  -- Drop the old status check constraint (name may vary)
+  ALTER TABLE quests DROP CONSTRAINT IF EXISTS quests_status_check;
+  -- Also try the auto-generated name pattern
+  DECLARE
+    cname TEXT;
+  BEGIN
+    SELECT conname INTO cname FROM pg_constraint
+    WHERE conrelid = 'quests'::regclass AND contype = 'c'
+    AND pg_get_constraintdef(oid) LIKE '%status%';
+    IF cname IS NOT NULL THEN
+      EXECUTE format('ALTER TABLE quests DROP CONSTRAINT %I', cname);
+    END IF;
+  EXCEPTION WHEN OTHERS THEN NULL;
+  END;
+END $$;
+
+ALTER TABLE quests
+  ADD CONSTRAINT quests_status_check
+  CHECK (status IN ('active', 'completed', 'pending', 'draft', 'published', 'matched', 'in_progress', 'submitted', 'verified'));
+
+-- Set default for status if not already set
+ALTER TABLE quests ALTER COLUMN status SET DEFAULT 'draft';
 
 -- Quest Members (replaces simple quest_participants with roles)
 CREATE TABLE IF NOT EXISTS quest_members (

@@ -61,28 +61,34 @@ const QuestDetailPage: React.FC = () => {
       setCurrentMember(myMembership ?? null);
 
       // Fetch messages
-      const { data: messagesData } = await supabase
-        .from('quest_messages')
-        .select('*')
-        .eq('quest_id', questId)
-        .order('created_at', { ascending: true });
-      setMessages((messagesData as QuestMessage[]) ?? []);
+      try {
+        const { data: messagesData } = await supabase
+          .from('quest_messages')
+          .select('*')
+          .eq('quest_id', questId)
+          .order('created_at', { ascending: true });
+        setMessages((messagesData as QuestMessage[]) ?? []);
+      } catch { setMessages([]); }
 
       // Fetch files
-      const { data: filesData } = await supabase
-        .from('quest_files')
-        .select('*')
-        .eq('quest_id', questId)
-        .order('created_at', { ascending: false });
-      setFiles((filesData as QuestFile[]) ?? []);
+      try {
+        const { data: filesData } = await supabase
+          .from('quest_files')
+          .select('*')
+          .eq('quest_id', questId)
+          .order('created_at', { ascending: false });
+        setFiles((filesData as QuestFile[]) ?? []);
+      } catch { setFiles([]); }
 
       // Fetch milestones
-      const { data: milestonesData } = await supabase
-        .from('quest_milestones')
-        .select('*')
-        .eq('quest_id', questId)
-        .order('created_at', { ascending: true });
-      setMilestones((milestonesData as QuestMilestone[]) ?? []);
+      try {
+        const { data: milestonesData } = await supabase
+          .from('quest_milestones')
+          .select('*')
+          .eq('quest_id', questId)
+          .order('created_at', { ascending: true });
+        setMilestones((milestonesData as QuestMilestone[]) ?? []);
+      } catch { setMilestones([]); }
     } catch (err) {
       console.error('Error fetching quest details:', err);
       showToast('error', 'Failed to load quest details');
@@ -224,28 +230,43 @@ const QuestDetailPage: React.FC = () => {
   const isMember = !!currentMember;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-32">
       <SEOHead title={`${quest.title} - Rootwise`} description={quest.description ?? ''} path={`/quests/${questId}`} />
 
       {/* Header */}
       <header className="mb-8">
         <button
           onClick={() => navigate('/quests')}
-          className="text-indigo-600 hover:text-indigo-700 text-sm font-semibold mb-4"
+          className="text-indigo-600 hover:text-indigo-700 text-sm font-semibold mb-4 inline-flex items-center gap-1"
         >
           ← Back to Quests
         </button>
-        <h1 className="text-4xl font-bold text-slate-800">{quest.title}</h1>
-        <div className="flex gap-2 mt-3">
-          <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-full">
-            {quest.quest_type}
-          </span>
-          <span className="px-3 py-1 bg-slate-100 text-slate-700 text-sm font-semibold rounded-full">
-            {quest.status}
+
+        {/* Quest image banner */}
+        {quest.image_url && (
+          <div className="w-full h-48 sm:h-64 rounded-2xl overflow-hidden mb-6">
+            <img src={quest.image_url} alt={quest.title} className="w-full h-full object-cover" />
+          </div>
+        )}
+
+        <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 leading-tight">{quest.title}</h1>
+        <div className="flex flex-wrap gap-2 mt-3">
+          {quest.quest_type && (
+            <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full uppercase tracking-wide">
+              {quest.quest_type}
+            </span>
+          )}
+          <span className={`px-3 py-1 text-xs font-semibold rounded-full uppercase tracking-wide ${
+            quest.status === 'published' ? 'bg-green-100 text-green-700' :
+            quest.status === 'completed' ? 'bg-slate-200 text-slate-600' :
+            quest.status === 'in_progress' ? 'bg-amber-100 text-amber-700' :
+            'bg-slate-100 text-slate-700'
+          }`}>
+            {quest.status?.replace('_', ' ')}
           </span>
           {quest.is_virtual && (
-            <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
-              Virtual
+            <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full uppercase tracking-wide">
+              🌐 Virtual
             </span>
           )}
         </div>
@@ -278,26 +299,26 @@ const QuestDetailPage: React.FC = () => {
               {/* Overview Tab */}
               {activeTab === 'overview' && (
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800 mb-4">About This Quest</h2>
-                  <p className="text-slate-600 mb-6">{quest.description}</p>
+                  <h2 className="text-xl font-bold text-slate-800 mb-3">About This Quest</h2>
+                  <p className="text-slate-600 leading-relaxed mb-6 text-[15px]">{quest.description}</p>
 
                   <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <div className="text-sm text-slate-600">XP Reward</div>
-                      <div className="text-2xl font-bold text-indigo-600">{quest.reward_xp}</div>
+                    <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-xl p-4 border border-indigo-100">
+                      <div className="text-xs font-medium text-indigo-500 uppercase tracking-wide mb-1">XP Reward</div>
+                      <div className="text-2xl font-bold text-indigo-600">⭐ {quest.reward_xp}</div>
                     </div>
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <div className="text-sm text-slate-600">Category</div>
-                      <div className="text-2xl font-bold text-slate-800">{quest.category}</div>
+                    <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl p-4 border border-slate-200">
+                      <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Category</div>
+                      <div className="text-lg font-bold text-slate-800">{quest.category}</div>
                     </div>
                   </div>
 
                   {quest.skills_required && quest.skills_required.length > 0 && (
                     <div className="mb-6">
-                      <h3 className="font-semibold text-slate-800 mb-2">Required Skills</h3>
+                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-2">Required Skills</h3>
                       <div className="flex flex-wrap gap-2">
                         {quest.skills_required.map((skill) => (
-                          <span key={skill} className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
+                          <span key={skill} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium border border-indigo-100">
                             {skill}
                           </span>
                         ))}
@@ -307,12 +328,14 @@ const QuestDetailPage: React.FC = () => {
 
                   {quest.steps && quest.steps.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-slate-800 mb-2">Steps</h3>
-                      <ol className="space-y-2">
+                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Steps to Complete</h3>
+                      <ol className="space-y-3">
                         {quest.steps.map((step: string, idx: number) => (
-                          <li key={idx} className="text-slate-600 flex gap-2">
-                            <span className="font-bold text-indigo-600">{idx + 1}.</span>
-                            <span>{step}</span>
+                          <li key={idx} className="flex gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <span className="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-bold flex items-center justify-center mt-0.5">
+                              {idx + 1}
+                            </span>
+                            <span className="text-slate-700 text-[15px] leading-relaxed">{step}</span>
                           </li>
                         ))}
                       </ol>
@@ -562,32 +585,50 @@ const QuestDetailPage: React.FC = () => {
               <button
                 onClick={handleJoinQuest}
                 disabled={joiningQuest}
-                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-semibold mb-5 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-sm"
               >
-                {joiningQuest ? 'Joining...' : 'Join Quest'}
+                {joiningQuest ? 'Joining...' : '🚀 Join Quest'}
               </button>
             )}
 
-            <div className="space-y-4">
-              <div>
-                <div className="text-sm text-slate-600">Members</div>
-                <div className="text-2xl font-bold text-slate-800">{members.length}</div>
+            {isMember && (
+              <div className="mb-5 px-3 py-2 bg-green-50 border border-green-200 rounded-xl text-center">
+                <span className="text-green-700 font-semibold text-sm">✓ You're a {currentMember?.role}</span>
+              </div>
+            )}
+
+            <div className="space-y-4 divide-y divide-slate-100">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-500">Members</span>
+                <span className="text-lg font-bold text-slate-800">{members.length}</span>
               </div>
 
-              <div>
-                <div className="text-sm text-slate-600">XP Reward</div>
-                <div className="text-2xl font-bold text-indigo-600">{quest.reward_xp}</div>
+              <div className="flex items-center justify-between pt-3">
+                <span className="text-sm text-slate-500">XP Reward</span>
+                <span className="text-lg font-bold text-indigo-600">⭐ {quest.reward_xp}</span>
               </div>
 
-              <div>
-                <div className="text-sm text-slate-600">Status</div>
-                <div className="text-lg font-bold text-slate-800 capitalize">{quest.status}</div>
+              <div className="flex items-center justify-between pt-3">
+                <span className="text-sm text-slate-500">Status</span>
+                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${
+                  quest.status === 'published' ? 'bg-green-100 text-green-700' :
+                  quest.status === 'completed' ? 'bg-slate-200 text-slate-600' :
+                  quest.status === 'in_progress' ? 'bg-amber-100 text-amber-700' :
+                  'bg-slate-100 text-slate-700'
+                }`}>{quest.status?.replace('_', ' ')}</span>
               </div>
+
+              {quest.category && (
+                <div className="flex items-center justify-between pt-3">
+                  <span className="text-sm text-slate-500">Category</span>
+                  <span className="text-sm font-semibold text-slate-700">{quest.category}</span>
+                </div>
+              )}
 
               {!quest.is_virtual && quest.location && (
-                <div>
-                  <div className="text-sm text-slate-600">Location</div>
-                  <div className="text-sm text-slate-800">{quest.location}</div>
+                <div className="flex items-center justify-between pt-3">
+                  <span className="text-sm text-slate-500">📍 Location</span>
+                  <span className="text-sm text-slate-800">{quest.location}</span>
                 </div>
               )}
             </div>

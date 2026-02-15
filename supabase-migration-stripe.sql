@@ -24,14 +24,17 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- Users can view their own subscription
+DROP POLICY IF EXISTS "Users can view own subscription" ON subscriptions;
 CREATE POLICY "Users can view own subscription" ON subscriptions
   FOR SELECT USING (auth.uid() = user_id);
 
 -- Only service role (webhook) can insert/update/delete subscriptions
+DROP POLICY IF EXISTS "Service role can manage subscriptions" ON subscriptions;
 CREATE POLICY "Service role can manage subscriptions" ON subscriptions
   FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
 -- Add trigger for updated_at on subscriptions
+DROP TRIGGER IF EXISTS subscriptions_updated_at ON subscriptions;
 CREATE TRIGGER subscriptions_updated_at
   BEFORE UPDATE ON subscriptions
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -48,9 +51,11 @@ CREATE TABLE IF NOT EXISTS ai_usage (
 
 ALTER TABLE ai_usage ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own AI usage" ON ai_usage;
 CREATE POLICY "Users can view own AI usage" ON ai_usage
   FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "System can manage AI usage" ON ai_usage;
 CREATE POLICY "System can manage AI usage" ON ai_usage
   FOR ALL USING (true);
 
@@ -62,8 +67,29 @@ DECLARE
   v_count INTEGER;
   v_limit INTEGER;
   v_result JSON;
+  v_is_admin BOOLEAN := FALSE;
 BEGIN
-  -- Get user plan
+  -- Check if user is platform admin (no limits for admins)
+  SELECT EXISTS(SELECT 1 FROM platform_admins WHERE user_id = p_user_id) INTO v_is_admin;
+  
+  IF v_is_admin THEN
+    -- Platform admins have unlimited usage - just increment and return success
+    INSERT INTO ai_usage (user_id, usage_date)
+    VALUES (p_user_id, CURRENT_DATE)
+    ON CONFLICT (user_id, usage_date) DO NOTHING;
+    
+    IF p_type = 'chat' THEN
+      UPDATE ai_usage SET message_count = message_count + 1 
+      WHERE user_id = p_user_id AND usage_date = CURRENT_DATE;
+    ELSE
+      UPDATE ai_usage SET quest_gen_count = quest_gen_count + 1 
+      WHERE user_id = p_user_id AND usage_date = CURRENT_DATE;
+    END IF;
+    
+    RETURN json_build_object('allowed', true, 'remaining', 999999, 'limit', 999999, 'plan', 'admin');
+  END IF;
+
+  -- Get user plan for non-admin users
   SELECT plan INTO v_plan FROM profiles WHERE id = p_user_id;
   v_plan := COALESCE(v_plan, 'free');
 
@@ -109,10 +135,12 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Fix quest RLS: allow any authenticated user to update quest status (for completeQuest)
 DROP POLICY IF EXISTS "Quest creators can update their quests" ON quests;
+DROP POLICY IF EXISTS "Authenticated users can update quests" ON quests;
 CREATE POLICY "Authenticated users can update quests" ON quests
   FOR UPDATE USING (auth.role() = 'authenticated');
 
 -- Fix XP history insert policy (restrict to the increment_xp function only)
 DROP POLICY IF EXISTS "System can insert XP history" ON xp_history;
+DROP POLICY IF EXISTS "Service can insert XP history" ON xp_history;
 CREATE POLICY "Service can insert XP history" ON xp_history
   FOR INSERT WITH CHECK (auth.jwt()->>'role' = 'service_role' OR auth.uid() = user_id);

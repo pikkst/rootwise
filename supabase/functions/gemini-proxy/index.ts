@@ -7,7 +7,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!;
 const GEMINI_MODEL = 'gemini-2.0-flash';
-const GEMINI_IMAGE_MODEL = 'gemini-3-pro-image-preview';
+const GEMINI_IMAGE_MODEL = 'gemini-2.0-flash-exp';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 const GEMINI_IMAGE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -446,7 +446,7 @@ targetAge: ${JSON.stringify(targetAge)}
     }
 
     if (action === 'generateImage') {
-      // Image generation using gemini-3-pro-image-preview
+      // Image generation using Gemini with responseModalities
       const { prompt } = payload;
       const body = {
         contents: [
@@ -459,7 +459,7 @@ targetAge: ${JSON.stringify(targetAge)}
           },
         ],
         generationConfig: {
-          mimeType: 'image/png',
+          responseModalities: ['IMAGE', 'TEXT'],
         },
       };
 
@@ -470,17 +470,22 @@ targetAge: ${JSON.stringify(targetAge)}
       });
 
       const data = await res.json();
-      const imageData = data?.candidates?.[0]?.content?.parts?.[0]?.inlineData;
       
-      if (!imageData?.data) {
+      // Find the image part in the response
+      const parts = data?.candidates?.[0]?.content?.parts ?? [];
+      const imagePart = parts.find((p: any) => p.inlineData?.mimeType?.startsWith('image/'));
+      
+      if (!imagePart?.inlineData?.data) {
+        console.error('Image generation response:', JSON.stringify(data).slice(0, 500));
         return new Response(JSON.stringify({ error: 'Failed to generate image' }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
+      const mimeType = imagePart.inlineData.mimeType || 'image/png';
       // Return base64 encoded image
-      return new Response(JSON.stringify({ image: `data:image/png;base64,${imageData.data}` }), {
+      return new Response(JSON.stringify({ image: `data:${mimeType};base64,${imagePart.inlineData.data}` }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

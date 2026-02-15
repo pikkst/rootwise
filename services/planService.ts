@@ -8,16 +8,17 @@ export const PLAN_LIMITS = {
   free: { maxActiveQuests: 3, aiChatPerDay: 5, questGenPerDay: 1, maxOrgMembers: 0 },
   pro:  { maxActiveQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: 0 },
   org:  { maxActiveQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: 50 },
+  admin: { maxActiveQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: Infinity },
 } as const;
 
 /** Does this plan include Pro-level features? */
 export function isPro(plan: Plan): boolean {
-  return plan === 'pro' || plan === 'org';
+  return plan === 'pro' || plan === 'org' || plan === 'admin';
 }
 
 /** Does this plan include Org-level features? */
 export function isOrg(plan: Plan): boolean {
-  return plan === 'org';
+  return plan === 'org' || plan === 'admin';
 }
 
 /** Get the effective plan */
