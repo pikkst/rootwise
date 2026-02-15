@@ -12,6 +12,7 @@ import QuestsPage from './pages/QuestsPage';
 import CommunityPage from './pages/CommunityPage';
 import AiNexusPage from './pages/AiNexusPage';
 import ProfilePage from './pages/ProfilePage';
+import PublicProfilePage from './pages/PublicProfilePage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import MatchingPage from './pages/MatchingPage';
 import AdminPage from './pages/AdminPage';
@@ -71,6 +72,7 @@ const AppRoutes: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/users/:id" element={<PublicProfilePage />} />
           <Route
             path="/analytics"
             element={

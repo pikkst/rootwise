@@ -12,6 +12,10 @@ CREATE TABLE IF NOT EXISTS profiles (
   skills TEXT[] DEFAULT '{}',
   interests TEXT[] DEFAULT '{}',
   avatar_url TEXT,
+  banner_url TEXT,
+  banner_position_x INTEGER DEFAULT 50,
+  banner_position_y INTEGER DEFAULT 50,
+  bio TEXT,
   xp INTEGER DEFAULT 0,
   level INTEGER DEFAULT 1,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -82,6 +86,49 @@ CREATE TABLE IF NOT EXISTS connections (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 8. Posts (profile feed)
+CREATE TABLE IF NOT EXISTS posts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 9. Post Comments
+CREATE TABLE IF NOT EXISTS post_comments (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 10. Post Likes
+CREATE TABLE IF NOT EXISTS post_likes (
+  post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (post_id, user_id)
+);
+
+-- 11. Followers
+CREATE TABLE IF NOT EXISTS followers (
+  follower_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  following_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (follower_id, following_id)
+);
+
+-- 12. Friendships
+CREATE TABLE IF NOT EXISTS friendships (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  requester_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  addressee_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  status TEXT CHECK (status IN ('pending', 'accepted', 'declined')) DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ============================================================
 -- ROW LEVEL SECURITY (RLS)
 -- ============================================================
@@ -93,39 +140,84 @@ ALTER TABLE communities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE community_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE connections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE post_comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE post_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE followers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE friendships ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: users can read all profiles, update only their own
-CREATE POLICY "Profiles are viewable by everyone" ON profiles
-  FOR SELECT USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Profiles are viewable by everyone') THEN
+    CREATE POLICY "Profiles are viewable by everyone" ON profiles
+      FOR SELECT USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can update own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can update own profile') THEN
+    CREATE POLICY "Users can update own profile" ON profiles
+      FOR UPDATE USING (auth.uid() = id);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can insert own profile" ON profiles
-  FOR INSERT WITH CHECK (auth.uid() = id);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can insert own profile') THEN
+    CREATE POLICY "Users can insert own profile" ON profiles
+      FOR INSERT WITH CHECK (auth.uid() = id);
+  END IF;
+END $$;
 
 -- Quests: readable by all, insertable/updatable by authenticated users
-CREATE POLICY "Quests are viewable by everyone" ON quests
-  FOR SELECT USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quests' AND policyname = 'Quests are viewable by everyone') THEN
+    CREATE POLICY "Quests are viewable by everyone" ON quests
+      FOR SELECT USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Authenticated users can create quests" ON quests
-  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quests' AND policyname = 'Authenticated users can create quests') THEN
+    CREATE POLICY "Authenticated users can create quests" ON quests
+      FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+END $$;
 
-CREATE POLICY "Quest creators can update their quests" ON quests
-  FOR UPDATE USING (auth.uid() = created_by);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quests' AND policyname = 'Quest creators can update their quests') THEN
+    CREATE POLICY "Quest creators can update their quests" ON quests
+      FOR UPDATE USING (auth.uid() = created_by);
+  END IF;
+END $$;
 
 -- Quest Participants
-CREATE POLICY "Quest participants are viewable by everyone" ON quest_participants
-  FOR SELECT USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_participants' AND policyname = 'Quest participants are viewable by everyone') THEN
+    CREATE POLICY "Quest participants are viewable by everyone" ON quest_participants
+      FOR SELECT USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Authenticated users can join quests" ON quest_participants
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_participants' AND policyname = 'Authenticated users can join quests') THEN
+    CREATE POLICY "Authenticated users can join quests" ON quest_participants
+      FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can update own participation" ON quest_participants
-  FOR UPDATE USING (auth.uid() = user_id);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_participants' AND policyname = 'Users can update own participation') THEN
+    CREATE POLICY "Users can update own participation" ON quest_participants
+      FOR UPDATE USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can leave quests" ON quest_participants
-  FOR DELETE USING (auth.uid() = user_id);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_participants' AND policyname = 'Users can leave quests') THEN
+    CREATE POLICY "Users can leave quests" ON quest_participants
+      FOR DELETE USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
 -- Communities: readable by all
 CREATE POLICY "Communities are viewable by everyone" ON communities
@@ -160,6 +252,164 @@ CREATE POLICY "Users can create connections" ON connections
 
 CREATE POLICY "Users can update own connections" ON connections
   FOR UPDATE USING (auth.uid() = user_id OR auth.uid() = partner_id);
+
+-- Posts
+CREATE POLICY "Posts are viewable by everyone" ON posts
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can create own posts" ON posts
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own posts" ON posts
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own posts" ON posts
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Post Comments
+CREATE POLICY "Post comments are viewable by everyone" ON post_comments
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can add own comments" ON post_comments
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own comments" ON post_comments
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own comments" ON post_comments
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Post Likes
+CREATE POLICY "Post likes are viewable by everyone" ON post_likes
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can like posts" ON post_likes
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can unlike posts" ON post_likes
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Followers
+CREATE POLICY "Followers are viewable by everyone" ON followers
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can follow" ON followers
+  FOR INSERT WITH CHECK (auth.uid() = follower_id);
+
+CREATE POLICY "Users can unfollow" ON followers
+  FOR DELETE USING (auth.uid() = follower_id);
+
+-- Friendships
+CREATE POLICY "Friendships are viewable by participants" ON friendships
+  FOR SELECT USING (auth.uid() = requester_id OR auth.uid() = addressee_id);
+
+CREATE POLICY "Users can request friends" ON friendships
+  FOR INSERT WITH CHECK (auth.uid() = requester_id);
+
+CREATE POLICY "Users can update own friendships" ON friendships
+  FOR UPDATE USING (auth.uid() = requester_id OR auth.uid() = addressee_id);
+
+-- ============================================================
+-- STORAGE: Profile media policies
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('profile-media', 'profile-media', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Profile media is publicly readable" ON storage.objects
+  FOR SELECT USING (bucket_id = 'profile-media');
+
+CREATE POLICY "Users can upload own profile media" ON storage.objects
+  FOR INSERT WITH CHECK (
+    bucket_id = 'profile-media'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Users can update own profile media" ON storage.objects
+  FOR UPDATE USING (
+    bucket_id = 'profile-media'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Users can delete own profile media" ON storage.objects
+  FOR DELETE USING (
+    bucket_id = 'profile-media'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+-- ============================================================
+-- STORAGE: User file uploads (private)
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('user-files', 'user-files', false)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Users can read own files" ON storage.objects
+  FOR SELECT USING (
+    bucket_id = 'user-files'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Users can upload own files" ON storage.objects
+  FOR INSERT WITH CHECK (
+    bucket_id = 'user-files'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Users can update own files" ON storage.objects
+  FOR UPDATE USING (
+    bucket_id = 'user-files'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Users can delete own files" ON storage.objects
+  FOR DELETE USING (
+    bucket_id = 'user-files'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+-- ============================================================
+-- STORAGE: Post media (public) with video size limit
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('post-media', 'post-media', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Post media is publicly readable" ON storage.objects
+  FOR SELECT USING (bucket_id = 'post-media');
+
+CREATE POLICY "Users can upload post media" ON storage.objects
+  FOR INSERT WITH CHECK (
+    bucket_id = 'post-media'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+    AND (
+      (metadata->>'mimetype') IS NULL
+      OR (metadata->>'mimetype') NOT LIKE 'video/%'
+      OR COALESCE((metadata->>'size')::int, 0) <= 104857600
+    )
+  );
+
+CREATE POLICY "Users can update own post media" ON storage.objects
+  FOR UPDATE USING (
+    bucket_id = 'post-media'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Users can delete own post media" ON storage.objects
+  FOR DELETE USING (
+    bucket_id = 'post-media'
+    AND auth.role() = 'authenticated'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
 
 -- ============================================================
 -- FUNCTIONS & TRIGGERS
@@ -198,6 +448,10 @@ CREATE TRIGGER profiles_updated_at
 
 CREATE TRIGGER quests_updated_at
   BEFORE UPDATE ON quests
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER friendships_updated_at
+  BEFORE UPDATE ON friendships
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Atomic XP increment (avoids race conditions)

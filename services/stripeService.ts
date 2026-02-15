@@ -14,7 +14,7 @@ export async function getUserSubscription(): Promise<Subscription | null> {
   const { data, error } = await supabase
     .from('subscriptions')
     .select('*')
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   return data as Subscription;

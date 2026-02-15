@@ -36,12 +36,16 @@ export function usePlan(): PlanInfo {
       return;
     }
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('subscriptions')
         .select('*')
         .eq('user_id', profile.id)
-        .single();
-      setSubscription(data as Subscription | null);
+        .maybeSingle();
+      if (error) {
+        setSubscription(null);
+      } else {
+        setSubscription(data as Subscription | null);
+      }
     } catch {
       setSubscription(null);
     }

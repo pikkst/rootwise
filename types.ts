@@ -41,6 +41,31 @@ export interface Database {
         Insert: Omit<Connection, 'id' | 'created_at'>;
         Update: Partial<Connection>;
       };
+      posts: {
+        Row: Post;
+        Insert: Omit<Post, 'id' | 'created_at'>;
+        Update: Partial<Post>;
+      };
+      post_comments: {
+        Row: PostComment;
+        Insert: Omit<PostComment, 'id' | 'created_at'>;
+        Update: Partial<PostComment>;
+      };
+      post_likes: {
+        Row: PostLike;
+        Insert: Omit<PostLike, 'created_at'>;
+        Update: Partial<PostLike>;
+      };
+      followers: {
+        Row: Follower;
+        Insert: Omit<Follower, 'created_at'>;
+        Update: Partial<Follower>;
+      };
+      friendships: {
+        Row: Friendship;
+        Insert: Omit<Friendship, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Friendship>;
+      };
     };
     Views: {
       community_with_member_count: {
@@ -62,6 +87,10 @@ export interface Profile {
   skills: string[];
   interests: string[];
   avatar_url: string | null;
+  banner_url: string | null;
+  banner_position_x: number | null;
+  banner_position_y: number | null;
+  bio: string | null;
   xp: number;
   level: number;
   plan: 'free' | 'pro' | 'org';
@@ -178,6 +207,42 @@ export interface Connection {
   scheduled_at: string | null;
   status: 'scheduled' | 'completed' | 'cancelled';
   created_at: string;
+}
+
+export interface Post {
+  id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+}
+
+export interface PostComment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+}
+
+export interface PostLike {
+  post_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface Follower {
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+}
+
+export interface Friendship {
+  id: string;
+  requester_id: string;
+  addressee_id: string;
+  status: 'pending' | 'accepted' | 'declined';
+  created_at: string;
+  updated_at: string;
 }
 
 export interface DbChatMessage {
