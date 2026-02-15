@@ -28,14 +28,14 @@ const Footer: React.FC = () => {
             <ul className="space-y-2 text-sm text-slate-500">
               <li><a href="#how-it-works" className="hover:text-indigo-600 transition-colors">How It Works</a></li>
               <li><button onClick={() => navigate('/auth')} className="hover:text-indigo-600 transition-colors">Create account</button></li>
-              <li><a href="mailto:hello@rootwise.site" className="hover:text-indigo-600 transition-colors">Contact</a></li>
+              <li><a href="mailto:villu@mail.eventnexus.eu" className="hover:text-indigo-600 transition-colors">Contact</a></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-slate-800 mb-4">Legal</h4>
             <ul className="space-y-2 text-sm text-slate-500">
-              <li><span className="text-slate-400">Privacy Policy</span></li>
-              <li><span className="text-slate-400">Terms of Service</span></li>
+              <li><button onClick={() => navigate('/privacy-policy')} className="hover:text-indigo-600 transition-colors">Privacy Policy</button></li>
+              <li><button onClick={() => navigate('/terms-of-service')} className="hover:text-indigo-600 transition-colors">Terms of Service</button></li>
             </ul>
           </div>
         </div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
-import Footer from '../components/Footer';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -352,7 +351,6 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
       
-      <Footer />
     </div>
   );
 };
