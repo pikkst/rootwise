@@ -7,12 +7,20 @@
     <title>Rootwise - Intergenerational Wisdom Hub</title>
     <meta name="description" content="Connect generations through collaborative Quests, shared wisdom, and AI-powered tools. Combat loneliness and foster lifelong learning.">
     <meta name="theme-color" content="#6366f1">
-        <!-- Google tag (gtag.js) -->
+        <!-- Google tag (gtag.js) + Consent Mode -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-YXDKP6XZFS"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
+
+            // Default consent (can be updated by the banner below)
+            gtag('consent', 'default', {
+                ad_storage: 'granted',
+                analytics_storage: 'granted',
+                ad_user_data: 'granted',
+                ad_personalization: 'granted'
+            });
 
             gtag('config', 'G-YXDKP6XZFS');
         </script>
@@ -22,7 +30,76 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>"  />
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
+        <div id="consent-banner" style="position:fixed;left:16px;right:16px;bottom:16px;z-index:9999;display:none;">
+                <div style="max-width:960px;margin:0 auto;background:#111827;color:#f9fafb;border-radius:16px;padding:16px 18px;box-shadow:0 10px 20px rgba(0,0,0,0.2);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
+                        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+                                <div style="flex:1 1 320px;min-width:220px;">
+                                        <strong style="display:block;font-size:14px;margin-bottom:4px;">We use cookies</strong>
+                                        <span style="font-size:12px;opacity:0.85;">We use cookies to improve the site and measure performance. You can accept or reject analytics and ads.</span>
+                                </div>
+                                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                                        <button id="consent-reject" style="background:#374151;color:#f9fafb;border:0;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;">Reject</button>
+                                        <button id="consent-accept" style="background:#6366f1;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;">Accept</button>
+                                </div>
+                        </div>
+                </div>
+        </div>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
+        <script>
+            (function () {
+                var banner = document.getElementById('consent-banner');
+                if (!banner) return;
+
+                var stored = localStorage.getItem('rw_consent');
+                var applyConsent = function (consent) {
+                    if (typeof gtag === 'function') {
+                        gtag('consent', 'update', consent);
+                    }
+                };
+
+                if (stored) {
+                    try {
+                        applyConsent(JSON.parse(stored));
+                    } catch (_) {
+                        localStorage.removeItem('rw_consent');
+                        banner.style.display = 'block';
+                    }
+                    return;
+                }
+
+                banner.style.display = 'block';
+
+                var acceptBtn = document.getElementById('consent-accept');
+                var rejectBtn = document.getElementById('consent-reject');
+
+                var accept = function () {
+                    var consent = {
+                        ad_storage: 'granted',
+                        analytics_storage: 'granted',
+                        ad_user_data: 'granted',
+                        ad_personalization: 'granted'
+                    };
+                    localStorage.setItem('rw_consent', JSON.stringify(consent));
+                    applyConsent(consent);
+                    banner.style.display = 'none';
+                };
+
+                var reject = function () {
+                    var consent = {
+                        ad_storage: 'denied',
+                        analytics_storage: 'denied',
+                        ad_user_data: 'denied',
+                        ad_personalization: 'denied'
+                    };
+                    localStorage.setItem('rw_consent', JSON.stringify(consent));
+                    applyConsent(consent);
+                    banner.style.display = 'none';
+                };
+
+                if (acceptBtn) acceptBtn.addEventListener('click', accept);
+                if (rejectBtn) rejectBtn.addEventListener('click', reject);
+            })();
+        </script>
 </body>
 </html>
