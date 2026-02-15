@@ -35,12 +35,16 @@ export function useAiUsage(): AiUsageInfo {
     }
     try {
       const today = new Date().toISOString().split('T')[0];
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('ai_usage')
         .select('message_count, quest_gen_count')
         .eq('user_id', profile.id)
         .eq('usage_date', today)
-        .single();
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('fetchUsage Supabase error:', error.message, error);
+      }
 
       if (data) {
         setMessagesUsed(data.message_count || 0);
@@ -49,11 +53,13 @@ export function useAiUsage(): AiUsageInfo {
         setMessagesUsed(0);
         setQuestGensUsed(0);
       }
-    } catch {
+    } catch (err) {
+      console.error('fetchUsage exception:', err);
       setMessagesUsed(0);
       setQuestGensUsed(0);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [profile?.id]);
 
   useEffect(() => {

@@ -108,11 +108,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchProfile(session.user);
+        // Avoid UI hanging on refresh while profile fetch runs
+        setProfile(normalizeProfile(null, session.user));
+        void fetchProfile(session.user);
       }
       setLoading(false);
     }).catch((err) => {
@@ -126,6 +128,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
+          // Provide an immediate fallback profile during refresh
+          setProfile(normalizeProfile(null, session.user));
           await fetchProfile(session.user);
         } else {
           setProfile(null);
