@@ -45,6 +45,7 @@ export function useQuests() {
         title: q.title,
         description: q.description ?? '',
         category: q.category,
+        communityId: q.community_id ?? undefined,
         status: q.status,
         questType: q.quest_type ?? 'solo',
         isVirtual: q.is_virtual ?? false,
@@ -68,12 +69,32 @@ export function useQuests() {
     fetchQuests();
   }, [fetchQuests]);
 
-  // Join quest as learner (adds quest_member with role='learner', status='active')
+  // Join quest as learner
   const joinQuest = async (questId: string, userId: string) => {
     // Check if already a member
     const quest = quests.find((q) => q.id === questId);
     if (quest && quest.participants.includes(userId)) {
       return { error: 'Already joined this quest' };
+    }
+
+    // If this is a community quest, user must be a member of that community
+    const { data: questRow } = await supabase
+      .from('quests')
+      .select('community_id')
+      .eq('id', questId)
+      .maybeSingle();
+
+    if (questRow?.community_id) {
+      const { data: memberRow } = await supabase
+        .from('community_members')
+        .select('community_id')
+        .eq('community_id', questRow.community_id)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (!memberRow) {
+        return { error: 'This is a community quest. Join the community first to participate.' };
+      }
     }
 
     // Enforce quest limit based on plan
@@ -85,12 +106,12 @@ export function useQuests() {
     
     const plan = (profileData?.plan as Plan) || 'free';
     
-    // Count active quest memberships (status = 'in_progress')
+    // Count active quest memberships
     const { data: activeMemberships } = await supabase
       .from('quest_members')
       .select('id')
       .eq('user_id', userId)
-      .eq('status', 'in_progress');
+      .in('status', ['accepted', 'in_progress']);
     
     const activeCount = activeMemberships?.length ?? 0;
     if (!canJoinQuest(plan, activeCount)) {
@@ -102,10 +123,9 @@ export function useQuests() {
       quest_id: questId,
       user_id: userId,
       role: 'learner',
-      status: 'active',
-      joined_at: new Date().toISOString(),
+      status: 'accepted',
       proof_submitted: null,
-      proof_verified: false,
+      xp_awarded: false,
     });
 
     if (!error) {
@@ -126,7 +146,7 @@ export function useQuests() {
       .from('quest_members')
       .update({
         proof_submitted: proofData,
-        proof_submitted_at: new Date().toISOString(),
+        status: 'in_progress',
       })
       .eq('quest_id', questId)
       .eq('user_id', userId);
@@ -138,7 +158,7 @@ export function useQuests() {
   };
 
   // Verify proof and award XP (mentor/creator workflow)
-  const verifyProof = async (questId: string, userId: string, verified: boolean) => {
+  const verifyProof = async (questId: string, userId: string, verified: boolean, verifierId?: string) => {
     if (verified) {
       // Award XP atomically via RPC
       const quest = quests.find((q) => q.id === questId);
@@ -150,9 +170,10 @@ export function useQuests() {
     const { error } = await supabase
       .from('quest_members')
       .update({
-        proof_verified: verified,
-        proof_verified_at: new Date().toISOString(),
-        status: verified ? 'completed' : 'needs_revision',
+        proof_verified_by: verified ? (verifierId ?? userId) : null,
+        proof_verified_at: verified ? new Date().toISOString() : null,
+        xp_awarded: verified,
+        status: verified ? 'completed' : 'in_progress',
       })
       .eq('quest_id', questId)
       .eq('user_id', userId);
@@ -171,6 +192,7 @@ export function useQuests() {
         title: questData.title,
         description: questData.description,
         category: questData.category,
+        community_id: questData.community_id ?? null,
         quest_type: questData.quest_type ?? 'solo',
         is_virtual: questData.is_virtual ?? false,
         location: questData.location ?? null,
@@ -183,13 +205,42 @@ export function useQuests() {
         image_url: questData.image_url ?? null,
         steps: questData.steps ?? [],
         created_by: questData.created_by ?? null,
-        status: 'draft',
+        status: questData.status ?? 'draft',
       })
       .select()
       .single();
 
     if (data && !error) {
-      const newQuest = { ...data, participants: [] } as Quest;
+      if (data.created_by) {
+        await supabase.from('quest_members').upsert({
+          quest_id: data.id,
+          user_id: data.created_by,
+          role: 'creator',
+          status: 'accepted',
+          proof_submitted: null,
+          xp_awarded: false,
+        });
+      }
+
+      const newQuest = {
+        id: data.id,
+        title: data.title,
+        description: data.description ?? '',
+        category: data.category,
+        communityId: data.community_id ?? undefined,
+        status: data.status,
+        questType: data.quest_type ?? 'solo',
+        isVirtual: data.is_virtual ?? false,
+        location: data.location ?? undefined,
+        skillsRequired: data.skills_required ?? [],
+        ageRangeMin: data.age_range_min ?? undefined,
+        ageRangeMax: data.age_range_max ?? undefined,
+        participants: data.created_by ? [data.created_by] : [],
+        rewardXP: data.reward_xp ?? 0,
+        imageUrl: data.image_url ?? undefined,
+        steps: data.steps ?? [],
+        createdBy: data.created_by ?? undefined,
+      } as Quest;
       setQuests((prev) => [newQuest, ...prev]);
       return newQuest;
     }

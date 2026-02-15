@@ -4,7 +4,8 @@ import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../services/supabase';
-import { Community, CommunityMember, Profile, Quest } from '../types';
+import { RootwiseAIService } from '../services/geminiService';
+import { Community, CommunityMember, DbQuest, Profile } from '../types';
 
 type Tab = 'overview' | 'members' | 'quests' | 'activity' | 'chat';
 
@@ -39,12 +40,14 @@ const CommunityDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { showToast } = useToast();
+  const supabaseAny = supabase as any;
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const aiService = useRef(new RootwiseAIService());
 
   const [community, setCommunity] = useState<Community | null>(null);
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<MemberWithProfile[]>([]);
-  const [quests, setQuests] = useState<Quest[]>([]);
+  const [quests, setQuests] = useState<DbQuest[]>([]);
   const [activities, setActivities] = useState<ActivityEvent[]>([]);
   const [messages, setMessages] = useState<CommunityMessage[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('overview');
@@ -55,6 +58,7 @@ const CommunityDetailPage: React.FC = () => {
   const [skillFilter, setSkillFilter] = useState('');
   const [messageInput, setMessageInput] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [generatingCommunityQuest, setGeneratingCommunityQuest] = useState(false);
   const [allSkills, setAllSkills] = useState<string[]>([]);
 
   useEffect(() => {
@@ -221,7 +225,7 @@ const CommunityDetailPage: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (questsData) {
-        setQuests(questsData as Quest[]);
+        setQuests(questsData as DbQuest[]);
       }
 
       // Fetch activity feed
@@ -231,7 +235,7 @@ const CommunityDetailPage: React.FC = () => {
       await fetchMessages();
     } catch (error) {
       console.error('Error fetching community details:', error);
-      showToast('Error loading community details', 'error');
+      showToast('error', 'Error loading community details');
     } finally {
       setLoading(false);
     }
@@ -242,13 +246,13 @@ const CommunityDetailPage: React.FC = () => {
 
     const { data } = await supabase
       .from('activity_feed')
-      .select('*, profiles(*)')
+      .select('*, user:user_id(id, name, avatar_url, role)')
       .eq('community_id', communityId)
       .order('created_at', { ascending: false })
       .limit(20);
 
     if (data) {
-      setActivities(data as ActivityEvent[]);
+      setActivities((data as any[]).map((item) => ({ ...item, profile: item.user })) as ActivityEvent[]);
     }
   };
 
@@ -257,13 +261,120 @@ const CommunityDetailPage: React.FC = () => {
 
     const { data } = await supabase
       .from('community_messages')
-      .select('*, profiles(*)')
+      .select('*, user:user_id(id, name, avatar_url, role)')
       .eq('community_id', communityId)
       .order('created_at', { ascending: true })
       .limit(50);
 
     if (data) {
-      setMessages(data as CommunityMessage[]);
+      setMessages((data as any[]).map((item) => ({ ...item, profile: item.user })) as CommunityMessage[]);
+    }
+  };
+
+  const handleGenerateCommunityQuest = async () => {
+    if (!profile) {
+      navigate('/auth');
+      return;
+    }
+
+    if (!communityId || !community) return;
+
+    if (!isMember) {
+      showToast('info', 'Join this community to generate a community quest.');
+      return;
+    }
+
+    setGeneratingCommunityQuest(true);
+    try {
+      const topic = `${community.name} ${community.category} community collaboration`;
+      const generated = await aiService.current.generateQuest(topic, profile.role);
+
+      if (!generated || generated.error) {
+        showToast('error', generated?.error || 'Could not generate a community quest right now.');
+        return;
+      }
+
+      let imageUrl: string | null = null;
+      try {
+        const imageBase64 = await aiService.current.generateQuestImage(
+          generated.title,
+          generated.description,
+          generated.category
+        );
+
+        if (imageBase64) {
+          const fileName = `community-quest-${Date.now()}.png`;
+          const base64Data = imageBase64.replace('data:image/png;base64,', '');
+          const binaryString = atob(base64Data);
+          const bytes = new Uint8Array(binaryString.length);
+
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('profile-media')
+            .upload(`quest-images/${profile.id}/${fileName}`, bytes, {
+              contentType: 'image/png',
+            });
+
+          if (!uploadError && uploadData) {
+            const { data: publicUrlData } = supabase.storage
+              .from('profile-media')
+              .getPublicUrl(uploadData.path);
+            imageUrl = publicUrlData.publicUrl;
+          }
+        }
+      } catch (imageError) {
+        console.warn('Community quest image generation failed:', imageError);
+      }
+
+      const { data: createdQuest, error: questError } = await supabaseAny
+        .from('quests')
+        .insert({
+          title: generated.title,
+          description: generated.description,
+          category: generated.category,
+          community_id: communityId,
+          quest_type: 'team',
+          is_virtual: true,
+          reward_xp: 200,
+          steps: generated.steps ?? [],
+          created_by: profile.id,
+          status: 'published',
+          image_url: imageUrl,
+        })
+        .select('id, title')
+        .single();
+
+      if (questError || !createdQuest) {
+        throw questError || new Error('Quest insert failed');
+      }
+
+      await supabaseAny.from('quest_members').upsert({
+        quest_id: createdQuest.id,
+        user_id: profile.id,
+        role: 'creator',
+        status: 'accepted',
+        proof_submitted: null,
+        xp_awarded: false,
+      });
+
+      await supabaseAny.from('activity_feed').insert({
+        user_id: profile.id,
+        community_id: communityId,
+        activity_type: 'post',
+        title: `${profile.name} created a community quest: ${createdQuest.title}`,
+      });
+
+      await fetchCommunityDetails();
+      setActiveTab('quests');
+      showToast('success', `Community quest "${createdQuest.title}" generated! Members can now join.`);
+    } catch (error) {
+      console.error('Error generating community quest:', error);
+      showToast('error', 'Failed to generate a community quest. Please try again.');
+    } finally {
+      setGeneratingCommunityQuest(false);
     }
   };
 
@@ -272,7 +383,7 @@ const CommunityDetailPage: React.FC = () => {
 
     setJoiningCommunity(true);
     try {
-      const { error } = await supabase.from('community_members').insert({
+      const { error } = await supabaseAny.from('community_members').insert({
         community_id: communityId,
         user_id: profile.id,
       });
@@ -280,10 +391,10 @@ const CommunityDetailPage: React.FC = () => {
       if (error) throw error;
 
       setIsMember(true);
-      showToast('Joined community!', 'success');
+      showToast('success', 'Joined community!');
 
       // Log activity
-      await supabase.from('activity_feed').insert({
+      await supabaseAny.from('activity_feed').insert({
         user_id: profile.id,
         community_id: communityId,
         activity_type: 'joined_community',
@@ -291,7 +402,7 @@ const CommunityDetailPage: React.FC = () => {
       });
     } catch (error) {
       console.error('Error joining community:', error);
-      showToast('Error joining community', 'error');
+      showToast('error', 'Error joining community');
     } finally {
       setJoiningCommunity(false);
     }
@@ -311,10 +422,10 @@ const CommunityDetailPage: React.FC = () => {
       if (error) throw error;
 
       setIsMember(false);
-      showToast('Left community', 'success');
+      showToast('success', 'Left community');
     } catch (error) {
       console.error('Error leaving community:', error);
-      showToast('Error leaving community', 'error');
+      showToast('error', 'Error leaving community');
     } finally {
       setJoiningCommunity(false);
     }
@@ -324,7 +435,7 @@ const CommunityDetailPage: React.FC = () => {
     if (!profile?.id) return;
 
     try {
-      const { error } = await supabase.from('followers').insert({
+      const { error } = await supabaseAny.from('followers').insert({
         follower_id: profile.id,
         user_id: userId,
       });
@@ -336,7 +447,7 @@ const CommunityDetailPage: React.FC = () => {
           m.user_id === userId ? { ...m, isFollowing: true } : m
         )
       );
-      showToast('Following member', 'success');
+      showToast('success', 'Following member');
     } catch (error) {
       console.error('Error following member:', error);
     }
@@ -359,7 +470,7 @@ const CommunityDetailPage: React.FC = () => {
           m.user_id === userId ? { ...m, isFollowing: false } : m
         )
       );
-      showToast('Unfollowed member', 'success');
+      showToast('success', 'Unfollowed member');
     } catch (error) {
       console.error('Error unfollowing member:', error);
     }
@@ -369,7 +480,7 @@ const CommunityDetailPage: React.FC = () => {
     if (!profile?.id) return;
 
     try {
-      const { error } = await supabase.from('friendships').insert({
+      const { error } = await supabaseAny.from('friendships').insert({
         user_id_a: profile.id,
         user_id_b: userId,
       });
@@ -381,7 +492,7 @@ const CommunityDetailPage: React.FC = () => {
           m.user_id === userId ? { ...m, isFriend: true } : m
         )
       );
-      showToast('Added as friend!', 'success');
+      showToast('success', 'Added as friend!');
     } catch (error) {
       console.error('Error adding friend:', error);
     }
@@ -392,7 +503,7 @@ const CommunityDetailPage: React.FC = () => {
 
     setSendingMessage(true);
     try {
-      const { error } = await supabase.from('community_messages').insert({
+      const { error } = await supabaseAny.from('community_messages').insert({
         community_id: communityId,
         user_id: profile.id,
         content: messageInput,
@@ -404,7 +515,7 @@ const CommunityDetailPage: React.FC = () => {
       await fetchMessages();
     } catch (error) {
       console.error('Error sending message:', error);
-      showToast('Error sending message', 'error');
+      showToast('error', 'Error sending message');
     } finally {
       setSendingMessage(false);
     }
@@ -643,15 +754,32 @@ const CommunityDetailPage: React.FC = () => {
           {/* Quests Tab */}
           {activeTab === 'quests' && (
             <div className="space-y-4">
+              {isMember && (
+                <div className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-gray-900">Create a community quest</p>
+                    <p className="text-sm text-gray-600">Generates a team quest linked to this community so members can join.</p>
+                  </div>
+                  <button
+                    onClick={handleGenerateCommunityQuest}
+                    disabled={generatingCommunityQuest}
+                    className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 disabled:opacity-50"
+                  >
+                    {generatingCommunityQuest ? 'Generating...' : '✨ Generate Community Quest'}
+                  </button>
+                </div>
+              )}
+
               {quests.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                   <p className="text-gray-600 mb-4">No quests in this community yet</p>
                   {isMember && (
                     <button
-                      onClick={() => navigate('/quests')}
+                      onClick={handleGenerateCommunityQuest}
+                      disabled={generatingCommunityQuest}
                       className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
                     >
-                      Create a Quest
+                      {generatingCommunityQuest ? 'Generating...' : '✨ Generate First Community Quest'}
                     </button>
                   )}
                 </div>

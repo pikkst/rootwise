@@ -157,6 +157,7 @@ export interface DbQuest {
   title: string;
   description: string | null;
   category: string;
+  community_id?: string | null;
   status: 'draft' | 'published' | 'matched' | 'in_progress' | 'submitted' | 'verified' | 'completed';
   quest_type: 'duo' | 'team' | 'solo';
   is_virtual: boolean;
@@ -180,6 +181,7 @@ export interface Quest {
   title: string;
   description: string;
   category: string;
+  communityId?: string;
   status: 'draft' | 'published' | 'matched' | 'in_progress' | 'submitted' | 'verified' | 'completed';
   questType: 'duo' | 'team' | 'solo';
   isVirtual: boolean;
