@@ -9,6 +9,8 @@ import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import QuestsPage from './pages/QuestsPage';
+import QuestDiscoveryPage from './pages/QuestDiscoveryPage';
+import QuestDetailPage from './pages/QuestDetailPage';
 import CommunityPage from './pages/CommunityPage';
 import AiNexusPage from './pages/AiNexusPage';
 import ProfilePage from './pages/ProfilePage';
@@ -55,6 +57,8 @@ const AppRoutes: React.FC = () => {
             }
           />
           <Route path="/quests" element={<QuestsPage />} />
+          <Route path="/quests/:questId" element={<QuestDetailPage />} />
+          <Route path="/quest-discovery" element={<QuestDiscoveryPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route
             path="/ai-nexus"
