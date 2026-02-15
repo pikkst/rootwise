@@ -22,10 +22,14 @@ export function useQuests() {
     if (questsData) {
       // Fetch all participants for these quests
       const questIds = questsData.map((q: DbQuest) => q.id);
-      const { data: participants } = await supabase
-        .from('quest_participants')
-        .select('quest_id, user_id')
-        .in('quest_id', questIds);
+      let participants: { quest_id: string; user_id: string }[] | null = null;
+      if (questIds.length > 0) {
+        const { data } = await supabase
+          .from('quest_participants')
+          .select('quest_id, user_id')
+          .in('quest_id', questIds);
+        participants = data;
+      }
 
       const participantMap: Record<string, string[]> = {};
       (participants ?? []).forEach((p: { quest_id: string; user_id: string }) => {
