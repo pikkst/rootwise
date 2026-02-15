@@ -380,6 +380,187 @@ DO $$ BEGIN
 END $$;
 
 -- ============================================================
+-- 9. Enhanced Quest System with Matching & Collaboration
+-- ============================================================
+
+-- Add new columns to existing quests table
+ALTER TABLE quests
+  ADD COLUMN IF NOT EXISTS quest_type TEXT CHECK (quest_type IN ('duo', 'team', 'solo')) DEFAULT 'duo',
+  ADD COLUMN IF NOT EXISTS is_virtual BOOLEAN DEFAULT false,
+  ADD COLUMN IF NOT EXISTS location TEXT,
+  ADD COLUMN IF NOT EXISTS address_lat DECIMAL(10,8),
+  ADD COLUMN IF NOT EXISTS address_lng DECIMAL(11,8),
+  ADD COLUMN IF NOT EXISTS skills_required TEXT[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS age_range_min INTEGER,
+  ADD COLUMN IF NOT EXISTS age_range_max INTEGER,
+  ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('draft', 'published', 'matched', 'in_progress', 'submitted', 'verified', 'completed')) DEFAULT 'draft';
+
+-- Quest Members (replaces simple quest_participants with roles)
+CREATE TABLE IF NOT EXISTS quest_members (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  quest_id UUID REFERENCES quests(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  role TEXT CHECK (role IN ('creator', 'mentor', 'learner')) NOT NULL,
+  status TEXT CHECK (status IN ('invited', 'accepted', 'declined', 'in_progress', 'completed')) DEFAULT 'accepted',
+  proof_submitted JSONB,
+  proof_verified_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  proof_verified_at TIMESTAMPTZ,
+  xp_awarded BOOLEAN DEFAULT false,
+  joined_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(quest_id, user_id)
+);
+
+ALTER TABLE quest_members ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_members' AND policyname = 'Quest members are viewable by everyone') THEN
+    CREATE POLICY "Quest members are viewable by everyone" ON quest_members
+      FOR SELECT USING (true);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_members' AND policyname = 'Users can join quests') THEN
+    CREATE POLICY "Users can join quests" ON quest_members
+      FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_members' AND policyname = 'Users can update own quest membership') THEN
+    CREATE POLICY "Users can update own quest membership" ON quest_members
+      FOR UPDATE USING (auth.uid() = user_id OR auth.uid() = proof_verified_by);
+  END IF;
+END $$;
+
+-- Quest Workspace: Messages & Collaboration
+CREATE TABLE IF NOT EXISTS quest_messages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  quest_id UUID REFERENCES quests(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  content TEXT NOT NULL,
+  attachments JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE quest_messages ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_messages' AND policyname = 'Quest members can read messages') THEN
+    CREATE POLICY "Quest members can read messages" ON quest_messages
+      FOR SELECT USING (
+        quest_id IN (SELECT quest_id FROM quest_members WHERE user_id = auth.uid())
+      );
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_messages' AND policyname = 'Quest members can post messages') THEN
+    CREATE POLICY "Quest members can post messages" ON quest_messages
+      FOR INSERT WITH CHECK (
+        auth.uid() = user_id
+        AND quest_id IN (SELECT quest_id FROM quest_members WHERE user_id = auth.uid())
+      );
+  END IF;
+END $$;
+
+-- Quest Files (images, videos, documents)
+CREATE TABLE IF NOT EXISTS quest_files (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  quest_id UUID REFERENCES quests(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  file_url TEXT NOT NULL,
+  file_name TEXT,
+  file_type TEXT,
+  uploaded_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE quest_files ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_files' AND policyname = 'Quest members can view files') THEN
+    CREATE POLICY "Quest members can view files" ON quest_files
+      FOR SELECT USING (
+        quest_id IN (SELECT quest_id FROM quest_members WHERE user_id = auth.uid())
+      );
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_files' AND policyname = 'Users can upload quest files') THEN
+    CREATE POLICY "Users can upload quest files" ON quest_files
+      FOR INSERT WITH CHECK (
+        auth.uid() = user_id
+        AND quest_id IN (SELECT quest_id FROM quest_members WHERE user_id = auth.uid())
+      );
+  END IF;
+END $$;
+
+-- Quest Milestones (progress tracking)
+CREATE TABLE IF NOT EXISTS quest_milestones (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  quest_id UUID REFERENCES quests(id) ON DELETE CASCADE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  status TEXT CHECK (status IN ('pending', 'completed')) DEFAULT 'pending',
+  completed_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  ordering INTEGER DEFAULT 0
+);
+
+ALTER TABLE quest_milestones ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_milestones' AND policyname = 'Quest members can view milestones') THEN
+    CREATE POLICY "Quest members can view milestones" ON quest_milestones
+      FOR SELECT USING (
+        quest_id IN (SELECT quest_id FROM quest_members WHERE user_id = auth.uid())
+      );
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_milestones' AND policyname = 'Users can update milestones') THEN
+    CREATE POLICY "Users can update milestones" ON quest_milestones
+      FOR UPDATE USING (
+        quest_id IN (SELECT quest_id FROM quest_members WHERE user_id = auth.uid())
+      );
+  END IF;
+END $$;
+
+-- Quest Matching: Smart suggestions
+CREATE TABLE IF NOT EXISTS quest_matches (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  quest_id UUID REFERENCES quests(id) ON DELETE CASCADE NOT NULL,
+  proposed_user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  match_score NUMERIC(3,2),
+  match_reason TEXT,
+  status TEXT CHECK (status IN ('suggested', 'invited', 'accepted', 'declined')) DEFAULT 'suggested',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(quest_id, proposed_user_id)
+);
+
+ALTER TABLE quest_matches ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_matches' AND policyname = 'Users can view own matches') THEN
+    CREATE POLICY "Users can view own matches" ON quest_matches
+      FOR SELECT USING (auth.uid() = proposed_user_id OR auth.uid() IN (
+        SELECT created_by FROM quests WHERE id = quest_id
+      ));
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_matches' AND policyname = 'Users can update own match status') THEN
+    CREATE POLICY "Users can update own match status" ON quest_matches
+      FOR UPDATE USING (auth.uid() = proposed_user_id);
+  END IF;
+END $$;
+
+-- ============================================================
 -- 9. Storage policies for profile media
 -- ============================================================
 INSERT INTO storage.buckets (id, name, public)

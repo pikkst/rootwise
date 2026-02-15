@@ -16,11 +16,6 @@ export interface Database {
         Insert: Partial<DbQuest>;
         Update: Partial<DbQuest>;
       };
-      quest_participants: {
-        Row: QuestParticipant;
-        Insert: Omit<QuestParticipant, 'joined_at'>;
-        Update: Partial<QuestParticipant>;
-      };
       communities: {
         Row: Community;
         Insert: Partial<Community>;
@@ -65,6 +60,31 @@ export interface Database {
         Row: Friendship;
         Insert: Omit<Friendship, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Friendship>;
+      };
+      quest_members: {
+        Row: QuestMember;
+        Insert: Omit<QuestMember, 'id' | 'joined_at'>;
+        Update: Partial<QuestMember>;
+      };
+      quest_messages: {
+        Row: QuestMessage;
+        Insert: Omit<QuestMessage, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<QuestMessage>;
+      };
+      quest_files: {
+        Row: QuestFile;
+        Insert: Omit<QuestFile, 'id' | 'uploaded_at'>;
+        Update: Partial<QuestFile>;
+      };
+      quest_milestones: {
+        Row: QuestMilestone;
+        Insert: Omit<QuestMilestone, 'id' | 'created_at'>;
+        Update: Partial<QuestMilestone>;
+      };
+      quest_matches: {
+        Row: QuestMatch;
+        Insert: Omit<QuestMatch, 'id' | 'created_at'>;
+        Update: Partial<QuestMatch>;
       };
     };
     Views: {
@@ -132,7 +152,15 @@ export interface DbQuest {
   title: string;
   description: string | null;
   category: string;
-  status: 'active' | 'completed' | 'pending';
+  status: 'draft' | 'published' | 'matched' | 'in_progress' | 'submitted' | 'verified' | 'completed';
+  quest_type: 'duo' | 'team' | 'solo';
+  is_virtual: boolean;
+  location: string | null;
+  address_lat: number | null;
+  address_lng: number | null;
+  skills_required: string[];
+  age_range_min: number | null;
+  age_range_max: number | null;
   reward_xp: number;
   image_url: string | null;
   steps: string[];
@@ -141,20 +169,19 @@ export interface DbQuest {
   updated_at: string;
 }
 
-export interface QuestParticipant {
-  quest_id: string;
-  user_id: string;
-  completed: boolean;
-  joined_at: string;
-}
-
 /** Enriched Quest with participant list (used in UI) */
 export interface Quest {
   id: string;
   title: string;
   description: string;
   category: string;
-  status: 'active' | 'completed' | 'pending';
+  status: 'draft' | 'published' | 'matched' | 'in_progress' | 'submitted' | 'verified' | 'completed';
+  questType: 'duo' | 'team' | 'solo';
+  isVirtual: boolean;
+  location?: string;
+  skillsRequired?: string[];
+  ageRangeMin?: number;
+  ageRangeMax?: number;
   participants: string[];
   rewardXP: number;
   imageUrl?: string;
@@ -162,21 +189,68 @@ export interface Quest {
   createdBy?: string;
 }
 
-/** Convert DB quest + participants to UI Quest */
-export function dbQuestToQuest(q: DbQuest, participantIds: string[]): Quest {
-  return {
-    id: q.id,
-    title: q.title,
-    description: q.description ?? '',
-    category: q.category,
-    status: q.status,
-    participants: participantIds,
-    rewardXP: q.reward_xp,
-    imageUrl: q.image_url ?? undefined,
-    steps: q.steps,
-    createdBy: q.created_by ?? undefined,
-  };
+/** Quest Member with role and proof tracking */
+export interface QuestMember {
+  id: string;
+  quest_id: string;
+  user_id: string;
+  role: 'creator' | 'mentor' | 'learner';
+  status: 'invited' | 'accepted' | 'declined' | 'in_progress' | 'completed';
+  proof_submitted: { type: 'photo' | 'video' | 'text'; content: string } | null;
+  proof_verified_by: string | null;
+  proof_verified_at: string | null;
+  xp_awarded: boolean;
+  joined_at: string;
 }
+
+/** Quest Messages for collaboration */
+export interface QuestMessage {
+  id: string;
+  quest_id: string;
+  user_id: string;
+  content: string;
+  attachments: { url: string; type: string }[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Quest Files (uploads) */
+export interface QuestFile {
+  id: string;
+  quest_id: string;
+  user_id: string;
+  file_url: string;
+  file_name: string | null;
+  file_type: string | null;
+  uploaded_at: string;
+}
+
+/** Quest Milestones */
+export interface QuestMilestone {
+  id: string;
+  quest_id: string;
+  title: string;
+  description: string | null;
+  status: 'pending' | 'completed';
+  completed_by: string | null;
+  completed_at: string | null;
+  created_at: string;
+  ordering: number;
+}
+
+/** Smart Matching Suggestion */
+export interface QuestMatch {
+  id: string;
+  quest_id: string;
+  proposed_user_id: string;
+  match_score: number;
+  match_reason: string | null;
+  status: 'suggested' | 'invited' | 'accepted' | 'declined';
+  created_at: string;
+}
+
+/** Convert DB quest + participants to UI Quest */
+
 
 export interface Community {
   id: string;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
-import { Quest, dbQuestToQuest, DbQuest } from '../types';
+import { Quest, DbQuest, QuestMember } from '../types';
 import { canJoinQuest } from '../services/planService';
 import { Plan } from '../services/stripeService';
 
@@ -9,6 +9,7 @@ export function useQuests() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('All');
 
+  // Fetch quests with members count
   const fetchQuests = useCallback(async () => {
     setLoading(true);
 
@@ -20,26 +21,30 @@ export function useQuests() {
     const { data: questsData } = await query.order('created_at', { ascending: false });
 
     if (questsData) {
-      // Fetch all participants for these quests
+      // Fetch all members for these quests to get participant list
       const questIds = questsData.map((q: DbQuest) => q.id);
-      let participants: { quest_id: string; user_id: string }[] | null = null;
+      let members: QuestMember[] = [];
       if (questIds.length > 0) {
-        const { data } = await supabase
-          .from('quest_participants')
+        const { data: membersData } = await supabase
+          .from('quest_members')
           .select('quest_id, user_id')
           .in('quest_id', questIds);
-        participants = data;
+        members = membersData ?? [];
       }
 
+      // Build participant map
       const participantMap: Record<string, string[]> = {};
-      (participants ?? []).forEach((p: { quest_id: string; user_id: string }) => {
-        if (!participantMap[p.quest_id]) participantMap[p.quest_id] = [];
-        participantMap[p.quest_id].push(p.user_id);
+      members.forEach((m: QuestMember) => {
+        if (!participantMap[m.quest_id]) participantMap[m.quest_id] = [];
+        participantMap[m.quest_id].push(m.user_id);
       });
 
-      const enriched = questsData.map((q: DbQuest) =>
-        dbQuestToQuest(q, participantMap[q.id] || [])
-      );
+      // Convert DbQuest to Quest with participants list
+      const enriched = questsData.map((q: DbQuest) => ({
+        ...q,
+        participants: participantMap[q.id] || [],
+      } as Quest));
+      
       setQuests(enriched);
     }
     setLoading(false);
@@ -49,8 +54,9 @@ export function useQuests() {
     fetchQuests();
   }, [fetchQuests]);
 
+  // Join quest as learner (adds quest_member with role='learner', status='active')
   const joinQuest = async (questId: string, userId: string) => {
-    // Check if already a participant
+    // Check if already a member
     const quest = quests.find((q) => q.id === questId);
     if (quest && quest.participants.includes(userId)) {
       return { error: 'Already joined this quest' };
@@ -61,20 +67,33 @@ export function useQuests() {
       .from('profiles')
       .select('plan')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
+    
     const plan = (profileData?.plan as Plan) || 'free';
-    const activeCount = quests.filter(
-      (q) => q.participants.includes(userId) && q.status === 'active'
-    ).length;
+    
+    // Count active quest memberships (status = 'in_progress')
+    const { data: activeMemberships } = await supabase
+      .from('quest_members')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('status', 'in_progress');
+    
+    const activeCount = activeMemberships?.length ?? 0;
     if (!canJoinQuest(plan, activeCount)) {
       return { error: 'Free plan allows only 3 active quests. Upgrade to Pro for unlimited!' };
     }
 
-    const { error } = await supabase.from('quest_participants').insert({
+    // Add as member with learner role
+    const { error } = await supabase.from('quest_members').insert({
       quest_id: questId,
       user_id: userId,
-      completed: false,
+      role: 'learner',
+      status: 'active',
+      joined_at: new Date().toISOString(),
+      proof_submitted: null,
+      proof_verified: false,
     });
+
     if (!error) {
       setQuests((prev) =>
         prev.map((q) =>
@@ -87,68 +106,106 @@ export function useQuests() {
     return { error: error?.message ?? null };
   };
 
-  const completeQuest = async (questId: string, userId: string) => {
-    // Mark participant as completed
-    const { error: participantError } = await supabase
-      .from('quest_participants')
-      .update({ completed: true })
+  // Submit proof (learner workflow)
+  const submitProof = async (questId: string, userId: string, proofData: { type: 'text' | 'image' | 'video'; content: string }) => {
+    const { error } = await supabase
+      .from('quest_members')
+      .update({
+        proof_submitted: proofData,
+        proof_submitted_at: new Date().toISOString(),
+      })
       .eq('quest_id', questId)
       .eq('user_id', userId);
 
-    if (participantError) return { error: participantError.message };
-
-    // Award XP atomically via RPC
-    const quest = quests.find((q) => q.id === questId);
-    if (quest) {
-      await supabase.rpc('increment_xp', { p_user_id: userId, p_amount: quest.rewardXP });
+    if (!error) {
+      await fetchQuests();
     }
-
-    // Check if all participants completed — if so, mark quest as completed
-    const { data: participants } = await supabase
-      .from('quest_participants')
-      .select('completed')
-      .eq('quest_id', questId);
-
-    const allCompleted = participants && participants.length > 0 && participants.every((p: { completed: boolean }) => p.completed);
-    if (allCompleted) {
-      await supabase.from('quests').update({ status: 'completed' }).eq('id', questId);
-    }
-
-    setQuests((prev) =>
-      prev.map((q) =>
-        q.id === questId
-          ? { ...q, status: allCompleted ? ('completed' as const) : q.status }
-          : q
-      )
-    );
-
-    return { error: null };
+    return { error: error?.message ?? null };
   };
 
-  const createQuest = async (
-    quest: Omit<Quest, 'id' | 'participants' | 'status'>
-  ) => {
+  // Verify proof and award XP (mentor/creator workflow)
+  const verifyProof = async (questId: string, userId: string, verified: boolean) => {
+    if (verified) {
+      // Award XP atomically via RPC
+      const quest = quests.find((q) => q.id === questId);
+      if (quest) {
+        await supabase.rpc('increment_xp', { p_user_id: userId, p_amount: quest.reward_xp });
+      }
+    }
+
+    const { error } = await supabase
+      .from('quest_members')
+      .update({
+        proof_verified: verified,
+        proof_verified_at: new Date().toISOString(),
+        status: verified ? 'completed' : 'needs_revision',
+      })
+      .eq('quest_id', questId)
+      .eq('user_id', userId);
+
+    if (!error) {
+      await fetchQuests();
+    }
+    return { error: error?.message ?? null };
+  };
+
+  // Create quest (creator workflow)
+  const createQuest = async (questData: Omit<DbQuest, 'id' | 'created_at' | 'updated_at'>) => {
     const { data, error } = await supabase
       .from('quests')
       .insert({
-        title: quest.title,
-        description: quest.description,
-        category: quest.category,
-        reward_xp: quest.rewardXP,
-        image_url: quest.imageUrl ?? null,
-        steps: quest.steps ?? [],
-        created_by: quest.createdBy ?? null,
-        status: 'active',
+        title: questData.title,
+        description: questData.description,
+        category: questData.category,
+        quest_type: questData.quest_type ?? 'solo',
+        is_virtual: questData.is_virtual ?? false,
+        location: questData.location ?? null,
+        address_lat: questData.address_lat ?? null,
+        address_lng: questData.address_lng ?? null,
+        skills_required: questData.skills_required ?? [],
+        age_range_min: questData.age_range_min ?? null,
+        age_range_max: questData.age_range_max ?? null,
+        reward_xp: questData.reward_xp ?? 0,
+        image_url: questData.image_url ?? null,
+        steps: questData.steps ?? [],
+        created_by: questData.created_by ?? null,
+        status: 'draft',
       })
       .select()
       .single();
 
     if (data && !error) {
-      const newQuest = dbQuestToQuest(data as DbQuest, []);
+      const newQuest = { ...data, participants: [] } as Quest;
       setQuests((prev) => [newQuest, ...prev]);
       return newQuest;
     }
     return null;
+  };
+
+  // Publish quest (transition from draft to published)
+  const publishQuest = async (questId: string) => {
+    const { error } = await supabase
+      .from('quests')
+      .update({ status: 'published' })
+      .eq('id', questId);
+
+    if (!error) {
+      await fetchQuests();
+    }
+    return { error: error?.message ?? null };
+  };
+
+  // Start quest (transition to in_progress)
+  const startQuest = async (questId: string) => {
+    const { error } = await supabase
+      .from('quests')
+      .update({ status: 'in_progress' })
+      .eq('id', questId);
+
+    if (!error) {
+      await fetchQuests();
+    }
+    return { error: error?.message ?? null };
   };
 
   return {
@@ -158,7 +215,10 @@ export function useQuests() {
     setFilter,
     fetchQuests,
     joinQuest,
-    completeQuest,
+    submitProof,
+    verifyProof,
     createQuest,
+    publishQuest,
+    startQuest,
   };
 }

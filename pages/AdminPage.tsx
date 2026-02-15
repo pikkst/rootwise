@@ -140,9 +140,9 @@ const AdminPage: React.FC = () => {
     const allProfiles = profiles ?? [];
     const totalXp = allProfiles.reduce((sum: number, p: Profile) => sum + (p.xp || 0), 0);
 
-    // Get quests created by members
+    // Get quests created/joined by members
     const { count: questCount } = await supabase
-      .from('quest_participants')
+      .from('quest_members')
       .select('*', { count: 'exact', head: true })
       .in('user_id', memberUserIds);
 
