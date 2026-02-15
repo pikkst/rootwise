@@ -86,6 +86,11 @@ export interface Database {
         Insert: Omit<QuestMatch, 'id' | 'created_at'>;
         Update: Partial<QuestMatch>;
       };
+      xp_history: {
+        Row: XpHistoryEntry;
+        Insert: Omit<XpHistoryEntry, 'id' | 'created_at'>;
+        Update: Partial<XpHistoryEntry>;
+      };
     };
     Views: {
       community_with_member_count: {

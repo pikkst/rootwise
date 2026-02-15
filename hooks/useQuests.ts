@@ -41,8 +41,22 @@ export function useQuests() {
 
       // Convert DbQuest to Quest with participants list
       const enriched = questsData.map((q: DbQuest) => ({
-        ...q,
+        id: q.id,
+        title: q.title,
+        description: q.description ?? '',
+        category: q.category,
+        status: q.status,
+        questType: q.quest_type ?? 'solo',
+        isVirtual: q.is_virtual ?? false,
+        location: q.location ?? undefined,
+        skillsRequired: q.skills_required ?? [],
+        ageRangeMin: q.age_range_min ?? undefined,
+        ageRangeMax: q.age_range_max ?? undefined,
         participants: participantMap[q.id] || [],
+        rewardXP: q.reward_xp ?? 0,
+        imageUrl: q.image_url ?? undefined,
+        steps: q.steps ?? [],
+        createdBy: q.created_by ?? undefined,
       } as Quest));
       
       setQuests(enriched);
@@ -129,7 +143,7 @@ export function useQuests() {
       // Award XP atomically via RPC
       const quest = quests.find((q) => q.id === questId);
       if (quest) {
-        await supabase.rpc('increment_xp', { p_user_id: userId, p_amount: quest.reward_xp });
+        await supabase.rpc('increment_xp', { p_user_id: userId, p_amount: quest.rewardXP });
       }
     }
 
