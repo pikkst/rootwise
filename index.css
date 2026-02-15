@@ -1,8 +1,13 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* Custom styles */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.font-display {
+  font-family: 'Fraunces', serif;
 }
 
 .glass {
@@ -13,6 +18,10 @@ body {
 
 .gradient-bg {
   background: radial-gradient(circle at top left, #6366f1, #a855f7, #ec4899);
+}
+
+.landing-hero-bg {
+  background: radial-gradient(1200px circle at 10% 10%, #3b82f6 0%, #6d28d9 35%, #f97316 70%, #0f172a 100%);
 }
 
 @keyframes float {

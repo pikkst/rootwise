@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
-import { redirectToCheckout } from '../services/stripeService';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [ctaVariant, setCtaVariant] = useState<'start' | 'create'>('create');
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('cta_variant') as 'start' | 'create' | null;
+    if (stored) {
+      setCtaVariant(stored);
+      return;
+    }
+    const next = Math.random() < 0.5 ? 'start' : 'create';
+    sessionStorage.setItem('cta_variant', next);
+    setCtaVariant(next);
+  }, []);
+
+  const primaryCtaText = ctaVariant === 'start' ? 'Start Free →' : 'Create Account →';
 
   return (
     <div className="min-h-screen bg-white">
@@ -25,7 +37,7 @@ const LandingPage: React.FC = () => {
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
             <a href="#how-it-works" className="hover:text-indigo-600 transition-colors">How It Works</a>
             <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-indigo-600 transition-colors">Pricing</a>
+            <a href="#proof" className="hover:text-indigo-600 transition-colors">Community</a>
             <button onClick={() => navigate('/quests')} className="hover:text-indigo-600 transition-colors">Browse Quests</button>
           </div>
           <div className="flex items-center gap-3">
@@ -36,9 +48,10 @@ const LandingPage: React.FC = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-32 pb-24 gradient-bg text-white">
+      <section className="relative overflow-hidden pt-32 pb-24 landing-hero-bg text-white">
         <div className="absolute top-20 left-10 w-32 h-32 bg-white/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl animate-float-delayed"></div>
+        <div className="absolute bottom-10 right-16 w-56 h-56 bg-rose-400/20 rounded-full blur-3xl animate-float-delayed"></div>
+        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-[420px] h-[420px] bg-amber-300/10 rounded-full blur-3xl"></div>
         
         <div className="max-w-6xl mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -47,18 +60,18 @@ const LandingPage: React.FC = () => {
               <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest mb-6">
                 🌱 Free During Beta
               </div>
-              <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tighter">
-                Unlock the <br/> <span className="text-amber-300">World's Wisdom.</span>
+              <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight font-display">
+                Make wisdom <br/> <span className="text-amber-300">a shared quest.</span>
               </h1>
-              <p className="text-lg md:text-xl mb-8 text-indigo-100 max-w-lg font-medium leading-relaxed">
-                The platform where seniors share life wisdom and youth share digital skills. Together, through collaborative Quests and AI mentoring.
+              <p className="text-lg md:text-xl mb-8 text-indigo-100 max-w-xl font-medium leading-relaxed">
+                Rootwise pairs life experience with modern skills. Create your profile, join a quest, and grow with a mentor and a community that cares.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button 
                   onClick={() => navigate('/auth')}
                   className="px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black text-lg hover:scale-105 transition-all shadow-2xl hover:shadow-indigo-500/40"
                 >
-                  Start Free →
+                  {primaryCtaText}
                 </button>
                 <button 
                   onClick={() => {
@@ -71,8 +84,8 @@ const LandingPage: React.FC = () => {
               </div>
               <div className="mt-8 flex items-center gap-4 text-sm text-indigo-200">
                 <span className="flex items-center gap-1">✓ No credit card</span>
-                <span className="flex items-center gap-1">✓ AI mentor included</span>
-                <span className="flex items-center gap-1">✓ Free forever plan</span>
+                <span className="flex items-center gap-1">✓ Start in minutes</span>
+                <span className="flex items-center gap-1">✓ Core experience is free</span>
               </div>
             </div>
 
@@ -111,7 +124,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Social Proof Bar */}
-      <section className="py-8 bg-slate-50 border-b border-slate-200">
+      <section id="proof" className="py-10 bg-slate-50 border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-6 flex flex-wrap items-center justify-center gap-8 text-center">
           <div>
             <div className="text-2xl font-black text-slate-800">6+</div>
@@ -140,8 +153,8 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">How It Works</div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">Three steps to wisdom</h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto">From sign-up to meaningful connection in under 5 minutes</p>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Three steps to your first quest</h2>
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">From sign-up to meaningful connection in minutes</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -169,7 +182,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">Why Rootwise</div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">Fixing the Disconnect</h2>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Fixing the disconnect</h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">Society is fractured by age silos. Rootwise is the bridge.</p>
           </div>
 
@@ -198,7 +211,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">Platform</div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">Everything you need</h2>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Everything you need to start</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -226,95 +239,91 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-24 bg-slate-50">
+      {/* Conversion Section */}
+      <section className="py-24 bg-slate-50">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">Pricing</div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">Simple, transparent pricing</h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto">Start free, upgrade when you're ready. Currently in beta — all features are free!</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Free */}
-            <div className="p-8 bg-white rounded-3xl border border-slate-200 hover:shadow-xl transition-all">
-              <h3 className="text-lg font-bold text-slate-800 mb-2">Free</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-black text-slate-900">$0</span>
-                <span className="text-slate-400 text-sm"> / forever</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-block px-4 py-1.5 bg-white text-slate-700 rounded-full text-xs font-bold uppercase tracking-widest mb-4 border border-slate-200">Start Free</div>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">You are one profile away</h2>
+              <p className="text-slate-500 text-lg mb-8">Create a profile, pick your first quest, and get paired with a mentor. No paywall to get started.</p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => navigate('/auth')}
+                  className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-lg"
+                >
+                  {ctaVariant === 'start' ? 'Start Free' : 'Create Account'}
+                </button>
+                <button
+                  onClick={() => navigate('/quests')}
+                  className="px-8 py-4 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold text-lg hover:border-indigo-400 hover:text-indigo-600 transition-all"
+                >
+                  Browse Quests
+                </button>
               </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> 3 active quests</li>
-                <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> Community access</li>
-                <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> AI mentor (5 msgs/day)</li>
-                <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> Basic profile & XP</li>
-              </ul>
-              <button onClick={() => navigate('/auth')} className="w-full py-3 border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:border-indigo-400 hover:text-indigo-600 transition-all">
-                Get Started
-              </button>
+              <div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-500">
+                <span className="flex items-center gap-1">✓ Takes under 2 minutes</span>
+                <span className="flex items-center gap-1">✓ Invite a family member</span>
+                <span className="flex items-center gap-1">✓ Works on any device</span>
+              </div>
             </div>
-
-            {/* Pro */}
-            <div className="p-8 bg-indigo-600 rounded-3xl border-2 border-indigo-600 text-white relative hover:shadow-2xl transition-all transform md:-translate-y-2">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-amber-400 text-amber-900 rounded-full text-xs font-black uppercase">Most Popular</div>
-              <h3 className="text-lg font-bold mb-2">Pro</h3>
-              <div className="mb-1">
-                <span className="text-4xl font-black">$9.99</span>
-                <span className="text-indigo-200 text-sm"> / month</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                <div className="text-2xl mb-3">🧭</div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Guided onboarding</h3>
+                <p className="text-sm text-slate-500">Pick your interests and roles. We tailor your first quests automatically.</p>
               </div>
-              <p className="text-indigo-200 text-xs mb-6">Free during beta!</p>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> Unlimited quests</li>
-                <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> Unlimited AI mentor</li>
-                <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> AI quest generation</li>
-                <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> Advanced analytics</li>
-                <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> Priority matching</li>
-              </ul>
-              <button onClick={() => redirectToCheckout('pro')} className="w-full py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition-all">
-                Start Free Trial
-              </button>
-            </div>
-
-            {/* Organization */}
-            <div className="p-8 bg-white rounded-3xl border border-slate-200 hover:shadow-xl transition-all">
-              <h3 className="text-lg font-bold text-slate-800 mb-2">Organization</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-black text-slate-900">$49</span>
-                <span className="text-slate-400 text-sm"> / month</span>
+              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                <div className="text-2xl mb-3">🧑‍🤝‍🧑</div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Real people, real goals</h3>
+                <p className="text-sm text-slate-500">Pair across generations and solve meaningful, bite-sized missions.</p>
               </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> Everything in Pro</li>
-                <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> Up to 50 members</li>
-                <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> Admin dashboard</li>
-                <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> Branded communities</li>
-                <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> Reporting & analytics</li>
-              </ul>
-              <button onClick={() => redirectToCheckout('org')} className="w-full py-3 border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:border-indigo-400 hover:text-indigo-600 transition-all">
-                Contact Us
-              </button>
+              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                <div className="text-2xl mb-3">🧠</div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">AI mentor included</h3>
+                <p className="text-sm text-slate-500">Get instant suggestions, summaries, and next steps while you learn.</p>
+              </div>
+              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                <div className="text-2xl mb-3">🏅</div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Progress that sticks</h3>
+                <p className="text-sm text-slate-500">Earn XP and build a track record of impact you can share.</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Email Capture / Newsletter */}
+      {/* FAQ */}
       <section className="py-24">
-        <div className="max-w-2xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-black text-slate-900 mb-4">Stay in the loop</h2>
-          <p className="text-slate-500 mb-8">Get updates on new features, community stories, and wisdom tips. No spam, unsubscribe anytime.</p>
-          <form onSubmit={(e) => { e.preventDefault(); if (email) { setEmail(''); alert('Thanks! You\'ll hear from us soon.'); }}} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com" 
-              className="flex-1 px-5 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              required
-            />
-            <button type="submit" className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors whitespace-nowrap">
-              Subscribe
-            </button>
-          </form>
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">FAQ</div>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Frequently asked</h2>
+            <p className="text-slate-500 text-lg">Quick answers before you begin.</p>
+          </div>
+          <div className="space-y-4">
+            <details className="group bg-white border border-slate-200 rounded-2xl p-6">
+              <summary className="cursor-pointer font-bold text-slate-800 flex items-center justify-between">
+                Is Rootwise free?
+                <span className="text-slate-400 group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <p className="mt-3 text-slate-500 text-sm leading-relaxed">Yes. Core features are free and you can start without a credit card.</p>
+            </details>
+            <details className="group bg-white border border-slate-200 rounded-2xl p-6">
+              <summary className="cursor-pointer font-bold text-slate-800 flex items-center justify-between">
+                How does privacy work?
+                <span className="text-slate-400 group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <p className="mt-3 text-slate-500 text-sm leading-relaxed">Your profile and conversation settings are in your control. You can change visibility or remove content anytime.</p>
+            </details>
+            <details className="group bg-white border border-slate-200 rounded-2xl p-6">
+              <summary className="cursor-pointer font-bold text-slate-800 flex items-center justify-between">
+                How do I start?
+                <span className="text-slate-400 group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <p className="mt-3 text-slate-500 text-sm leading-relaxed">Create an account, choose roles and interests, then join a quest. Your first recommendations arrive automatically.</p>
+            </details>
+          </div>
         </div>
       </section>
 
@@ -323,14 +332,14 @@ const LandingPage: React.FC = () => {
         <div className="max-w-5xl mx-auto bg-slate-900 rounded-[40px] p-12 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/30 blur-[100px]"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-600/30 blur-[100px]"></div>
-          <h2 className="text-4xl md:text-5xl font-black mb-6 relative z-10">Ready to bridge generations?</h2>
+          <h2 className="text-4xl md:text-5xl font-black mb-6 relative z-10 font-display">Ready to bridge generations?</h2>
           <p className="text-lg text-slate-400 mb-10 relative z-10 max-w-xl mx-auto">Join the movement where every interaction is an investment in our collective future. Start your first quest today.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
             <button 
               onClick={() => navigate('/auth')}
               className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-black text-xl transition-all hover:scale-105 shadow-xl"
             >
-              Create Free Account
+              {ctaVariant === 'start' ? 'Start Free' : 'Create Account'}
             </button>
             <button 
               onClick={() => navigate('/quests')}
@@ -365,7 +374,7 @@ const LandingPage: React.FC = () => {
               <h4 className="font-bold text-slate-800 mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-slate-500">
                 <li><a href="#how-it-works" className="hover:text-indigo-600 transition-colors">How It Works</a></li>
-                <li><a href="#pricing" className="hover:text-indigo-600 transition-colors">Pricing</a></li>
+                <li><button onClick={() => navigate('/auth')} className="hover:text-indigo-600 transition-colors">Create account</button></li>
                 <li><a href="mailto:hello@rootwise.site" className="hover:text-indigo-600 transition-colors">Contact</a></li>
               </ul>
             </div>
