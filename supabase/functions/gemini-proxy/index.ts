@@ -7,7 +7,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!;
 const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_IMAGE_MODEL = 'gemini-3-pro-image-preview';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_IMAGE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 Deno.serve(async (req: Request) => {
   // CORS preflight
@@ -112,6 +114,46 @@ Deno.serve(async (req: Request) => {
       }
 
       return new Response(JSON.stringify({ quest: JSON.parse(text) }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (action === 'generateImage') {
+      // Image generation using gemini-3-pro-image-preview
+      const { prompt } = payload;
+      const body = {
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          mimeType: 'image/png',
+        },
+      };
+
+      const res = await fetch(GEMINI_IMAGE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      const imageData = data?.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+      
+      if (!imageData?.data) {
+        return new Response(JSON.stringify({ error: 'Failed to generate image' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Return base64 encoded image
+      return new Response(JSON.stringify({ image: `data:image/png;base64,${imageData.data}` }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

@@ -60,9 +60,27 @@ export class RootwiseAIService {
     }
   }
 
-  async generateQuestImage(_prompt: string): Promise<string | null> {
-    // Image generation requires a dedicated image model
-    return null;
+  async generateQuestImage(title: string, description: string, category: string): Promise<string | null> {
+    try {
+      // Create a compelling prompt from quest details
+      const prompt = `Create a vibrant, engaging illustration for an educational quest titled "${title}". 
+      
+      Quest Description: ${description}
+      Category: ${category}
+      
+      Style: Modern, colorful, inspiring, and suitable for an intergenerational learning platform. 
+      Include symbolic elements representing growth, learning, and connection.
+      The image should be positive, motivating, and appeal to diverse age groups.
+      Use bright colors and clear visual hierarchy.
+      
+      Generate a single, cohesive image that captures the essence of this quest.`;
+
+      const result = await this.callProxy('generateImage', { prompt });
+      return result.image || null;
+    } catch (error) {
+      console.error("Image generation error:", error);
+      return null;
+    }
   }
 }
 

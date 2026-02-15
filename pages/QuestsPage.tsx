@@ -9,6 +9,7 @@ import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
 import { useAiUsage } from '../hooks/useAiUsage';
 import { RootwiseAIService } from '../services/geminiService';
+import { supabase } from '../services/supabase';
 import { PLAN_LIMITS, isPro, BETA_MODE, getEffectivePlan } from '../services/planService';
 
 const CATEGORIES = ['All', 'Technology', 'Environment', 'Finance', 'Arts', 'Lifestyle', 'Education', 'History'];
@@ -77,6 +78,43 @@ const QuestsPage: React.FC = () => {
         return;
       }
       if (data) {
+        // Generate quest image
+        let imageUrl: string | null = null;
+        try {
+          const imageBase64 = await aiService.current.generateQuestImage(
+            data.title,
+            data.description,
+            data.category
+          );
+
+          // If image generated, upload it to storage
+          if (imageBase64) {
+            const fileName = `quest-${Date.now()}.png`;
+            const base64Data = imageBase64.replace('data:image/png;base64,', '');
+            const binaryString = atob(base64Data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('profile-media')
+              .upload(`quest-images/${profile.id}/${fileName}`, bytes, {
+                contentType: 'image/png',
+              });
+
+            if (!uploadError && uploadData) {
+              const { data: publicUrlData } = supabase.storage
+                .from('profile-media')
+                .getPublicUrl(uploadData.path);
+              imageUrl = publicUrlData.publicUrl;
+            }
+          }
+        } catch (imgErr) {
+          console.warn('Image generation failed, continuing without image:', imgErr);
+        }
+
+        // Create quest with image if available
         await createQuest({
           title: data.title,
           description: data.description,
@@ -86,8 +124,9 @@ const QuestsPage: React.FC = () => {
           created_by: profile.id,
           quest_type: 'solo',
           is_virtual: true,
+          image_url: imageUrl,
         });
-        showToast('success', `Quest "${data.title}" created!`);
+        showToast('success', `Quest "${data.title}" created${imageUrl ? ' with AI-generated image!' : '!'}`);
       }
     } catch (err) {
       console.error('Quest generation error:', err);
