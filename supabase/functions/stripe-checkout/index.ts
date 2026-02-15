@@ -8,6 +8,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!;
 const CLIENT_URL = Deno.env.get('CLIENT_URL') || 'https://rootwise.site';
 
+function resolveAppUrl(req: Request) {
+  const origin = req.headers.get('origin');
+  if (origin && /^https?:\/\//.test(origin)) return origin;
+  return CLIENT_URL;
+}
+
 async function stripeRequest(endpoint: string, body: Record<string, string>) {
   const res = await fetch(`https://api.stripe.com/v1${endpoint}`, {
     method: 'POST',
@@ -26,6 +32,8 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    const appUrl = resolveAppUrl(req);
+
     // Verify user is authenticated
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -88,8 +96,8 @@ Deno.serve(async (req: Request) => {
       'mode': 'subscription',
       'line_items[0][price]': priceId,
       'line_items[0][quantity]': '1',
-      'success_url': `${CLIENT_URL}/dashboard?checkout=success`,
-      'cancel_url': `${CLIENT_URL}/dashboard?checkout=cancelled`,
+      'success_url': `${appUrl}/profile?checkout=success`,
+      'cancel_url': `${appUrl}/pricing?checkout=cancelled`,
       'metadata[supabase_user_id]': user.id,
       'subscription_data[metadata][supabase_user_id]': user.id,
     });

@@ -7,6 +7,26 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!;
 const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
 
+async function resolveUserIdFromCustomer(supabase: any, customerId?: string | null): Promise<string | null> {
+  if (!customerId) return null;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('stripe_customer_id', customerId)
+    .maybeSingle();
+
+  if (profile?.id) return profile.id;
+
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('user_id')
+    .eq('stripe_customer_id', customerId)
+    .maybeSingle();
+
+  return subscription?.user_id ?? null;
+}
+
 // Verify Stripe webhook signature using Web Crypto API
 async function verifySignature(payload: string, sigHeader: string): Promise<boolean> {
   const parts = sigHeader.split(',').reduce((acc: Record<string, string>, part: string) => {
@@ -69,7 +89,7 @@ Deno.serve(async (req: Request) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const userId = session.metadata?.supabase_user_id;
+        const userId = session.metadata?.supabase_user_id || await resolveUserIdFromCustomer(supabase, session.customer);
         const subscriptionId = session.subscription;
         if (!userId || !subscriptionId) break;
 
@@ -100,7 +120,7 @@ Deno.serve(async (req: Request) => {
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object;
-        const userId = subscription.metadata?.supabase_user_id;
+        const userId = subscription.metadata?.supabase_user_id || await resolveUserIdFromCustomer(supabase, subscription.customer);
         if (!userId) break;
 
         const status = subscription.cancel_at_period_end ? 'cancelling' : subscription.status;
@@ -120,7 +140,7 @@ Deno.serve(async (req: Request) => {
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
-        const userId = subscription.metadata?.supabase_user_id;
+        const userId = subscription.metadata?.supabase_user_id || await resolveUserIdFromCustomer(supabase, subscription.customer);
         if (!userId) break;
 
         await supabase.from('subscriptions').update({

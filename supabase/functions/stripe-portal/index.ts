@@ -8,6 +8,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!;
 const CLIENT_URL = Deno.env.get('CLIENT_URL') || 'https://rootwise.site';
 
+function resolveAppUrl(req: Request) {
+  const origin = req.headers.get('origin');
+  if (origin && /^https?:\/\//.test(origin)) return origin;
+  return CLIENT_URL;
+}
+
 async function stripeRequest(endpoint: string, body: Record<string, string>) {
   const res = await fetch(`https://api.stripe.com/v1${endpoint}`, {
     method: 'POST',
@@ -26,6 +32,8 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    const appUrl = resolveAppUrl(req);
+
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Not authenticated' }), {
@@ -66,7 +74,7 @@ Deno.serve(async (req: Request) => {
     // Create a billing portal session
     const session = await stripeRequest('/billing_portal/sessions', {
       customer: profile.stripe_customer_id,
-      return_url: `${CLIENT_URL}/pricing`,
+      return_url: `${appUrl}/profile`,
     });
 
     if (!session.url) {

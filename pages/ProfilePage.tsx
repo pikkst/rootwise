@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
 import PlanBadge from '../components/PlanBadge';
 import { useAuth } from '../context/AuthContext';
@@ -20,7 +21,8 @@ type PostWithMeta = Post & {
 type CommentWithMeta = PostComment & { author: ProfileLite };
 
 const ProfilePage: React.FC = () => {
-  const { profile, updateProfile } = useAuth();
+  const location = useLocation();
+  const { profile, updateProfile, refreshProfile } = useAuth();
   const { showToast } = useToast();
   const { quests } = useQuests();
   const planInfo = usePlan();
@@ -62,6 +64,44 @@ const ProfilePage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<ProfileLite[]>([]);
   const [socialLoading, setSocialLoading] = useState(false);
   const [isDraggingBanner, setIsDraggingBanner] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('checkout') !== 'success' || !profile?.id) return;
+
+    let cancelled = false;
+    const startedAt = Date.now();
+    const timeoutMs = 30000;
+
+    const pollForPlanUpgrade = async () => {
+      while (!cancelled && Date.now() - startedAt < timeoutMs) {
+        await refreshProfile();
+
+        const { data } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', profile.id)
+          .maybeSingle();
+
+        if (data?.plan && data.plan !== 'free') {
+          showToast('success', `Subscription active: ${data.plan.toUpperCase()} plan enabled.`);
+          return;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+      }
+
+      if (!cancelled) {
+        showToast('info', 'Payment successful. Plan update may take a moment—refresh if needed.');
+      }
+    };
+
+    void pollForPlanUpgrade();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [location.search, profile?.id, refreshProfile, showToast]);
 
   if (!profile) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
