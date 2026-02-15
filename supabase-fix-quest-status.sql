@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS quest_files (
 
 -- Add file_size column if table already existed
 ALTER TABLE quest_files ADD COLUMN IF NOT EXISTS file_size INTEGER;
+ALTER TABLE quest_files ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 ALTER TABLE quest_files ENABLE ROW LEVEL SECURITY;
 
