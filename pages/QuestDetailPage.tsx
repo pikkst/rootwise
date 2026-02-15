@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
@@ -31,6 +31,54 @@ const QuestDetailPage: React.FC = () => {
   const [joiningQuest, setJoiningQuest] = useState(false);
   const [submittingProof, setSubmittingProof] = useState(false);
   const [proofText, setProofText] = useState('');
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // File upload config
+  const ALLOWED_TYPES: Record<string, string> = {
+    'image/jpeg': 'Image',
+    'image/png': 'Image',
+    'image/gif': 'Image',
+    'image/webp': 'Image',
+    'application/pdf': 'PDF',
+    'video/mp4': 'Video',
+    'text/plain': 'Article',
+    'text/markdown': 'Article',
+    'text/html': 'Article',
+    'application/msword': 'Document',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Document',
+  };
+  const MAX_FILE_SIZES: Record<string, number> = {
+    image: 10 * 1024 * 1024,   // 10 MB
+    pdf: 20 * 1024 * 1024,     // 20 MB
+    video: 100 * 1024 * 1024,  // 100 MB
+    text: 5 * 1024 * 1024,     // 5 MB
+    default: 10 * 1024 * 1024, // 10 MB
+  };
+
+  const getMaxSize = (mime: string) => {
+    if (mime.startsWith('image/')) return MAX_FILE_SIZES.image;
+    if (mime === 'application/pdf') return MAX_FILE_SIZES.pdf;
+    if (mime.startsWith('video/')) return MAX_FILE_SIZES.video;
+    if (mime.startsWith('text/')) return MAX_FILE_SIZES.text;
+    return MAX_FILE_SIZES.default;
+  };
+
+  const formatBytes = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const getFileIcon = (type: string | null) => {
+    if (!type) return '📄';
+    if (type.startsWith('image/')) return '🖼️';
+    if (type.startsWith('video/')) return '🎬';
+    if (type === 'application/pdf') return '📕';
+    if (type.startsWith('text/')) return '📝';
+    return '📄';
+  };
 
   useEffect(() => {
     if (!questId || !profile?.id) return;
@@ -197,6 +245,101 @@ const QuestDetailPage: React.FC = () => {
       showToast('error', 'An error occurred');
     } finally {
       setSubmittingProof(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !questId || !profile?.id || uploadingFile) return;
+
+    // Validate file type
+    if (!ALLOWED_TYPES[file.type]) {
+      showToast('error', `File type not supported. Allowed: images, PDF, MP4, text documents.`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    // Validate file size
+    const maxSize = getMaxSize(file.type);
+    if (file.size > maxSize) {
+      showToast('error', `File too large. Maximum size for this type: ${formatBytes(maxSize)}`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setUploadingFile(true);
+    try {
+      const ext = file.name.split('.').pop() || 'bin';
+      const storagePath = `quest-files/${profile.id}/${questId}/${Date.now()}-${file.name}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('profile-media')
+        .upload(storagePath, file, { contentType: file.type });
+
+      if (uploadError || !uploadData) {
+        throw uploadError || new Error('Upload failed');
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('profile-media')
+        .getPublicUrl(uploadData.path);
+
+      const { error: dbError } = await supabase.from('quest_files').insert({
+        quest_id: questId,
+        user_id: profile.id,
+        file_url: publicUrlData.publicUrl,
+        file_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
+      });
+
+      if (dbError) {
+        // Clean up the uploaded file if DB insert fails
+        await supabase.storage.from('profile-media').remove([storagePath]);
+        throw dbError;
+      }
+
+      await fetchQuestDetails();
+      showToast('success', `"${file.name}" uploaded successfully!`);
+    } catch (err: any) {
+      console.error('File upload error:', err);
+      showToast('error', err?.message || 'Failed to upload file');
+    } finally {
+      setUploadingFile(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeleteFile = async (file: QuestFile) => {
+    if (!profile?.id || deletingFileId) return;
+
+    // Only uploader can delete
+    if (file.user_id !== profile.id) {
+      showToast('error', 'You can only delete your own files.');
+      return;
+    }
+
+    if (!window.confirm(`Delete "${file.file_name}"? This cannot be undone.`)) return;
+
+    setDeletingFileId(file.id);
+    try {
+      // Extract storage path from URL
+      const url = file.file_url ?? '';
+      const pathMatch = url.match(/profile-media\/(.+)$/);
+      if (pathMatch) {
+        await supabase.storage.from('profile-media').remove([pathMatch[1]]);
+      }
+
+      const { error } = await supabase.from('quest_files').delete().eq('id', file.id);
+      if (error) throw error;
+
+      await fetchQuestDetails();
+      showToast('success', 'File deleted.');
+    } catch (err: any) {
+      console.error('File delete error:', err);
+      showToast('error', err?.message || 'Failed to delete file');
+    } finally {
+      setDeletingFileId(null);
     }
   };
 
@@ -408,35 +551,99 @@ const QuestDetailPage: React.FC = () => {
               {/* Files Tab */}
               {activeTab === 'files' && (
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800 mb-4">Files & Resources</h2>
+                  <h2 className="text-xl font-bold text-slate-800 mb-1">Files & Resources</h2>
+                  <p className="text-xs text-slate-400 mb-4">Images, PDFs, articles, videos (MP4)</p>
 
                   {!isMember ? (
-                    <div className="bg-slate-50 rounded-lg p-6 text-center">
+                    <div className="bg-slate-50 rounded-xl p-6 text-center">
                       <p className="text-slate-600">Join this quest to view and upload files</p>
                     </div>
                   ) : (
                     <div>
+                      {/* Upload area */}
+                      <div className="mb-5">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,video/mp4,text/plain,text/markdown,.doc,.docx"
+                          onChange={handleFileUpload}
+                          disabled={uploadingFile}
+                          className="hidden"
+                          id="quest-file-upload"
+                        />
+                        <label
+                          htmlFor="quest-file-upload"
+                          className={`flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed rounded-xl cursor-pointer transition ${
+                            uploadingFile
+                              ? 'border-slate-200 bg-slate-50 cursor-not-allowed'
+                              : 'border-indigo-200 bg-indigo-50/30 hover:border-indigo-400 hover:bg-indigo-50'
+                          }`}
+                        >
+                          {uploadingFile ? (
+                            <>
+                              <div className="w-8 h-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+                              <span className="text-sm font-medium text-indigo-600">Uploading...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-3xl">📎</span>
+                              <span className="text-sm font-medium text-indigo-600">Click to upload a file</span>
+                              <span className="text-xs text-slate-400">
+                                Images (10 MB) · PDF (20 MB) · MP4 (100 MB) · Text (5 MB)
+                              </span>
+                            </>
+                          )}
+                        </label>
+                      </div>
+
+                      {/* File list */}
                       {files.length === 0 ? (
-                        <p className="text-slate-500 text-center py-8">No files yet</p>
+                        <p className="text-slate-400 text-center py-6 text-sm">No files uploaded yet. Be the first!</p>
                       ) : (
                         <div className="space-y-2">
                           {files.map((file) => (
-                            <a
+                            <div
                               key={file.id}
-                              href={file.file_url ?? '#'}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition"
+                              className="flex items-center gap-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition group"
                             >
-                              <span className="text-lg">📄</span>
-                              <div className="flex-1">
-                                <div className="font-semibold text-slate-800">{file.file_name}</div>
-                                <div className="text-xs text-slate-500">
-                                  {new Date(file.created_at ?? '').toLocaleDateString()}
+                              <span className="text-2xl flex-shrink-0">{getFileIcon(file.file_type)}</span>
+                              <a
+                                href={file.file_url ?? '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 min-w-0"
+                              >
+                                <div className="font-semibold text-slate-800 truncate text-sm hover:text-indigo-600 transition">
+                                  {file.file_name || 'Unnamed file'}
                                 </div>
+                                <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                                  <span>{ALLOWED_TYPES[file.file_type ?? ''] || 'File'}</span>
+                                  {file.file_size && <span>· {formatBytes(file.file_size)}</span>}
+                                  <span>· {new Date(file.created_at ?? file.uploaded_at ?? '').toLocaleDateString()}</span>
+                                </div>
+                              </a>
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <a
+                                  href={file.file_url ?? '#'}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-2 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition text-xs font-medium"
+                                  title="Download"
+                                >
+                                  ⬇️
+                                </a>
+                                {file.user_id === profile?.id && (
+                                  <button
+                                    onClick={() => handleDeleteFile(file)}
+                                    disabled={deletingFileId === file.id}
+                                    className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition text-xs opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                                    title="Delete"
+                                  >
+                                    {deletingFileId === file.id ? '⏳' : '🗑️'}
+                                  </button>
+                                )}
                               </div>
-                              <span className="text-xs text-indigo-600">Download →</span>
-                            </a>
+                            </div>
                           ))}
                         </div>
                       )}

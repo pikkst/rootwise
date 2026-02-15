@@ -119,9 +119,13 @@ CREATE TABLE IF NOT EXISTS quest_files (
   file_url TEXT NOT NULL,
   file_name TEXT,
   file_type TEXT,
+  file_size INTEGER,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   uploaded_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add file_size column if table already existed
+ALTER TABLE quest_files ADD COLUMN IF NOT EXISTS file_size INTEGER;
 
 ALTER TABLE quest_files ENABLE ROW LEVEL SECURITY;
 
@@ -141,6 +145,13 @@ DO $$ BEGIN
         auth.uid() = user_id
         AND quest_id IN (SELECT quest_id FROM quest_members WHERE user_id = auth.uid())
       );
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_files' AND policyname = 'Users can delete own quest files') THEN
+    CREATE POLICY "Users can delete own quest files" ON quest_files
+      FOR DELETE USING (auth.uid() = user_id);
   END IF;
 END $$;
 

@@ -251,7 +251,9 @@ export interface QuestFile {
   file_url: string;
   file_name: string | null;
   file_type: string | null;
+  file_size: number | null;
   uploaded_at: string;
+  created_at: string | null;
 }
 
 /** Quest Milestones */
