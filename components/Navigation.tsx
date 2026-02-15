@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getInitials } from '../types';
-import { isPro, isOrg, BETA_MODE } from '../services/planService';
+import { isPro, isOrg } from '../services/planService';
 import PlanBadge from './PlanBadge';
 
 const navItems = [
@@ -133,7 +133,7 @@ const Navigation: React.FC = () => {
           </button>
         </div>
         <div className="hidden md:flex items-center gap-3">
-          <PlanBadge plan={plan} isBeta={BETA_MODE} size="sm" />
+          <PlanBadge plan={plan} size="sm" />
           <button
             onClick={() => navigate('/profile')}
             className={`w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden border-2 transition-all ${

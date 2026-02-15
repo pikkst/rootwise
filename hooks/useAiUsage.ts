@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
-import { PLAN_LIMITS } from '../services/planService';
+import { PLAN_LIMITS, getEffectivePlan } from '../services/planService';
 import { Plan } from '../services/stripeService';
 
 export interface AiUsageInfo {
@@ -24,7 +24,7 @@ export function useAiUsage(): AiUsageInfo {
   const [loading, setLoading] = useState(true);
 
   const plan: Plan = profile?.plan || 'free';
-  const limits = PLAN_LIMITS[plan];
+  const limits = PLAN_LIMITS[getEffectivePlan(plan)];
   const messageLimit = limits.aiChatPerDay;
   const questGenLimit = limits.questGenPerDay;
 

@@ -8,7 +8,7 @@ import { useQuests } from '../hooks/useQuests';
 import { usePlan } from '../hooks/usePlan';
 import { Follower, Friendship, Post, PostComment, PostLike, Profile, getInitials, profileToUser } from '../types';
 import { redirectToCheckout, openBillingPortal } from '../services/stripeService';
-import { PLAN_FEATURES, BETA_MODE } from '../services/planService';
+import { PLAN_FEATURES } from '../services/planService';
 import { supabase } from '../services/supabase';
 
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'avatar_url' | 'role'>;
@@ -696,10 +696,7 @@ const ProfilePage: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-slate-500">Plan</span>
                     <div className="flex items-center gap-2">
-                      <PlanBadge plan={profile.plan || 'free'} isBeta={BETA_MODE} size="md" />
-                      {BETA_MODE && (!profile.plan || profile.plan === 'free') && (
-                        <span className="text-[10px] text-emerald-600 font-medium">Pro active</span>
-                      )}
+                      <PlanBadge plan={profile.plan || 'free'} size="md" />
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
@@ -771,7 +768,7 @@ const ProfilePage: React.FC = () => {
                       onClick={() => redirectToCheckout('pro')}
                       className="w-full py-2 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors"
                     >
-                      {BETA_MODE ? ' Free During Beta' : 'Upgrade  $9.99/mo'}
+                      Upgrade — $9.99/mo
                     </button>
                   </div>
                 )

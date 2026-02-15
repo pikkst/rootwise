@@ -4,9 +4,6 @@ import { Plan } from './stripeService';
 // Plan-based feature gating
 // ============================================================
 
-// Beta mode flag — when true, free users get Pro features
-export const BETA_MODE = true;
-
 export const PLAN_LIMITS = {
   free: { maxActiveQuests: 3, aiChatPerDay: 5, questGenPerDay: 1, maxOrgMembers: 0 },
   pro:  { maxActiveQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: 0 },
@@ -15,7 +12,6 @@ export const PLAN_LIMITS = {
 
 /** Does this plan include Pro-level features? */
 export function isPro(plan: Plan): boolean {
-  if (BETA_MODE) return true;
   return plan === 'pro' || plan === 'org';
 }
 
@@ -24,9 +20,8 @@ export function isOrg(plan: Plan): boolean {
   return plan === 'org';
 }
 
-/** Get the effective plan (considering beta mode) */
+/** Get the effective plan */
 export function getEffectivePlan(plan: Plan): Plan {
-  if (BETA_MODE && plan === 'free') return 'pro';
   return plan;
 }
 

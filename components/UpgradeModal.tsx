@@ -84,7 +84,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, r
         </div>
 
         <p className="text-center text-xs text-slate-400 mt-4">
-          Free during beta! No credit card required.
+          Upgrade anytime from your profile or billing settings.
         </p>
       </div>
     </div>

@@ -73,7 +73,7 @@ const AnalyticsPage: React.FC = () => {
   // Compute analytics data
   const myQuests = quests.filter((q) => q.participants.includes(profile.id));
   const completedQuests = myQuests.filter((q) => q.status === 'completed');
-  const activeQuests = myQuests.filter((q) => q.status === 'active');
+  const activeQuests = myQuests.filter((q) => q.status !== 'completed');
   const completionRate = myQuests.length > 0
     ? Math.round((completedQuests.length / myQuests.length) * 100)
     : 0;
@@ -119,7 +119,6 @@ const AnalyticsPage: React.FC = () => {
           >
             Upgrade to Pro — $9.99/mo
           </button>
-          <p className="text-xs text-slate-400 mt-3">Free during beta!</p>
         </div>
       </div>
     );

@@ -191,7 +191,6 @@ const MatchingPage: React.FC = () => {
           >
             Upgrade to Pro — $9.99/mo
           </button>
-          <p className="text-xs text-slate-400 mt-3">Free during beta!</p>
         </div>
       </div>
     );

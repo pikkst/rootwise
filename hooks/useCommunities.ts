@@ -36,6 +36,23 @@ export function useCommunities() {
   }, [fetchCommunities]);
 
   const joinCommunity = async (communityId: string, userId: string) => {
+    const { data: community } = await supabase
+      .from('communities')
+      .select('member_limit')
+      .eq('id', communityId)
+      .maybeSingle();
+
+    if (community?.member_limit && community.member_limit > 0) {
+      const { count } = await supabase
+        .from('community_members')
+        .select('user_id', { count: 'exact', head: true })
+        .eq('community_id', communityId);
+
+      if ((count ?? 0) >= community.member_limit) {
+        return { error: `Community member limit reached (${community.member_limit}).` };
+      }
+    }
+
     const { error } = await supabase.from('community_members').insert({
       community_id: communityId,
       user_id: userId,

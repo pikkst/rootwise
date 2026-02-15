@@ -2,16 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
 import { Plan, Subscription } from '../services/stripeService';
-import { isPro, isOrg, PLAN_LIMITS, planLabel } from '../services/planService';
-
-// Beta mode — when true, all users get Pro features for free
-const BETA_MODE = true;
+import { isPro, isOrg, PLAN_LIMITS, planLabel, getEffectivePlan } from '../services/planService';
 
 export interface PlanInfo {
   plan: Plan;
-  effectivePlan: Plan;          // considers beta mode
+  effectivePlan: Plan;
   subscription: Subscription | null;
-  isBeta: boolean;
   isPro: boolean;
   isOrg: boolean;
   label: string;
@@ -58,10 +54,7 @@ export function usePlan(): PlanInfo {
 
   const rawPlan: Plan = profile?.plan || 'free';
 
-  // In beta mode, everyone gets Pro features (unless they already have org)
-  const effectivePlan: Plan = BETA_MODE
-    ? (rawPlan === 'org' ? 'org' : 'pro')
-    : rawPlan;
+  const effectivePlan: Plan = getEffectivePlan(rawPlan);
 
   const hasPro = isPro(effectivePlan);
   const hasOrg = isOrg(effectivePlan);
@@ -80,7 +73,6 @@ export function usePlan(): PlanInfo {
     plan: rawPlan,
     effectivePlan,
     subscription,
-    isBeta: BETA_MODE,
     isPro: hasPro,
     isOrg: hasOrg,
     label: planLabel(effectivePlan),

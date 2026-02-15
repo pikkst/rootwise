@@ -14,6 +14,8 @@ interface CommunityWithMembers {
   id: string;
   name: string;
   icon: string;
+  brand_color?: string | null;
+  logo_url?: string | null;
   description: string | null;
   category: string;
   memberCount: number;
@@ -45,6 +47,7 @@ const AdminPage: React.FC = () => {
   const [newCommDesc, setNewCommDesc] = useState('');
   const [newCommCategory, setNewCommCategory] = useState('Growth');
   const [newCommColor, setNewCommColor] = useState('#6366f1');
+  const [newCommLogoUrl, setNewCommLogoUrl] = useState('');
   const [creating, setCreating] = useState(false);
 
   const plan = profile?.plan || 'free';
@@ -123,6 +126,8 @@ const AdminPage: React.FC = () => {
         id: c.id,
         name: c.name,
         icon: c.icon,
+        brand_color: c.brand_color ?? '#6366f1',
+        logo_url: c.logo_url ?? null,
         description: c.description,
         category: c.category,
         memberCount: commMembers.length,
@@ -190,6 +195,8 @@ const AdminPage: React.FC = () => {
         category: newCommCategory,
         created_by: profile.id,
         brand_color: newCommColor,
+        logo_url: newCommLogoUrl.trim() || null,
+        member_limit: PLAN_LIMITS.org.maxOrgMembers,
       }).select().single();
 
       if (error) throw error;
@@ -207,6 +214,7 @@ const AdminPage: React.FC = () => {
       setNewCommIcon('🌱');
       setNewCommCategory('Growth');
       setNewCommColor('#6366f1');
+      setNewCommLogoUrl('');
       setShowCreate(false);
       fetchAdminData(); // Refresh
     } catch (err: any) {
@@ -508,6 +516,16 @@ const AdminPage: React.FC = () => {
                         <span className="text-sm text-slate-500 font-mono">{newCommColor}</span>
                       </div>
                     </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-sm font-bold text-slate-600">Logo URL (optional)</label>
+                      <input
+                        type="url"
+                        value={newCommLogoUrl}
+                        onChange={(e) => setNewCommLogoUrl(e.target.value)}
+                        placeholder="https://..."
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-600">Description</label>
@@ -545,9 +563,14 @@ const AdminPage: React.FC = () => {
                     className={`bg-white p-6 rounded-3xl border-2 shadow-sm hover:shadow-lg transition-all cursor-pointer ${
                       selectedCommunity === c.id ? 'border-indigo-500' : 'border-slate-200'
                     }`}
+                    style={{ borderTopWidth: 4, borderTopColor: c.brand_color || '#6366f1' }}
                   >
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="text-3xl">{c.icon}</span>
+                      {c.logo_url ? (
+                        <img src={c.logo_url} alt={c.name} className="w-10 h-10 rounded-xl object-cover border border-slate-100" />
+                      ) : (
+                        <span className="text-3xl">{c.icon}</span>
+                      )}
                       <div>
                         <h4 className="font-bold text-slate-800">{c.name}</h4>
                         <p className="text-xs text-slate-400">{c.category}</p>

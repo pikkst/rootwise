@@ -50,17 +50,14 @@ const PricingPage: React.FC = () => {
           Simple, transparent pricing
         </h1>
         <p className="text-slate-500 text-lg max-w-xl mx-auto">
-          Start free, upgrade when you're ready. Currently in beta — all Pro features are free!
+          Start free and upgrade when you need advanced capabilities.
         </p>
 
         {/* Current plan indicator (logged-in users) */}
         {isAuthenticated && (
           <div className="mt-6 inline-flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm">
             <span className="text-sm text-slate-500">Your plan:</span>
-            <PlanBadge plan={currentPlan} isBeta={planInfo.isBeta} size="md" />
-            {planInfo.isBeta && currentPlan === 'free' && (
-              <span className="text-xs text-emerald-600 font-medium">Pro features active (beta)</span>
-            )}
+            <PlanBadge plan={currentPlan} size="md" />
           </div>
         )}
       </div>
@@ -109,7 +106,7 @@ const PricingPage: React.FC = () => {
             <span className="text-4xl font-black">$9.99</span>
             <span className="text-indigo-200 text-sm"> / month</span>
           </div>
-          <p className="text-indigo-200 text-xs mb-6">Free during beta!</p>
+          <p className="text-indigo-200 text-xs mb-6">Best for power users and creators</p>
           <ul className="space-y-3 mb-8">
             <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> Unlimited quests</li>
             <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> Unlimited AI mentor</li>
@@ -181,7 +178,7 @@ const PricingPage: React.FC = () => {
               onClick={() => handleSelectPlan('org')}
               className="w-full py-3 border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:border-amber-400 hover:text-amber-600 transition-all"
             >
-              Contact Us
+              Upgrade to Organization
             </button>
           )}
         </div>
@@ -311,8 +308,8 @@ const PricingPage: React.FC = () => {
         <div className="space-y-4">
           {[
             {
-              q: 'Is it really free during beta?',
-              a: 'Yes! During the beta period, all Pro features are available to every user at no cost. When we officially launch pricing, we\'ll give you plenty of notice.',
+              q: 'Can I start on the Free plan and upgrade later?',
+              a: 'Yes. You can use core features on Free, then upgrade to Pro or Organization anytime from the pricing page.',
             },
             {
               q: 'Can I cancel anytime?',

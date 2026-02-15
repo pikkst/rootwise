@@ -2,11 +2,10 @@ import React from 'react';
 
 interface PlanBadgeProps {
   plan: string;
-  isBeta?: boolean;
   size?: 'sm' | 'md';
 }
 
-const PlanBadge: React.FC<PlanBadgeProps> = ({ plan, isBeta = false, size = 'sm' }) => {
+const PlanBadge: React.FC<PlanBadgeProps> = ({ plan, size = 'sm' }) => {
   const styles: Record<string, string> = {
     free: 'bg-slate-100 text-slate-600',
     pro: 'bg-indigo-100 text-indigo-700',
@@ -26,9 +25,6 @@ const PlanBadge: React.FC<PlanBadgeProps> = ({ plan, isBeta = false, size = 'sm'
   return (
     <span className={`${sizeClass} rounded-full font-bold uppercase tracking-wide ${styles[plan] || styles.free} inline-flex items-center gap-1`}>
       {labels[plan] || 'Free'}
-      {isBeta && plan !== 'free' && (
-        <span className="text-[8px] opacity-70">BETA</span>
-      )}
     </span>
   );
 };

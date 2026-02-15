@@ -31,14 +31,14 @@ const CommunityPage: React.FC = () => {
     if (userCommunities.includes(communityId)) {
       const result = await leaveCommunity(communityId, profile.id);
       if (result.error) {
-        showToast('error', result.error.message || 'Failed to leave group');
+        showToast('error', result.error || 'Failed to leave group');
       } else {
         showToast('info', 'Left community');
       }
     } else {
       const result = await joinCommunity(communityId, profile.id);
       if (result.error) {
-        showToast('error', result.error.message || 'Failed to join group');
+        showToast('error', result.error || 'Failed to join group');
       } else {
         showToast('success', 'Joined community!');
       }
@@ -69,15 +69,25 @@ const CommunityPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {communities.map((group) => {
             const isMember = userCommunities.includes(group.id);
+            const brandColor = group.brand_color || '#6366f1';
             return (
               <div
                 key={group.id}
                 className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all group"
+                style={{ borderTopWidth: 4, borderTopColor: brandColor }}
               >
                 <div className="flex gap-4 mb-4">
-                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-4xl group-hover:scale-110 transition-transform flex-shrink-0">
-                    {group.icon}
-                  </div>
+                  {group.logo_url ? (
+                    <img
+                      src={group.logo_url}
+                      alt={group.name}
+                      className="w-16 h-16 rounded-2xl object-cover border border-slate-100 group-hover:scale-110 transition-transform flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-4xl group-hover:scale-110 transition-transform flex-shrink-0">
+                      {group.icon}
+                    </div>
+                  )}
                   <div className="flex-1 cursor-pointer" onClick={() => navigate(`/community/${group.id}`)}>
                     <h4 className="text-xl font-bold mb-1 group-hover:text-indigo-600 transition">{group.name}</h4>
                     <p className="text-sm text-slate-500 mb-2">{group.member_count} Members</p>

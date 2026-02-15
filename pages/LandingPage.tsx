@@ -58,7 +58,7 @@ const LandingPage: React.FC = () => {
             {/* Left: Copy */}
             <div>
               <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest mb-6">
-                🌱 Free During Beta
+                🌱 Start Free
               </div>
               <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight font-display">
                 Make wisdom <br/> <span className="text-amber-300">a shared quest.</span>
@@ -143,7 +143,7 @@ const LandingPage: React.FC = () => {
           <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
           <div>
             <div className="text-2xl font-black text-slate-800">Free</div>
-            <div className="text-xs text-slate-500 font-medium">During Beta</div>
+            <div className="text-xs text-slate-500 font-medium">Core Features</div>
           </div>
         </div>
       </section>

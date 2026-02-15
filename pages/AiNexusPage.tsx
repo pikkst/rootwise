@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useChatMessages } from '../hooks/useChatMessages';
 import { useAiUsage } from '../hooks/useAiUsage';
 import { RootwiseAIService } from '../services/geminiService';
-import { isPro, BETA_MODE } from '../services/planService';
+import { isPro } from '../services/planService';
 
 const AiNexusPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const AiNexusPage: React.FC = () => {
     if (!inputMessage.trim() || !profile) return;
 
     // Check if user can send (free plan rate limit)
-    if (!hasPro && !BETA_MODE && !aiUsage.canChat) {
+    if (!hasPro && !aiUsage.canChat) {
       setShowUpgrade(true);
       return;
     }
@@ -76,7 +76,7 @@ const AiNexusPage: React.FC = () => {
           <p className="text-sm text-slate-500">Your intelligent bridge to community wisdom.</p>
         </div>
         {/* AI Usage indicator for free users */}
-        {!hasPro && !BETA_MODE && (
+        {!hasPro && (
           <div className="hidden md:flex items-center gap-4 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
             <AiUsageBadge
               used={aiUsage.messagesUsed}
@@ -100,7 +100,7 @@ const AiNexusPage: React.FC = () => {
       </div>
 
       {/* Usage bar for free users (mobile + desktop) */}
-      {!hasPro && !BETA_MODE && (
+      {!hasPro && (
         <div className="mb-4 p-3 bg-white rounded-2xl border border-slate-200 shadow-sm">
           <AiUsageBadge
             used={aiUsage.messagesUsed}

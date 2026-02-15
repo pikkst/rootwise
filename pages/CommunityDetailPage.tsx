@@ -383,6 +383,11 @@ const CommunityDetailPage: React.FC = () => {
 
     setJoiningCommunity(true);
     try {
+      if (community?.member_limit && members.length >= community.member_limit) {
+        showToast('error', `Community member limit reached (${community.member_limit}).`);
+        return;
+      }
+
       const { error } = await supabaseAny.from('community_members').insert({
         community_id: communityId,
         user_id: profile.id,
@@ -551,13 +556,24 @@ const CommunityDetailPage: React.FC = () => {
   return (
     <>
       <SEOHead title={community.name} description={community.description || ''} />
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white pt-24 pb-32">
+      <div
+        className="min-h-screen bg-gradient-to-br from-indigo-50 to-white pt-24 pb-32"
+        style={{ borderTop: `4px solid ${community.brand_color || '#6366f1'}` }}
+      >
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-4">
-                <div className="text-5xl">{community.icon}</div>
+                {community.logo_url ? (
+                  <img
+                    src={community.logo_url}
+                    alt={community.name}
+                    className="w-16 h-16 rounded-2xl object-cover border border-slate-100"
+                  />
+                ) : (
+                  <div className="text-5xl">{community.icon}</div>
+                )}
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">{community.name}</h1>
                   <p className="text-gray-600 mt-1">{community.description}</p>

@@ -265,6 +265,9 @@ export interface Community {
   description: string | null;
   icon: string;
   category: string;
+  brand_color?: string | null;
+  logo_url?: string | null;
+  member_limit?: number | null;
   created_by: string | null;
   created_at: string;
 }

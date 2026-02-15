@@ -10,7 +10,7 @@ import { useQuests } from '../hooks/useQuests';
 import { useAiUsage } from '../hooks/useAiUsage';
 import { RootwiseAIService } from '../services/geminiService';
 import { supabase } from '../services/supabase';
-import { PLAN_LIMITS, isPro, BETA_MODE, getEffectivePlan } from '../services/planService';
+import { PLAN_LIMITS, isPro, getEffectivePlan } from '../services/planService';
 
 const CATEGORIES = ['All', 'Technology', 'Environment', 'Finance', 'Arts', 'Lifestyle', 'Education', 'History'];
 
@@ -64,7 +64,7 @@ const QuestsPage: React.FC = () => {
       return;
     }
     // Check rate limit for free users
-    if (!hasPro && !BETA_MODE && !aiUsage.canGenerateQuest) {
+    if (!hasPro && !aiUsage.canGenerateQuest) {
       setUpgradeFeature('AI Quest Generation');
       setShowUpgrade(true);
       return;
@@ -148,8 +148,8 @@ const QuestsPage: React.FC = () => {
         <div>
           <h2 className="text-3xl font-bold text-slate-800">Explore Quests</h2>
           <p className="text-slate-500">Find a mission that matches your skills or curiosity.</p>
-          {profile && !isPro(profile.plan || 'free') && !BETA_MODE && (() => {
-            const activeCount = quests.filter(q => q.participants.includes(profile.id) && q.status === 'active').length;
+          {profile && !isPro(profile.plan || 'free') && (() => {
+            const activeCount = quests.filter(q => q.participants.includes(profile.id) && q.status !== 'completed').length;
             const max = PLAN_LIMITS.free.maxActiveQuests;
             return (
               <div>
@@ -161,12 +161,12 @@ const QuestsPage: React.FC = () => {
           })()}
           {hasPro && (
             <p className="text-xs text-emerald-600 mt-1 font-medium">
-              ∞ Unlimited quests{BETA_MODE && plan === 'free' ? ' (beta)' : ''}
+              ∞ Unlimited quests
             </p>
           )}
         </div>
         <div className="flex gap-2 items-center">
-          {!hasPro && !BETA_MODE && (
+          {!hasPro && (
             <div className="hidden md:block">
               <AiUsageBadge
                 used={aiUsage.questGensUsed}
