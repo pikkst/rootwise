@@ -208,6 +208,19 @@ export function useQuests() {
     return { error: error?.message ?? null };
   };
 
+  // Legacy completeQuest for backwards compatibility - combines submission and verification
+  const completeQuest = async (questId: string, userId: string) => {
+    // Submit proof
+    const submitResult = await submitProof(questId, userId, {
+      type: 'text',
+      content: 'Marked complete via legacy interface',
+    });
+    if (submitResult.error) return submitResult;
+
+    // Auto-verify and award XP
+    return await verifyProof(questId, userId, true);
+  };
+
   return {
     quests,
     loading,
@@ -217,6 +230,7 @@ export function useQuests() {
     joinQuest,
     submitProof,
     verifyProof,
+    completeQuest,
     createQuest,
     publishQuest,
     startQuest,

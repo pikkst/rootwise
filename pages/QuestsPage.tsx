@@ -81,9 +81,11 @@ const QuestsPage: React.FC = () => {
           title: data.title,
           description: data.description,
           category: data.category,
-          rewardXP: 150,
+          reward_xp: 150,
           steps: data.steps,
-          createdBy: profile.id,
+          created_by: profile.id,
+          quest_type: 'solo',
+          is_virtual: true,
         });
         showToast('success', `Quest "${data.title}" created!`);
       }
