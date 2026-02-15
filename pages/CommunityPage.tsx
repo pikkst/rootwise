@@ -72,26 +72,38 @@ const CommunityPage: React.FC = () => {
             return (
               <div
                 key={group.id}
-                className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all cursor-pointer group"
+                className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all group"
               >
-                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition-transform">
-                  {group.icon}
+                <div className="flex gap-4 mb-4">
+                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-4xl group-hover:scale-110 transition-transform flex-shrink-0">
+                    {group.icon}
+                  </div>
+                  <div className="flex-1 cursor-pointer" onClick={() => navigate(`/community/${group.id}`)}>
+                    <h4 className="text-xl font-bold mb-1 group-hover:text-indigo-600 transition">{group.name}</h4>
+                    <p className="text-sm text-slate-500 mb-2">{group.member_count} Members</p>
+                  </div>
                 </div>
-                <h4 className="text-xl font-bold mb-1">{group.name}</h4>
-                <p className="text-sm text-slate-500 mb-2">{group.member_count} Members</p>
                 {group.description && (
                   <p className="text-xs text-slate-400 mb-6 line-clamp-2">{group.description}</p>
                 )}
-                <button
-                  onClick={() => handleToggleMembership(group.id)}
-                  className={`w-full py-3 font-bold rounded-xl transition-all ${
-                    isMember
-                      ? 'border border-red-100 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white'
-                      : 'border border-indigo-100 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
-                  }`}
-                >
-                  {isMember ? 'Leave Group' : 'Join Group'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => navigate(`/community/${group.id}`)}
+                    className="flex-1 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold rounded-xl transition text-sm"
+                  >
+                    View →
+                  </button>
+                  <button
+                    onClick={() => handleToggleMembership(group.id)}
+                    className={`flex-1 py-2 font-semibold rounded-xl transition text-sm ${
+                      isMember
+                        ? 'border border-red-100 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white'
+                        : 'border border-indigo-100 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
+                    }`}
+                  >
+                    {isMember ? 'Leave' : 'Join'}
+                  </button>
+                </div>
               </div>
             );
           })}

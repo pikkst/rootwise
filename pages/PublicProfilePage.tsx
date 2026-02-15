@@ -73,24 +73,29 @@ const PublicProfilePage: React.FC = () => {
 
   const loadStats = async () => {
     if (!id) return;
-    const [{ count: followers }, { count: following }, { count: friends }] = await Promise.all([
+    const [{ count: followers }, { count: following }, { count: friendsA }, { count: friendsB }] = await Promise.all([
       supabase
         .from('followers')
         .select('follower_id', { count: 'exact', head: true })
-        .eq('following_id', id),
+        .eq('user_id', id),
       supabase
         .from('followers')
-        .select('following_id', { count: 'exact', head: true })
+        .select('user_id', { count: 'exact', head: true })
         .eq('follower_id', id),
       supabase
         .from('friendships')
         .select('id', { count: 'exact', head: true })
         .eq('status', 'accepted')
-        .or(`requester_id.eq.${id},addressee_id.eq.${id}`),
+        .eq('user_id_a', id),
+      supabase
+        .from('friendships')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'accepted')
+        .eq('user_id_b', id),
     ]);
     setFollowersCount(followers ?? 0);
     setFollowingCount(following ?? 0);
-    setFriendsCount(friends ?? 0);
+    setFriendsCount((friendsA ?? 0) + (friendsB ?? 0));
   };
 
   const loadPosts = async () => {
@@ -176,17 +181,28 @@ const PublicProfilePage: React.FC = () => {
     if (!id || !user) return;
     const { data: followData } = await supabaseAny
       .from('followers')
-      .select('follower_id', { head: true })
+      .select('follower_id')
       .eq('follower_id', user.id)
-      .eq('following_id', id)
+      .eq('user_id', id)
       .maybeSingle();
     setIsFollowing(!!followData);
 
-    const { data: friendship } = await supabaseAny
+    // Get friendships where user is involved
+    const { data: friendshipA } = await supabaseAny
       .from('friendships')
       .select('status')
-      .or(`and(requester_id.eq.${user.id},addressee_id.eq.${id}),and(requester_id.eq.${id},addressee_id.eq.${user.id})`)
+      .eq('user_id_a', user.id)
+      .eq('user_id_b', id)
       .maybeSingle();
+    
+    const { data: friendshipB } = await supabaseAny
+      .from('friendships')
+      .select('status')
+      .eq('user_id_a', id)
+      .eq('user_id_b', user.id)
+      .maybeSingle();
+    
+    const friendship = friendshipA || friendshipB;
     if (friendship && friendship.status === 'accepted') {
       setFriendStatus('accepted');
     } else if (friendship && friendship.status === 'pending') {
@@ -214,11 +230,11 @@ const PublicProfilePage: React.FC = () => {
         .from('followers')
         .delete()
         .eq('follower_id', user.id)
-        .eq('following_id', id);
+        .eq('user_id', id);
     } else {
       await supabaseAny
         .from('followers')
-        .insert({ follower_id: user.id, following_id: id });
+        .insert({ follower_id: user.id, user_id: id });
     }
     await loadViewerRelations();
     await loadStats();
@@ -233,7 +249,7 @@ const PublicProfilePage: React.FC = () => {
     if (friendStatus !== 'none') return;
     await supabaseAny
       .from('friendships')
-      .insert({ requester_id: user.id, addressee_id: id });
+      .insert({ user_id_a: user.id, user_id_b: id });
     await loadViewerRelations();
   };
 

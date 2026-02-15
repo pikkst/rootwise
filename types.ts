@@ -311,14 +311,14 @@ export interface PostLike {
 
 export interface Follower {
   follower_id: string;
-  following_id: string;
+  user_id: string;
   created_at: string;
 }
 
 export interface Friendship {
   id: string;
-  requester_id: string;
-  addressee_id: string;
+  user_id_a: string;
+  user_id_b: string;
   status: 'pending' | 'accepted' | 'declined';
   created_at: string;
   updated_at: string;

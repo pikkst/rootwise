@@ -230,18 +230,22 @@ CREATE TABLE IF NOT EXISTS post_likes (
   PRIMARY KEY (post_id, user_id)
 );
 
+-- Drop old-schema friendships/followers if they exist (migrate to new schema)
+DROP TABLE IF EXISTS friendships CASCADE;
+DROP TABLE IF EXISTS followers CASCADE;
+
 CREATE TABLE IF NOT EXISTS followers (
   follower_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  following_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  PRIMARY KEY (follower_id, following_id)
+  PRIMARY KEY (follower_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS friendships (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  requester_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  addressee_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  status TEXT CHECK (status IN ('pending', 'accepted', 'declined')) DEFAULT 'pending',
+  user_id_a UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id_b UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  status TEXT CHECK (status IN ('pending', 'accepted', 'declined')) DEFAULT 'accepted',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -353,21 +357,21 @@ END $$;
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'friendships' AND policyname = 'Friendships are viewable by participants') THEN
     CREATE POLICY "Friendships are viewable by participants" ON friendships
-      FOR SELECT USING (auth.uid() = requester_id OR auth.uid() = addressee_id);
+      FOR SELECT USING (auth.uid() = user_id_a OR auth.uid() = user_id_b);
   END IF;
 END $$;
 
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'friendships' AND policyname = 'Users can request friends') THEN
-    CREATE POLICY "Users can request friends" ON friendships
-      FOR INSERT WITH CHECK (auth.uid() = requester_id);
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'friendships' AND policyname = 'Users can add friends') THEN
+    CREATE POLICY "Users can add friends" ON friendships
+      FOR INSERT WITH CHECK (auth.uid() = user_id_a OR auth.uid() = user_id_b);
   END IF;
 END $$;
 
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'friendships' AND policyname = 'Users can update own friendships') THEN
     CREATE POLICY "Users can update own friendships" ON friendships
-      FOR UPDATE USING (auth.uid() = requester_id OR auth.uid() = addressee_id);
+      FOR UPDATE USING (auth.uid() = user_id_a OR auth.uid() = user_id_b);
   END IF;
 END $$;
 
@@ -393,7 +397,8 @@ ALTER TABLE quests
   ADD COLUMN IF NOT EXISTS skills_required TEXT[] DEFAULT '{}',
   ADD COLUMN IF NOT EXISTS age_range_min INTEGER,
   ADD COLUMN IF NOT EXISTS age_range_max INTEGER,
-  ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('draft', 'published', 'matched', 'in_progress', 'submitted', 'verified', 'completed')) DEFAULT 'draft';
+  ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('draft', 'published', 'matched', 'in_progress', 'submitted', 'verified', 'completed')) DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS community_id UUID REFERENCES communities(id) ON DELETE SET NULL;
 
 -- Quest Members (replaces simple quest_participants with roles)
 CREATE TABLE IF NOT EXISTS quest_members (
@@ -557,6 +562,77 @@ DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'quest_matches' AND policyname = 'Users can update own match status') THEN
     CREATE POLICY "Users can update own match status" ON quest_matches
       FOR UPDATE USING (auth.uid() = proposed_user_id);
+  END IF;
+END $$;
+
+-- ============================================================
+-- Activity Feed System (posts, quest completions, achievements)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS activity_feed (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  community_id UUID REFERENCES communities(id) ON DELETE CASCADE,
+  activity_type TEXT CHECK (activity_type IN ('post', 'quest_completed', 'achievement', 'joined_community', 'friendship')) NOT NULL,
+  title TEXT,
+  description TEXT,
+  data JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE activity_feed ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'activity_feed' AND policyname = 'Activity feed is viewable by everyone') THEN
+    CREATE POLICY "Activity feed is viewable by everyone" ON activity_feed
+      FOR SELECT USING (true);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'activity_feed' AND policyname = 'Users can create own activities') THEN
+    CREATE POLICY "Users can create own activities" ON activity_feed
+      FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
+
+-- ============================================================
+-- Community Chat System (real-time messaging)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS community_messages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  community_id UUID REFERENCES communities(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  content TEXT NOT NULL,
+  is_system_message BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE community_messages ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'community_messages' AND policyname = 'Community members can read messages') THEN
+    CREATE POLICY "Community members can read messages" ON community_messages
+      FOR SELECT USING (
+        community_id IN (SELECT community_id FROM community_members WHERE user_id = auth.uid())
+      );
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'community_messages' AND policyname = 'Community members can post messages') THEN
+    CREATE POLICY "Community members can post messages" ON community_messages
+      FOR INSERT WITH CHECK (
+        auth.uid() = user_id
+        AND community_id IN (SELECT community_id FROM community_members WHERE user_id = auth.uid())
+      );
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'community_messages' AND policyname = 'Users can update own community messages') THEN
+    CREATE POLICY "Users can update own community messages" ON community_messages
+      FOR UPDATE USING (auth.uid() = user_id);
   END IF;
 END $$;
 
@@ -752,6 +828,69 @@ DO $$ BEGIN
     CREATE POLICY "Users can delete own post media" ON storage.objects
       FOR DELETE USING (
         bucket_id = 'post-media'
+        AND auth.role() = 'authenticated'
+        AND auth.uid()::text = (storage.foldername(name))[1]
+      );
+  END IF;
+END $$;
+
+-- ============================================================
+-- 12. Storage bucket for quest images (public) - AI generated images
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('quest-images', 'quest-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage' AND tablename = 'objects'
+      AND policyname = 'Quest images are publicly readable'
+  ) THEN
+    CREATE POLICY "Quest images are publicly readable" ON storage.objects
+      FOR SELECT USING (bucket_id = 'quest-images');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage' AND tablename = 'objects'
+      AND policyname = 'Users can upload quest images'
+  ) THEN
+    CREATE POLICY "Users can upload quest images" ON storage.objects
+      FOR INSERT WITH CHECK (
+        bucket_id = 'quest-images'
+        AND auth.role() = 'authenticated'
+        AND auth.uid()::text = (storage.foldername(name))[1]
+      );
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage' AND tablename = 'objects'
+      AND policyname = 'Users can update own quest images'
+  ) THEN
+    CREATE POLICY "Users can update own quest images" ON storage.objects
+      FOR UPDATE USING (
+        bucket_id = 'quest-images'
+        AND auth.role() = 'authenticated'
+        AND auth.uid()::text = (storage.foldername(name))[1]
+      );
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'storage' AND tablename = 'objects'
+      AND policyname = 'Users can delete own quest images'
+  ) THEN
+    CREATE POLICY "Users can delete own quest images" ON storage.objects
+      FOR DELETE USING (
+        bucket_id = 'quest-images'
         AND auth.role() = 'authenticated'
         AND auth.uid()::text = (storage.foldername(name))[1]
       );

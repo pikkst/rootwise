@@ -81,7 +81,7 @@ const ProfilePage: React.FC = () => {
     following: following.length,
   };
 
-  const pendingOutgoingIds = new Set(outgoingRequests.map((req) => req.addressee_id));
+  const pendingOutgoingIds = new Set(outgoingRequests.map((req) => req.user_id_b));
 
   const profileLite = useMemo<ProfileLite>(() => ({
     id: profile.id,
@@ -226,15 +226,15 @@ const ProfilePage: React.FC = () => {
       supabase
         .from('followers')
         .select('follower_id')
-        .eq('following_id', profile.id),
+        .eq('user_id', profile.id),
       supabase
         .from('followers')
-        .select('following_id')
+        .select('user_id')
         .eq('follower_id', profile.id),
     ]);
 
     const followerIds = (followerRows as Follower[] | null)?.map((row) => row.follower_id) ?? [];
-    const followingIds = (followingRows as Follower[] | null)?.map((row) => row.following_id) ?? [];
+    const followingIds = (followingRows as Follower[] | null)?.map((row) => row.user_id) ?? [];
 
     const [followersList, followingList] = await Promise.all([
       fetchProfilesByIds(followerIds),
@@ -246,33 +246,33 @@ const ProfilePage: React.FC = () => {
 
     const { data: friendRows } = await supabase
       .from('friendships')
-      .select('id, requester_id, addressee_id, status, created_at, updated_at')
+      .select('id, user_id_a, user_id_b, status, created_at, updated_at')
       .eq('status', 'accepted')
-      .or(`requester_id.eq.${profile.id},addressee_id.eq.${profile.id}`);
+      .or(`user_id_a.eq.${profile.id},user_id_b.eq.${profile.id}`);
 
     const friendships = (friendRows as Friendship[] | null) ?? [];
-    const friendIds = friendships.map((f) => (f.requester_id === profile.id ? f.addressee_id : f.requester_id));
+    const friendIds = friendships.map((f) => (f.user_id_a === profile.id ? f.user_id_b : f.user_id_a));
     setFriends(await fetchProfilesByIds(friendIds));
 
     const [{ data: incoming }, { data: outgoing }] = await Promise.all([
       supabase
         .from('friendships')
-        .select('id, requester_id, addressee_id, status, created_at, updated_at')
+        .select('id, user_id_a, user_id_b, status, created_at, updated_at')
         .eq('status', 'pending')
-        .eq('addressee_id', profile.id),
+        .eq('user_id_b', profile.id),
       supabase
         .from('friendships')
-        .select('id, requester_id, addressee_id, status, created_at, updated_at')
+        .select('id, user_id_a, user_id_b, status, created_at, updated_at')
         .eq('status', 'pending')
-        .eq('requester_id', profile.id),
+        .eq('user_id_a', profile.id),
     ]);
 
     setIncomingRequests((incoming as Friendship[] | null) ?? []);
     setOutgoingRequests((outgoing as Friendship[] | null) ?? []);
 
     const requesterIds = Array.from(new Set([
-      ...((incoming as Friendship[] | null) ?? []).map((req) => req.requester_id),
-      ...((outgoing as Friendship[] | null) ?? []).map((req) => req.addressee_id),
+      ...((incoming as Friendship[] | null) ?? []).map((req) => req.user_id_a),
+      ...((outgoing as Friendship[] | null) ?? []).map((req) => req.user_id_b),
     ]));
     const requestProfilesList = await fetchProfilesByIds(requesterIds);
     setRequestProfiles(
@@ -432,11 +432,11 @@ const ProfilePage: React.FC = () => {
         .from('followers')
         .delete()
         .eq('follower_id', profile.id)
-        .eq('following_id', targetId);
+        .eq('user_id', targetId);
     } else {
       await supabase
         .from('followers')
-        .insert({ follower_id: profile.id, following_id: targetId });
+        .insert({ follower_id: profile.id, user_id: targetId });
     }
     await loadSocial();
   };
@@ -444,7 +444,7 @@ const ProfilePage: React.FC = () => {
   const handleFriendRequest = async (targetId: string) => {
     await supabase
       .from('friendships')
-      .insert({ requester_id: profile.id, addressee_id: targetId });
+      .insert({ user_id_a: profile.id, user_id_b: targetId });
     await loadSocial();
   };
 
@@ -895,24 +895,24 @@ const ProfilePage: React.FC = () => {
                         <div key={req.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-xl">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-slate-100 overflow-hidden">
-                              {requestProfiles[req.requester_id]?.avatar_url ? (
+                              {requestProfiles[req.user_id_a]?.avatar_url ? (
                                 <img
-                                  src={requestProfiles[req.requester_id]?.avatar_url || ''}
-                                  alt={requestProfiles[req.requester_id]?.name || 'Requester'}
+                                  src={requestProfiles[req.user_id_a]?.avatar_url || ''}
+                                  alt={requestProfiles[req.user_id_a]?.name || 'Requester'}
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-white bg-indigo-500">
-                                  {getInitials(requestProfiles[req.requester_id]?.name || 'User')}
+                                  {getInitials(requestProfiles[req.user_id_a]?.name || 'User')}
                                 </div>
                               )}
                             </div>
                             <div>
                               <p className="text-sm font-bold text-slate-800">
-                                {requestProfiles[req.requester_id]?.name || 'New request'}
+                                {requestProfiles[req.user_id_a]?.name || 'New request'}
                               </p>
                               <p className="text-xs text-slate-400">
-                                {requestProfiles[req.requester_id]?.role || 'Member'}
+                                {requestProfiles[req.user_id_a]?.role || 'Member'}
                               </p>
                             </div>
                           </div>
