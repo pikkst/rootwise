@@ -270,7 +270,7 @@ const QuestDetailPage: React.FC = () => {
     setUploadingFile(true);
     try {
       const ext = file.name.split('.').pop() || 'bin';
-      const storagePath = `quest-files/${profile.id}/${questId}/${Date.now()}-${file.name}`;
+      const storagePath = `${profile.id}/quest-files/${questId}/${Date.now()}-${file.name}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('profile-media')
