@@ -30,13 +30,33 @@ interface OrgStats {
   memberActivity: { name: string; members: number }[];
 }
 
+interface PlatformStats {
+  totalUsers: number;
+  activeUsers7d: number;
+  totalCommunities: number;
+  totalQuests: number;
+  totalPosts: number;
+  totalComments: number;
+  totalLikes: number;
+}
+
+interface TrendPoint {
+  date: string;
+  users: number;
+  quests: number;
+  posts: number;
+}
+
 const AdminPage: React.FC = () => {
   const { profile } = useAuth();
   const { showToast } = useToast();
   const [communities, setCommunities] = useState<CommunityWithMembers[]>([]);
   const [stats, setStats] = useState<OrgStats | null>(null);
+  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
+  const [trendData, setTrendData] = useState<TrendPoint[]>([]);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'communities' | 'reports'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'traffic' | 'members' | 'communities' | 'reports'>('overview');
   const [inviteEmail, setInviteEmail] = useState('');
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null);
 
@@ -54,12 +74,129 @@ const AdminPage: React.FC = () => {
   const hasOrg = isOrg(plan);
 
   useEffect(() => {
-    if (!profile?.id || !hasOrg) {
+    if (!profile?.id) {
       setLoading(false);
       return;
     }
-    fetchAdminData();
+    bootstrapAdminData();
   }, [profile?.id, hasOrg]);
+
+  const bootstrapAdminData = async () => {
+    if (!profile?.id) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    const { data: adminRow } = await supabase
+      .from('platform_admins')
+      .select('user_id')
+      .eq('user_id', profile.id)
+      .maybeSingle();
+
+    const platformAdmin = !!adminRow;
+    setIsPlatformAdmin(platformAdmin);
+
+    if (platformAdmin) {
+      await Promise.all([fetchPlatformData(), fetchAllCommunitiesData()]);
+      setLoading(false);
+      return;
+    }
+
+    if (hasOrg) {
+      await fetchAdminData();
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
+  };
+
+  const fetchAllCommunitiesData = async () => {
+    const { data: comms } = await supabase
+      .from('communities')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (comms && comms.length > 0) {
+      await loadCommunityMembers(comms);
+    } else {
+      setCommunities([]);
+      setStats({
+        totalMembers: 0,
+        totalCommunities: 0,
+        totalQuests: 0,
+        totalXp: 0,
+        memberActivity: [],
+      });
+    }
+  };
+
+  const fetchPlatformData = async () => {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const iso = sevenDaysAgo.toISOString();
+
+    const [
+      usersCount,
+      activeUsersCount,
+      communitiesCount,
+      questsCount,
+      postsCount,
+      commentsCount,
+      likesCount,
+      usersTrend,
+      questsTrend,
+      postsTrend,
+    ] = await Promise.all([
+      supabase.from('profiles').select('id', { count: 'exact', head: true }),
+      supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('updated_at', iso),
+      supabase.from('communities').select('id', { count: 'exact', head: true }),
+      supabase.from('quests').select('id', { count: 'exact', head: true }),
+      supabase.from('posts').select('id', { count: 'exact', head: true }),
+      supabase.from('post_comments').select('id', { count: 'exact', head: true }),
+      supabase.from('post_likes').select('post_id', { count: 'exact', head: true }),
+      supabase.from('profiles').select('created_at').gte('created_at', iso),
+      supabase.from('quests').select('created_at').gte('created_at', iso),
+      supabase.from('posts').select('created_at').gte('created_at', iso),
+    ]);
+
+    setPlatformStats({
+      totalUsers: usersCount.count ?? 0,
+      activeUsers7d: activeUsersCount.count ?? 0,
+      totalCommunities: communitiesCount.count ?? 0,
+      totalQuests: questsCount.count ?? 0,
+      totalPosts: postsCount.count ?? 0,
+      totalComments: commentsCount.count ?? 0,
+      totalLikes: likesCount.count ?? 0,
+    });
+
+    const dayMap: Record<string, TrendPoint> = {};
+    for (let i = 6; i >= 0; i -= 1) {
+      const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+      const key = d.toISOString().slice(0, 10);
+      dayMap[key] = {
+        date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        users: 0,
+        quests: 0,
+        posts: 0,
+      };
+    }
+
+    (usersTrend.data ?? []).forEach((r: { created_at: string }) => {
+      const key = r.created_at.slice(0, 10);
+      if (dayMap[key]) dayMap[key].users += 1;
+    });
+    (questsTrend.data ?? []).forEach((r: { created_at: string }) => {
+      const key = r.created_at.slice(0, 10);
+      if (dayMap[key]) dayMap[key].quests += 1;
+    });
+    (postsTrend.data ?? []).forEach((r: { created_at: string }) => {
+      const key = r.created_at.slice(0, 10);
+      if (dayMap[key]) dayMap[key].posts += 1;
+    });
+
+    setTrendData(Object.values(dayMap));
+  };
 
   const fetchAdminData = async () => {
     if (!profile) return;
@@ -256,8 +393,38 @@ const AdminPage: React.FC = () => {
     showToast('success', 'Report downloaded!');
   };
 
+  const handleExportPlatformReport = () => {
+    if (!platformStats) return;
+
+    const report = [
+      'Rootwise Platform Admin Report',
+      `Generated: ${new Date().toLocaleDateString()}`,
+      '',
+      '--- Global Summary ---',
+      `Total Users: ${platformStats.totalUsers}`,
+      `Active Users (7d): ${platformStats.activeUsers7d}`,
+      `Total Communities: ${platformStats.totalCommunities}`,
+      `Total Quests: ${platformStats.totalQuests}`,
+      `Total Posts: ${platformStats.totalPosts}`,
+      `Total Comments: ${platformStats.totalComments}`,
+      `Total Likes: ${platformStats.totalLikes}`,
+      '',
+      '--- 7-Day Trend ---',
+      ...trendData.map((t) => `${t.date}: users=${t.users}, quests=${t.quests}, posts=${t.posts}`),
+    ].join('\n');
+
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rootwise-platform-report-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('success', 'Platform report downloaded!');
+  };
+
   // Upgrade wall for non-org users
-  if (!hasOrg) {
+  if (!hasOrg && !isPlatformAdmin) {
     return (
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-32">
         <SEOHead title="Admin Dashboard - Rootwise" description="Manage your organization." path="/admin" />
@@ -290,11 +457,15 @@ const AdminPage: React.FC = () => {
           <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
             <span className="text-amber-500">👑</span> Admin Dashboard
           </h2>
-          <p className="text-slate-500">Manage your organization, members, and communities.</p>
+          <p className="text-slate-500">
+            {isPlatformAdmin
+              ? 'Platform administration: reports, traffic, statistics, and system activity.'
+              : 'Manage your organization, members, and communities.'}
+          </p>
         </div>
         <div className="flex gap-2">
           <button
-            onClick={handleExportReport}
+            onClick={isPlatformAdmin ? handleExportPlatformReport : handleExportReport}
             className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2"
           >
             📥 Export Report
@@ -304,7 +475,10 @@ const AdminPage: React.FC = () => {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
-        {(['overview', 'members', 'communities', 'reports'] as const).map((tab) => (
+        {(isPlatformAdmin
+          ? (['overview', 'traffic', 'members', 'communities', 'reports'] as const)
+          : (['overview', 'members', 'communities', 'reports'] as const)
+        ).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -315,6 +489,7 @@ const AdminPage: React.FC = () => {
             }`}
           >
             {tab === 'overview' && '📊 '}
+            {tab === 'traffic' && '📈 '}
             {tab === 'members' && '👥 '}
             {tab === 'communities' && '🏘️ '}
             {tab === 'reports' && '📋 '}
@@ -331,27 +506,48 @@ const AdminPage: React.FC = () => {
       ) : (
         <>
           {/* Overview Tab */}
-          {activeTab === 'overview' && stats && (
+          {activeTab === 'overview' && (isPlatformAdmin ? !!platformStats : !!stats) && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                  <p className="text-sm text-slate-500 mb-1">Total Members</p>
-                  <p className="text-3xl font-black text-indigo-600">{stats.totalMembers}</p>
-                  <p className="text-xs text-slate-400 mt-1">of {PLAN_LIMITS.org.maxOrgMembers} max</p>
+              {isPlatformAdmin && platformStats ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Total Users</p>
+                    <p className="text-3xl font-black text-indigo-600">{platformStats.totalUsers}</p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Active Users (7d)</p>
+                    <p className="text-3xl font-black text-emerald-600">{platformStats.activeUsers7d}</p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Total Quests</p>
+                    <p className="text-3xl font-black text-amber-600">{platformStats.totalQuests}</p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Total Communities</p>
+                    <p className="text-3xl font-black text-purple-600">{platformStats.totalCommunities}</p>
+                  </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                  <p className="text-sm text-slate-500 mb-1">Communities</p>
-                  <p className="text-3xl font-black text-emerald-600">{stats.totalCommunities}</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Total Members</p>
+                    <p className="text-3xl font-black text-indigo-600">{stats.totalMembers}</p>
+                    <p className="text-xs text-slate-400 mt-1">of {PLAN_LIMITS.org.maxOrgMembers} max</p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Communities</p>
+                    <p className="text-3xl font-black text-emerald-600">{stats.totalCommunities}</p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Quest Activity</p>
+                    <p className="text-3xl font-black text-amber-600">{stats.totalQuests}</p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Total XP</p>
+                    <p className="text-3xl font-black text-purple-600">{stats.totalXp}</p>
+                  </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                  <p className="text-sm text-slate-500 mb-1">Quest Activity</p>
-                  <p className="text-3xl font-black text-amber-600">{stats.totalQuests}</p>
-                </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                  <p className="text-sm text-slate-500 mb-1">Total XP</p>
-                  <p className="text-3xl font-black text-purple-600">{stats.totalXp}</p>
-                </div>
-              </div>
+              )}
 
               {stats.memberActivity.length > 0 && (
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
@@ -372,40 +568,79 @@ const AdminPage: React.FC = () => {
             </div>
           )}
 
+          {activeTab === 'traffic' && isPlatformAdmin && (
+            <div className="space-y-6">
+              {platformStats && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Posts</p>
+                    <p className="text-3xl font-black text-indigo-600">{platformStats.totalPosts}</p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Comments</p>
+                    <p className="text-3xl font-black text-emerald-600">{platformStats.totalComments}</p>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-sm text-slate-500 mb-1">Likes</p>
+                    <p className="text-3xl font-black text-amber-600">{platformStats.totalLikes}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <h3 className="text-lg font-bold mb-4">7-day Platform Activity</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={trendData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="date" axisLine={false} tickLine={false} />
+                      <YAxis axisLine={false} tickLine={false} />
+                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                      <Bar dataKey="users" fill="#6366f1" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="quests" fill="#10b981" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="posts" fill="#f59e0b" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Members Tab */}
           {activeTab === 'members' && (
             <div className="space-y-6">
-              {/* Invite section */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 className="font-bold mb-4">Invite New Member</h3>
-                <div className="flex gap-3">
-                  <input
-                    type="email"
-                    placeholder="Enter email address..."
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
-                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                  />
-                  <button
-                    onClick={handleInvite}
-                    className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all"
-                  >
-                    Send Invite
-                  </button>
+              {!isPlatformAdmin && (
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                  <h3 className="font-bold mb-4">Invite New Member</h3>
+                  <div className="flex gap-3">
+                    <input
+                      type="email"
+                      placeholder="Enter email address..."
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
+                      className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    />
+                    <button
+                      onClick={handleInvite}
+                      className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all"
+                    >
+                      Send Invite
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-2">
+                    Members will receive an email with a link to join your organization.
+                    {stats && (
+                      <span className={`font-medium ${
+                        remainingOrgSlots(stats.totalMembers) <= 5 ? 'text-amber-600' : ''
+                      }`}>
+                        {' '}({stats.totalMembers}/{PLAN_LIMITS.org.maxOrgMembers} seats used
+                        {remainingOrgSlots(stats.totalMembers) <= 5 && ` — ${remainingOrgSlots(stats.totalMembers)} remaining`})
+                      </span>
+                    )}
+                  </p>
                 </div>
-                <p className="text-xs text-slate-400 mt-2">
-                  Members will receive an email with a link to join your organization.
-                  {stats && (
-                    <span className={`font-medium ${
-                      remainingOrgSlots(stats.totalMembers) <= 5 ? 'text-amber-600' : ''
-                    }`}>
-                      {' '}({stats.totalMembers}/{PLAN_LIMITS.org.maxOrgMembers} seats used
-                      {remainingOrgSlots(stats.totalMembers) <= 5 && ` — ${remainingOrgSlots(stats.totalMembers)} remaining`})
-                    </span>
-                  )}
-                </p>
-              </div>
+              )}
 
               {/* Member list */}
               <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
@@ -623,15 +858,19 @@ const AdminPage: React.FC = () => {
           {activeTab === 'reports' && (
             <div className="space-y-6">
               <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 className="text-lg font-bold mb-6">Organization Reports</h3>
+                <h3 className="text-lg font-bold mb-6">{isPlatformAdmin ? 'Platform Reports' : 'Organization Reports'}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-6 border border-slate-200 rounded-2xl hover:border-indigo-300 transition-all cursor-pointer" onClick={handleExportReport}>
+                  <div className="p-6 border border-slate-200 rounded-2xl hover:border-indigo-300 transition-all cursor-pointer" onClick={isPlatformAdmin ? handleExportPlatformReport : handleExportReport}>
                     <div className="flex items-center gap-3 mb-3">
                       <span className="text-2xl">📊</span>
-                      <h4 className="font-bold">Full Organization Report</h4>
+                      <h4 className="font-bold">{isPlatformAdmin ? 'Full Platform Report' : 'Full Organization Report'}</h4>
                     </div>
-                    <p className="text-sm text-slate-500 mb-4">Complete overview of members, communities, quests, and XP across your organization.</p>
+                    <p className="text-sm text-slate-500 mb-4">
+                      {isPlatformAdmin
+                        ? 'Complete platform-level overview of users, communities, quests, and traffic indicators.'
+                        : 'Complete overview of members, communities, quests, and XP across your organization.'}
+                    </p>
                     <span className="text-indigo-600 text-sm font-bold">Download .txt →</span>
                   </div>
 

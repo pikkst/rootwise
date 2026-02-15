@@ -91,6 +91,11 @@ export interface Database {
         Insert: Omit<XpHistoryEntry, 'id' | 'created_at'>;
         Update: Partial<XpHistoryEntry>;
       };
+      platform_admins: {
+        Row: PlatformAdmin;
+        Insert: Omit<PlatformAdmin, 'created_at'>;
+        Update: Partial<PlatformAdmin>;
+      };
     };
     Views: {
       community_with_member_count: {
@@ -349,6 +354,13 @@ export interface XpHistoryEntry {
   user_id: string;
   xp_gained: number;
   source: string;
+  created_at: string;
+}
+
+export interface PlatformAdmin {
+  user_id: string;
+  role: 'super_admin' | 'admin';
+  created_by: string | null;
   created_at: string;
 }
 
