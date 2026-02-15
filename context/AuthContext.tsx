@@ -29,25 +29,81 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const normalizeProfile = (data: Partial<Profile> | null | undefined, authUser: SupabaseUser) => {
+    const now = new Date().toISOString();
+    return {
+      id: data?.id ?? authUser.id,
+      name: data?.name ?? authUser.user_metadata?.name ?? authUser.email ?? 'User',
+      age: data?.age ?? null,
+      role: data?.role ?? 'Hybrid',
+      skills: data?.skills ?? [],
+      interests: data?.interests ?? [],
+      avatar_url: data?.avatar_url ?? null,
+      xp: data?.xp ?? 0,
+      level: data?.level ?? 1,
+      plan: data?.plan ?? 'free',
+      stripe_customer_id: data?.stripe_customer_id ?? null,
+      created_at: data?.created_at ?? now,
+      updated_at: data?.updated_at ?? now,
+    } as Profile;
+  };
+
+  const createProfile = async (authUser: SupabaseUser) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert({
+        id: authUser.id,
+        name: authUser.user_metadata?.name ?? authUser.email ?? 'User',
+        avatar_url: authUser.user_metadata?.avatar_url ?? null,
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('createProfile Supabase error:', error.message, error);
+      return null;
+    }
+    return normalizeProfile(data as Profile, authUser);
+  };
+
+  const fetchProfile = async (authUser: SupabaseUser) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', authUser.id)
         .single();
       if (error) {
+        if (error.code === 'PGRST116') {
+          const created = await createProfile(authUser);
+          if (created) {
+            setProfile(created);
+            return;
+          }
+        }
         console.error('fetchProfile Supabase error:', error.message, error);
+        setProfile(normalizeProfile(null, authUser));
         return;
       }
-      if (data) setProfile(data as Profile);
+      if (data) {
+        setProfile(normalizeProfile(data as Profile, authUser));
+        return;
+      }
+
+      const created = await createProfile(authUser);
+      if (created) {
+        setProfile(created);
+      } else {
+        setProfile(normalizeProfile(null, authUser));
+      }
     } catch (err) {
       console.error('fetchProfile exception:', err);
+      setProfile(normalizeProfile(null, authUser));
     }
   };
 
   const refreshProfile = async () => {
-    if (user) await fetchProfile(user.id);
+    if (user) await fetchProfile(user);
   };
 
   useEffect(() => {
@@ -56,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchProfile(session.user.id);
+        await fetchProfile(session.user);
       }
       setLoading(false);
     }).catch((err) => {
@@ -70,7 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          await fetchProfile(session.user);
         } else {
           setProfile(null);
         }
