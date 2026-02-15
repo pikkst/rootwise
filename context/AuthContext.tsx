@@ -31,14 +31,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
+      if (error) {
+        console.error('fetchProfile Supabase error:', error.message, error);
+        return;
+      }
       if (data) setProfile(data as Profile);
     } catch (err) {
-      console.error('fetchProfile error:', err);
+      console.error('fetchProfile exception:', err);
     }
   };
 
@@ -48,11 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        await fetchProfile(session.user.id);
       }
       setLoading(false);
     }).catch((err) => {
