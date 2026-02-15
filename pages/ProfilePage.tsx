@@ -39,8 +39,12 @@ const ProfilePage: React.FC = () => {
   const [editName, setEditName] = useState(profile?.name ?? '');
   const [editAge, setEditAge] = useState(profile?.age ?? 0);
   const [editRole, setEditRole] = useState<'Sage' | 'Seeker' | 'Hybrid'>(profile?.role ?? 'Hybrid');
+  const [editPreferredLanguage, setEditPreferredLanguage] = useState(profile?.preferred_language ?? '');
+  const [editSpokenLanguages, setEditSpokenLanguages] = useState<string[]>(profile?.spoken_languages ?? []);
   const [editSkills, setEditSkills] = useState<string[]>(profile?.skills ?? []);
   const [editInterests, setEditInterests] = useState<string[]>(profile?.interests ?? []);
+  const [editLocationLabel, setEditLocationLabel] = useState('');
+  const [primaryLocationLabel, setPrimaryLocationLabel] = useState<string | null>(null);
   const [editAvatar, setEditAvatar] = useState(profile?.avatar_url ?? '');
   const [editBanner, setEditBanner] = useState(profile?.banner_url ?? '');
   const [editBio, setEditBio] = useState(profile?.bio ?? '');
@@ -134,6 +138,8 @@ const ProfilePage: React.FC = () => {
     setEditName(profile.name);
     setEditAge(profile.age ?? 0);
     setEditRole(profile.role);
+    setEditPreferredLanguage(profile.preferred_language ?? '');
+    setEditSpokenLanguages([...(profile.spoken_languages ?? [])]);
     setEditSkills([...profile.skills]);
     setEditInterests([...profile.interests]);
     setEditAvatar(profile.avatar_url ?? '');
@@ -143,8 +149,78 @@ const ProfilePage: React.FC = () => {
       x: profile.banner_position_x ?? 50,
       y: profile.banner_position_y ?? 50,
     });
+    setEditLocationLabel(primaryLocationLabel ?? '');
     setActiveTab('about');
     setIsEditingProfile(true);
+  };
+
+  const normalizeLocationName = (value: string) =>
+    value
+      .trim()
+      .toLowerCase()
+      .replaceAll('õ', 'o')
+      .replaceAll('ä', 'a')
+      .replaceAll('ö', 'o')
+      .replaceAll('ü', 'u');
+
+  const loadPrimaryLocation = async () => {
+    const { data } = await (supabase as any)
+      .from('profile_locations')
+      .select('is_primary, locations(country, county, city, locality, normalized_name)')
+      .eq('profile_id', profile.id)
+      .eq('is_primary', true)
+      .limit(1)
+      .maybeSingle();
+
+    const loc = data?.locations;
+    if (!loc) {
+      setPrimaryLocationLabel(null);
+      return;
+    }
+
+    const label = [loc.locality, loc.city, loc.county, loc.country].filter(Boolean).join(', ')
+      || loc.normalized_name
+      || null;
+    setPrimaryLocationLabel(label);
+  };
+
+  const savePrimaryLocation = async (rawLocation: string) => {
+    const locationValue = rawLocation.trim();
+    if (!locationValue) {
+      await supabase.from('profile_locations').delete().eq('profile_id', profile.id);
+      setPrimaryLocationLabel(null);
+      return;
+    }
+
+    const normalized = normalizeLocationName(locationValue);
+    const { data: locationRow, error: locationError } = await (supabase as any)
+      .from('locations')
+      .upsert({
+        normalized_name: normalized,
+        country: 'Estonia',
+        city: locationValue,
+      }, { onConflict: 'normalized_name' })
+      .select('id')
+      .single();
+
+    if (locationError || !locationRow?.id) {
+      throw new Error(locationError?.message || 'Failed to save location');
+    }
+
+    await supabase.from('profile_locations').delete().eq('profile_id', profile.id);
+
+    const { error: profileLocationError } = await supabase.from('profile_locations').insert({
+      profile_id: profile.id,
+      location_id: locationRow.id,
+      is_primary: true,
+      visibility: 'public',
+    });
+
+    if (profileLocationError) {
+      throw new Error(profileLocationError.message || 'Failed to link location to profile');
+    }
+
+    setPrimaryLocationLabel(locationValue);
   };
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -154,6 +230,8 @@ const ProfilePage: React.FC = () => {
       name: editName,
       age: editAge,
       role: editRole,
+      preferred_language: editPreferredLanguage.trim() || null,
+      spoken_languages: editSpokenLanguages,
       skills: editSkills,
       interests: editInterests,
       avatar_url: editAvatar || null,
@@ -162,8 +240,10 @@ const ProfilePage: React.FC = () => {
       banner_position_y: Math.round(editBannerPosition.y),
       bio: editBio || null,
     });
+    await savePrimaryLocation(editLocationLabel);
     showToast('success', 'Profile updated!');
     setIsEditingProfile(false);
+    await loadPrimaryLocation();
   };
 
   const handleSkillAdd = (skill: string) => {
@@ -176,6 +256,13 @@ const ProfilePage: React.FC = () => {
     if (interest && !editInterests.includes(interest)) {
       setEditInterests([...editInterests, interest]);
     }
+  };
+
+  const handleSpokenLanguageAdd = (language: string) => {
+    const normalized = language.trim();
+    if (!normalized) return;
+    if (editSpokenLanguages.some((l) => l.toLowerCase() === normalized.toLowerCase())) return;
+    setEditSpokenLanguages([...editSpokenLanguages, normalized]);
   };
 
   const fetchProfilesByIds = async (ids: string[]) => {
@@ -328,6 +415,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     void loadPosts();
     void loadSocial();
+    void loadPrimaryLocation();
   }, [profile.id]);
 
   const uploadProfileMedia = async (file: File, kind: 'avatar' | 'banner') => {
@@ -595,6 +683,11 @@ const ProfilePage: React.FC = () => {
             <div className="flex-1">
               <h2 className="text-3xl font-bold text-slate-800">{currentUser.name}</h2>
               <p className="text-slate-500">{profile.role}  {profile.age ?? 'Age not set'}</p>
+              {!isEditingProfile && (profile.preferred_language || primaryLocationLabel) && (
+                <p className="text-sm text-slate-500 mt-1">
+                  {[profile.preferred_language, primaryLocationLabel].filter(Boolean).join(' • ')}
+                </p>
+              )}
               {profile.bio && !isEditingProfile && (
                 <p className="mt-3 text-sm text-slate-600 max-w-2xl">{profile.bio}</p>
               )}
@@ -686,6 +779,14 @@ const ProfilePage: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="text-slate-400">Age</span>
                     <span className="font-semibold text-slate-700">{profile.age ?? 'Not set'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Language</span>
+                    <span className="font-semibold text-slate-700">{profile.preferred_language ?? 'Not set'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Location</span>
+                    <span className="font-semibold text-slate-700">{primaryLocationLabel ?? 'Not set'}</span>
                   </div>
                 </div>
               </div>
@@ -1243,6 +1344,34 @@ const ProfilePage: React.FC = () => {
                               required
                             />
                           </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-600">Primary Language</label>
+                            <select
+                              value={editPreferredLanguage}
+                              onChange={(e) => setEditPreferredLanguage(e.target.value)}
+                              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                            >
+                              <option value="">Select language</option>
+                              <option value="Estonian">Estonian</option>
+                              <option value="English">English</option>
+                              <option value="Russian">Russian</option>
+                              <option value="Finnish">Finnish</option>
+                              <option value="Latvian">Latvian</option>
+                              <option value="Lithuanian">Lithuanian</option>
+                              <option value="German">German</option>
+                              <option value="Swedish">Swedish</option>
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-600">Primary Location</label>
+                            <input
+                              type="text"
+                              value={editLocationLabel}
+                              onChange={(e) => setEditLocationLabel(e.target.value)}
+                              placeholder="e.g. Põltsamaa, Jõgevamaa"
+                              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                            />
+                          </div>
                         </div>
 
                         <div className="space-y-2">
@@ -1328,6 +1457,36 @@ const ProfilePage: React.FC = () => {
                               if (e.key === 'Enter') {
                                 e.preventDefault();
                                 handleInterestAdd((e.target as HTMLInputElement).value);
+                                (e.target as HTMLInputElement).value = '';
+                              }
+                            }}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-600">Spoken Languages (Add new)</label>
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {editSpokenLanguages.map((lang) => (
+                              <span key={lang} className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-sm flex items-center gap-2">
+                                {lang}
+                                <button
+                                  type="button"
+                                  onClick={() => setEditSpokenLanguages(editSpokenLanguages.filter((l) => l !== lang))}
+                                  className="hover:text-red-500"
+                                >
+                                  &times;
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Type language and press Enter..."
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleSpokenLanguageAdd((e.target as HTMLInputElement).value);
                                 (e.target as HTMLInputElement).value = '';
                               }
                             }}

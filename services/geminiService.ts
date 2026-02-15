@@ -53,7 +53,13 @@ export class RootwiseAIService {
       const systemInstruction = "You are Rootwise AI, a wise and encouraging mentor for an intergenerational wisdom platform. You help connect generations through shared wisdom and roots. Your tone is warm, patient, and highly productive. Encourage users to share their unique life perspectives regardless of age. When asked about quests, suggest collaborative activities between different generations. Keep responses concise but meaningful — aim for 2-4 paragraphs max.";
 
       const result = await this.callProxy('chat', { contents, systemInstruction });
-      return result.text ?? "I'm having a little trouble right now. Please try again.";
+      const baseText = result.text ?? "I'm having a little trouble right now. Please try again.";
+
+      if (result.createdQuest?.id) {
+        return `${baseText}\n\n✅ I created a quest for this request: ${result.createdQuest.title} (ID: ${result.createdQuest.id}).`;
+      }
+
+      return baseText;
     } catch (error) {
       console.error("AI Mentor Error:", error);
       return "I'm having a little trouble connecting right now. Please try again in a moment.";

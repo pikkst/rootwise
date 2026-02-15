@@ -36,6 +36,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name: data?.name ?? authUser.user_metadata?.name ?? authUser.email ?? 'User',
       age: data?.age ?? null,
       role: data?.role ?? 'Hybrid',
+      preferred_language: data?.preferred_language ?? null,
+      spoken_languages: data?.spoken_languages ?? [],
       skills: data?.skills ?? [],
       interests: data?.interests ?? [],
       avatar_url: data?.avatar_url ?? null,

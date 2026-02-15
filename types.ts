@@ -96,6 +96,16 @@ export interface Database {
         Insert: Omit<PlatformAdmin, 'created_at'>;
         Update: Partial<PlatformAdmin>;
       };
+      locations: {
+        Row: Location;
+        Insert: Omit<Location, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Location>;
+      };
+      profile_locations: {
+        Row: ProfileLocation;
+        Insert: Omit<ProfileLocation, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<ProfileLocation>;
+      };
       user_reports: {
         Row: UserReport;
         Insert: Omit<UserReport, 'id' | 'created_at' | 'updated_at' | 'reviewed_at'>;
@@ -119,6 +129,8 @@ export interface Profile {
   name: string;
   age: number | null;
   role: 'Sage' | 'Seeker' | 'Hybrid';
+  preferred_language: string | null;
+  spoken_languages: string[];
   skills: string[];
   interests: string[];
   avatar_url: string | null;
@@ -367,6 +379,31 @@ export interface PlatformAdmin {
   role: 'super_admin' | 'admin';
   created_by: string | null;
   created_at: string;
+}
+
+export interface Location {
+  id: string;
+  country: string;
+  county: string | null;
+  city: string | null;
+  locality: string | null;
+  postal_code: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  normalized_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProfileLocation {
+  id: string;
+  profile_id: string;
+  location_id: string;
+  is_primary: boolean;
+  visibility: 'public' | 'private';
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UserReport {
