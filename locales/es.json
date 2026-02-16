@@ -33,7 +33,6 @@
     "level": "Nivel",
     "members": "Miembros",
     "member": "miembro",
-    "membersPlural": "miembros",
     "you": "Tú",
     "user": "Usuario",
     "or": "o",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organización",
     "unlimited": "Ilimitado",
-    "remaining": "{{count}} restantes",
     "total": "total",
     "noCreditCard": "Sin tarjeta de crédito",
     "startInMinutes": "Comienza en minutos",
     "coreFree": "La experiencia central es gratuita",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} miembro",
+    "membersPlural_other": "👥 {{count}} miembros",
+    "remaining_one": "{{count}} restante",
+    "remaining_other": "{{count}} restantes"
   },
   "nav": {
     "dashboard": "Panel de control",
@@ -241,10 +243,11 @@
     "completed": "✓ COMPLETADA",
     "xpReward": "+{{xp}} XP",
     "beFirst": "¡Sea el primero!",
-    "countJoined": "{{count}} unidos",
     "done": "¡Hecho!",
     "markComplete": "Marcar como completa",
-    "joinQuest": "Unirse a la misión"
+    "joinQuest": "Unirse a la misión",
+    "countJoined_one": "{{count}} se ha unido",
+    "countJoined_other": "{{count}} se han unido"
   },
   "questDetail": {
     "notFound": "Misión no encontrada",
@@ -384,7 +387,6 @@
     "title": "Centro de la Comunidad",
     "subtitle": "Conecte con grupos de aprendices permanentes con ideas afines de todas las generaciones.",
     "loading": "Cargando comunidades...",
-    "membersCount": "{{count}} Miembros",
     "view": "Ver →",
     "noCommunitiesTitle": "Aún no hay comunidades",
     "noCommunitiesDesc": "Las comunidades aparecerán una vez que se haya sembrado la base de datos.",
@@ -393,7 +395,9 @@
     "join": "Unirse",
     "leave": "Salir",
     "failedJoin": "No se pudo unirse al grupo",
-    "failedLeave": "No se pudo salir del grupo"
+    "failedLeave": "No se pudo salir del grupo",
+    "membersCount_one": "{{count}} Miembro",
+    "membersCount_other": "{{count}} Miembros"
   },
   "communityDetail": {
     "tabOverview": "📋 Resumen",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "¡Informe de miembros descargado!",
     "platformReportFullDesc": "Descripción completa a nivel de plataforma de usuarios, comunidades, misiones e indicadores de tráfico.",
     "orgReportFullDesc": "Descripción completa de los miembros, comunidades, misiones y XP en toda su organización.",
-    "membersCount": "{{count}} miembros",
-    "membersLabel": "Miembros"
+    "membersLabel": "Miembros",
+    "membersCount_one": "{{count}} miembro",
+    "membersCount_other": "{{count}} miembros"
   },
   "reports": {
     "seoTitle": "Enviar un Informe - Rootwise",

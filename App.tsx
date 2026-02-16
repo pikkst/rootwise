@@ -1,8 +1,9 @@
 
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { SUPPORTED_LANGUAGES } from './i18n';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import Navigation from './components/Navigation';
@@ -26,6 +27,42 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import ReportsPage from './pages/ReportsPage';
 
+const LANG_CODES = new Set(SUPPORTED_LANGUAGES.map(l => l.code));
+
+/** Syncs the URL /:lang prefix with i18next language */
+const LocaleLayout: React.FC = () => {
+  const { lang } = useParams<{ lang: string }>();
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    if (lang && LANG_CODES.has(lang) && i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+      localStorage.setItem('rootwise_language', lang);
+      document.documentElement.lang = lang;
+    }
+  }, [lang, i18n]);
+
+  return (
+    <div className="min-h-screen bg-slate-50 transition-colors">
+      <Navigation />
+      <main>
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+/** Redirects bare "/" to "/:detectedLang/" if the user's language isn't English */
+const RootRedirect: React.FC = () => {
+  const { i18n } = useTranslation();
+  const lang = i18n.language || 'en';
+  if (lang !== 'en' && LANG_CODES.has(lang)) {
+    return <Navigate to={`/${lang}/`} replace />;
+  }
+  return <LandingPage />;
+};
+
 /** Wrapper that redirects unauthenticated users to /auth */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -46,84 +83,45 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
+/** The full set of page routes — used both bare and under /:lang */
+const pageRoutes = (
+  <>
+    <Route index element={<LandingPage />} />
+    <Route path="auth" element={<AuthPage />} />
+    <Route path="pricing" element={<PricingPage />} />
+    <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+    <Route path="terms-of-service" element={<TermsOfServicePage />} />
+    <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+    <Route path="quests" element={<QuestsPage />} />
+    <Route path="quests/:questId" element={<QuestDetailPage />} />
+    <Route path="quest-discovery" element={<QuestDiscoveryPage />} />
+    <Route path="community" element={<CommunityPage />} />
+    <Route path="community/:communityId" element={<CommunityDetailPage />} />
+    <Route path="ai-nexus" element={<ProtectedRoute><AiNexusPage /></ProtectedRoute>} />
+    <Route path="profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+    <Route path="users/:id" element={<PublicProfilePage />} />
+    <Route path="analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+    <Route path="matching" element={<ProtectedRoute><MatchingPage /></ProtectedRoute>} />
+    <Route path="admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+    <Route path="reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+  </>
+);
+
 const AppRoutes: React.FC = () => {
   return (
-    <div className="min-h-screen bg-slate-50 transition-colors">
-      <Navigation />
-      <main>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/quests" element={<QuestsPage />} />
-          <Route path="/quests/:questId" element={<QuestDetailPage />} />
-          <Route path="/quest-discovery" element={<QuestDiscoveryPage />} />
-          <Route path="/community" element={<CommunityPage />} />
-          <Route path="/community/:communityId" element={<CommunityDetailPage />} />
-          <Route
-            path="/ai-nexus"
-            element={
-              <ProtectedRoute>
-                <AiNexusPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/users/:id" element={<PublicProfilePage />} />
-          <Route
-            path="/analytics"
-            element={
-              <ProtectedRoute>
-                <AnalyticsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/matching"
-            element={
-              <ProtectedRoute>
-                <MatchingPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute>
-                <ReportsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+    <Routes>
+      {/* Bare routes (English / default) */}
+      <Route element={<LocaleLayout />}>
+        {pageRoutes}
+      </Route>
+
+      {/* /:lang prefixed routes — syncs URL lang with i18n */}
+      <Route path="/:lang" element={<LocaleLayout />}>
+        {pageRoutes}
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 };
 

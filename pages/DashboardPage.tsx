@@ -10,6 +10,7 @@ import { useQuests } from '../hooks/useQuests';
 import { useConnections } from '../hooks/useConnections';
 import { profileToUser } from '../types';
 import { supabase } from '../services/supabase';
+import { formatChartDate, formatDateTime } from '../utils/formatDate';
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const DashboardPage: React.FC = () => {
         // Aggregate by date (not weekday name)
         const byDay: Record<string, number> = {};
         data.forEach((entry: { xp_gained: number; created_at: string }) => {
-          const day = new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          const day = formatChartDate(new Date(entry.created_at));
           byDay[day] = (byDay[day] || 0) + entry.xp_gained;
         });
         setXpHistory(Object.entries(byDay).map(([name, xp]) => ({ name, xp })));
@@ -194,7 +195,7 @@ const DashboardPage: React.FC = () => {
                       <div>
                         <p className="text-sm font-bold text-slate-800">{c.partner?.name ?? t('dashboard.partner')}</p>
                         <p className="text-xs text-slate-500">
-                          {c.scheduled_at ? new Date(c.scheduled_at).toLocaleString() : t('dashboard.tbd')}
+                          {c.scheduled_at ? formatDateTime(c.scheduled_at) : t('dashboard.tbd')}
                         </p>
                         {c.topic && <p className="text-xs text-indigo-500 mt-1">{c.topic}</p>}
                       </div>

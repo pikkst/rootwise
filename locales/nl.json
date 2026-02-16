@@ -33,7 +33,6 @@
     "level": "Niveau",
     "members": "Leden",
     "member": "lid",
-    "membersPlural": "leden",
     "you": "U",
     "user": "Gebruiker",
     "or": "of",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organisatie",
     "unlimited": "Ongelimiteerd",
-    "remaining": "{{count}} resterend",
     "total": "totaal",
     "noCreditCard": "Geen creditcard",
     "startInMinutes": "Start over enkele minuten",
     "coreFree": "De basiservaring is gratis",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} lid",
+    "membersPlural_other": "👥 {{count}} leden",
+    "remaining_one": "{{count}} resterend",
+    "remaining_other": "{{count}} resterend"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -241,10 +243,11 @@
     "completed": "✓ VOLTOOID",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Wees de eerste!",
-    "countJoined": "{{count}} deelnemers",
     "done": "Klaar!",
     "markComplete": "Markeer als voltooid",
-    "joinQuest": "Deelnemen aan Quest"
+    "joinQuest": "Deelnemen aan Quest",
+    "countJoined_one": "{{count}} heeft zich aangesloten",
+    "countJoined_other": "{{count}} hebben zich aangesloten"
   },
   "questDetail": {
     "notFound": "Quest niet gevonden",
@@ -384,7 +387,6 @@
     "title": "Community Hub",
     "subtitle": "Maak contact met groepen gelijkgestemde, levenslange leerlingen van alle generaties.",
     "loading": "Communities laden...",
-    "membersCount": "{{count}} Leden",
     "view": "Bekijk →",
     "noCommunitiesTitle": "Nog geen communities",
     "noCommunitiesDesc": "Communities verschijnen zodra de database is gevuld.",
@@ -393,7 +395,9 @@
     "join": "Deelnemen",
     "leave": "Verlaten",
     "failedJoin": "Deelnemen aan de groep is mislukt",
-    "failedLeave": "De groep verlaten is mislukt"
+    "failedLeave": "De groep verlaten is mislukt",
+    "membersCount_one": "{{count}} Lid",
+    "membersCount_other": "{{count}} Leden"
   },
   "communityDetail": {
     "tabOverview": "📋 Overzicht",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Ledenrapport gedownload!",
     "platformReportFullDesc": "Compleet platformoverzicht van gebruikers, communities, quests en verkeersindicatoren.",
     "orgReportFullDesc": "Compleet overzicht van leden, communities, quests en XP binnen uw organisatie.",
-    "membersCount": "{{count}} leden",
-    "membersLabel": "Leden"
+    "membersLabel": "Leden",
+    "membersCount_one": "{{count}} lid",
+    "membersCount_other": "{{count}} leden"
   },
   "reports": {
     "seoTitle": "Een rapport indienen - Rootwise",

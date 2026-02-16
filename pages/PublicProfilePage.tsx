@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Follower, Friendship, Post, PostComment, PostLike, Profile, getInitials } from '../types';
 import { supabase } from '../services/supabase';
+import { formatDateTime } from '../utils/formatDate';
 
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'avatar_url' | 'role'>;
 type CommentWithMeta = PostComment & { author: ProfileLite };
@@ -450,7 +451,7 @@ const PublicProfilePage: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-800">{post.author.name}</p>
-                      <p className="text-xs text-slate-400">{new Date(post.created_at).toLocaleString()}</p>
+                      <p className="text-xs text-slate-400">{formatDateTime(post.created_at)}</p>
                     </div>
                   </div>
                   <p className="mt-4 text-sm text-slate-700 whitespace-pre-line">{post.content}</p>

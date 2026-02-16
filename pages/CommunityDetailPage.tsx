@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { supabase } from '../services/supabase';
 import { RootwiseAIService } from '../services/geminiService';
 import { Community, CommunityMember, DbQuest, Profile } from '../types';
+import { formatDateNumeric, formatTime } from '../utils/formatDate';
 
 type Tab = 'overview' | 'members' | 'quests' | 'activity' | 'chat';
 
@@ -580,7 +581,7 @@ const CommunityDetailPage: React.FC = () => {
                   <h1 className="text-xl sm:text-3xl font-bold text-gray-900">{community.name}</h1>
                   <p className="text-gray-600 mt-1">{community.description}</p>
                   <div className="flex gap-3 mt-3 text-sm">
-                    <span className="text-gray-600">👥 {members.length} {t('common.membersPlural')}</span>
+                    <span className="text-gray-600">{t('common.membersPlural', { count: members.length })}</span>
                     <span className="text-gray-600">🏷️ {community.category}</span>
                   </div>
                 </div>
@@ -861,7 +862,7 @@ const CommunityDetailPage: React.FC = () => {
                         </p>
                         {activity.title && <p className="text-gray-700 mt-1">{activity.title}</p>}
                         <p className="text-xs text-gray-500 mt-1">
-                          {new Date(activity.created_at).toLocaleDateString()}
+                          {formatDateNumeric(activity.created_at)}
                         </p>
                       </div>
                     </div>
@@ -892,7 +893,7 @@ const CommunityDetailPage: React.FC = () => {
                         <p className="text-sm font-semibold text-gray-900">{msg.profile?.name}</p>
                         <p className="text-gray-700 text-sm">{msg.content}</p>
                         <p className="text-xs text-gray-500 mt-1">
-                          {new Date(msg.created_at).toLocaleTimeString()}
+                          {formatTime(msg.created_at)}
                         </p>
                       </div>
                     </div>

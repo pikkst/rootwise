@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useChatMessages } from '../hooks/useChatMessages';
 import { useAiUsage } from '../hooks/useAiUsage';
 import { RootwiseAIService } from '../services/geminiService';
+import { formatTime } from '../utils/formatDate';
 import { isPro } from '../services/planService';
 
 const AiNexusPage: React.FC = () => {
@@ -161,7 +162,7 @@ const AiNexusPage: React.FC = () => {
                 <p
                   className={`text-[10px] mt-2 opacity-60 ${m.sender === 'user' ? 'text-right' : 'text-left'}`}
                 >
-                  {m.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {formatTime(m.timestamp)}
                 </p>
               </div>
             </div>

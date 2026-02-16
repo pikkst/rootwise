@@ -33,7 +33,6 @@
     "level": "Уровень",
     "members": "Участники",
     "member": "участник",
-    "membersPlural": "участники",
     "you": "Вы",
     "user": "Пользователь",
     "or": "или",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Организация",
     "unlimited": "Неограниченно",
-    "remaining": "Осталось: {{count}}",
     "total": "всего",
     "noCreditCard": "Нет кредитной карты",
     "startInMinutes": "Начнётся через несколько минут",
     "coreFree": "Основной функционал бесплатен",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} участник",
+    "membersPlural_other": "👥 {{count}} участников",
+    "remaining_one": "Остался {{count}}",
+    "remaining_other": "Осталось {{count}}"
   },
   "nav": {
     "dashboard": "Панель управления",
@@ -241,10 +243,11 @@
     "completed": "✓ ВЫПОЛНЕНО",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Будьте первым!",
-    "countJoined": "{{count}} присоединились",
     "done": "Готово!",
     "markComplete": "Отметить как выполненное",
-    "joinQuest": "Присоединиться к квесту"
+    "joinQuest": "Присоединиться к квесту",
+    "countJoined_one": "Присоединился {{count}}",
+    "countJoined_other": "Присоединились {{count}}"
   },
   "questDetail": {
     "notFound": "Квест не найден",
@@ -384,7 +387,6 @@
     "title": "Центр сообщества",
     "subtitle": "Общайтесь с группами единомышленников, обучающихся на протяжении всей жизни, из разных поколений.",
     "loading": "Загрузка сообществ...",
-    "membersCount": "{{count}} участников",
     "view": "Просмотреть →",
     "noCommunitiesTitle": "Пока нет сообществ",
     "noCommunitiesDesc": "Сообщества появятся после заполнения базы данных.",
@@ -393,7 +395,9 @@
     "join": "Присоединиться",
     "leave": "Покинуть",
     "failedJoin": "Не удалось присоединиться к группе",
-    "failedLeave": "Не удалось покинуть группу"
+    "failedLeave": "Не удалось покинуть группу",
+    "membersCount_one": "{{count}} участник",
+    "membersCount_other": "{{count}} участников"
   },
   "communityDetail": {
     "tabOverview": "📋 Обзор",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Отчет по участникам загружен!",
     "platformReportFullDesc": "Полный обзор платформы: пользователи, сообщества, квесты и показатели трафика.",
     "orgReportFullDesc": "Полный обзор участников, сообществ, квестов и XP в вашей организации.",
-    "membersCount": "{{count}} участников",
-    "membersLabel": "Участники"
+    "membersLabel": "Участники",
+    "membersCount_one": "{{count}} участник",
+    "membersCount_other": "{{count}} участников"
   },
   "reports": {
     "seoTitle": "Отправить отчет - Rootwise",

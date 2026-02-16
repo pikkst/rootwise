@@ -33,7 +33,6 @@
     "level": "Tase",
     "members": "Liikmed",
     "member": "liige",
-    "membersPlural": "liikmed",
     "you": "Sina",
     "user": "Kasutaja",
     "or": "või",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organisatsioon",
     "unlimited": "Piiramatu",
-    "remaining": "{{count}} järelejäänud",
     "total": "kokku",
     "noCreditCard": "Krediitkaarti pole",
     "startInMinutes": "Algab minutite pärast",
     "coreFree": "Põhikogemus on tasuta",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} liige",
+    "membersPlural_other": "👥 {{count}} liiget",
+    "remaining_one": "{{count}} jäänud",
+    "remaining_other": "{{count}} jäänud"
   },
   "nav": {
     "dashboard": "Armatuurlaud",
@@ -241,10 +243,11 @@
     "completed": "✓ LÕPETATUD",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Ole esimene!",
-    "countJoined": "{{count}} liitunud",
     "done": "Valmis!",
     "markComplete": "Märgi lõpetatuks",
-    "joinQuest": "Liitu ülesandega"
+    "joinQuest": "Liitu ülesandega",
+    "countJoined_one": "{{count}} liitunud",
+    "countJoined_other": "{{count}} liitunud"
   },
   "questDetail": {
     "notFound": "Ülesannet ei leitud",
@@ -384,7 +387,6 @@
     "title": "Kogukonna keskus",
     "subtitle": "Võta ühendust sarnaste mõttelaadidega elukestvate õppijate rühmadega kõigis põlvkondades.",
     "loading": "Kogukondade laadimine...",
-    "membersCount": "{{count}} liiget",
     "view": "Vaata →",
     "noCommunitiesTitle": "Ühtegi kogukonda veel pole",
     "noCommunitiesDesc": "Kogukonnad ilmuvad pärast andmebaasi külvamist.",
@@ -393,7 +395,9 @@
     "join": "Liitu",
     "leave": "Lahku",
     "failedJoin": "Grupiga liitumine ebaõnnestus",
-    "failedLeave": "Grupist lahkumine ebaõnnestus"
+    "failedLeave": "Grupist lahkumine ebaõnnestus",
+    "membersCount_one": "{{count}} Liige",
+    "membersCount_other": "{{count}} Liiget"
   },
   "communityDetail": {
     "tabOverview": "📋 Ülevaade",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Liikme aruanne alla laaditud!",
     "platformReportFullDesc": "Täielik platvormi tasandi ülevaade kasutajatest, kogukondadest, ülesannetest ja liikluse näitajatest.",
     "orgReportFullDesc": "Täielik ülevaade liikmetest, kogukondadest, ülesannetest ja XP-st kogu teie organisatsioonis.",
-    "membersCount": "{{count}} liiget",
-    "membersLabel": "Liikmed"
+    "membersLabel": "Liikmed",
+    "membersCount_one": "{{count}} liige",
+    "membersCount_other": "{{count}} liiget"
   },
   "reports": {
     "seoTitle": "Saada raport - Rootwise",

@@ -33,7 +33,6 @@
     "level": "Lygis",
     "members": "Nariai",
     "member": "narys",
-    "membersPlural": "nariai",
     "you": "Jūs",
     "user": "Vartotojas",
     "or": "arba",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organizacija",
     "unlimited": "Neribotas",
-    "remaining": "Liko {{count}}",
     "total": "iš viso",
     "noCreditCard": "Nėra kreditinės kortelės",
     "startInMinutes": "Prasidės po kelių minučių",
     "coreFree": "Pagrindinė patirtis yra nemokama",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} narys",
+    "membersPlural_other": "👥 {{count}} nariai",
+    "remaining_one": "Liko {{count}}",
+    "remaining_other": "Liko {{count}}"
   },
   "nav": {
     "dashboard": "Valdymo skydelis",
@@ -241,10 +243,11 @@
     "completed": "✓ ĮVYKDYTA",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Būkite pirmas!",
-    "countJoined": "Prisijungė {{count}}",
     "done": "Atlikta!",
     "markComplete": "Pažymėti kaip įvykdytą",
-    "joinQuest": "Prisijungti prie užduoties"
+    "joinQuest": "Prisijungti prie užduoties",
+    "countJoined_one": "Prisijungė {{count}}",
+    "countJoined_other": "Prisijungė {{count}}"
   },
   "questDetail": {
     "notFound": "Užduotis nerasta",
@@ -384,7 +387,6 @@
     "title": "Bendruomenės centras",
     "subtitle": "Susisiekite su bendraminčių visą gyvenimą besimokančiųjų grupėmis iš visų kartų.",
     "loading": "Įkeliamos bendruomenės...",
-    "membersCount": "{{count}} Nariai",
     "view": "Žiūrėti →",
     "noCommunitiesTitle": "Kol kas nėra bendruomenių",
     "noCommunitiesDesc": "Bendruomenės pasirodys, kai bus užpildyta duomenų bazė.",
@@ -393,7 +395,9 @@
     "join": "Prisijungti",
     "leave": "Palikti",
     "failedJoin": "Nepavyko prisijungti prie grupės",
-    "failedLeave": "Nepavyko palikti grupės"
+    "failedLeave": "Nepavyko palikti grupės",
+    "membersCount_one": "{{count}} narys",
+    "membersCount_other": "{{count}} nariai"
   },
   "communityDetail": {
     "tabOverview": "📋 Apžvalga",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Atsisiųsta narių ataskaita!",
     "platformReportFullDesc": "Išsami platformos lygmens vartotojų, bendruomenių, užduočių ir srauto rodiklių apžvalga.",
     "orgReportFullDesc": "Išsami narių, bendruomenių, užduočių ir XP apžvalga visoje jūsų organizacijoje.",
-    "membersCount": "{{count}} nariai",
-    "membersLabel": "Nariai"
+    "membersLabel": "Nariai",
+    "membersCount_one": "{{count}} narys",
+    "membersCount_other": "{{count}} nariai"
   },
   "reports": {
     "seoTitle": "Pateikti ataskaitą - Rootwise",

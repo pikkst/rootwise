@@ -11,6 +11,7 @@ import { useQuests } from '../hooks/useQuests';
 import { isPro } from '../services/planService';
 import { redirectToCheckout } from '../services/stripeService';
 import { supabase } from '../services/supabase';
+import { formatChartDate } from '../utils/formatDate';
 
 const COLORS = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#818cf8', '#4f46e5'];
 
@@ -40,7 +41,7 @@ const AnalyticsPage: React.FC = () => {
       if (data && data.length > 0) {
         const byDay: Record<string, number> = {};
         data.forEach((entry: { xp_gained: number; created_at: string }) => {
-          const day = new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          const day = formatChartDate(new Date(entry.created_at));
           byDay[day] = (byDay[day] || 0) + entry.xp_gained;
         });
         setXpHistory(Object.entries(byDay).map(([name, xp]) => ({ name, xp })));

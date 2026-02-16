@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatChartDate, formatDateNumeric, formatDateTime } from '../utils/formatDate';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
@@ -184,7 +185,7 @@ const AdminPage: React.FC = () => {
       const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
       const key = d.toISOString().slice(0, 10);
       dayMap[key] = {
-        date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        date: formatChartDate(d),
         users: 0,
         quests: 0,
         posts: 0,
@@ -481,7 +482,7 @@ const AdminPage: React.FC = () => {
 
     const report = [
       'Rootwise Organization Report',
-      `Generated: ${new Date().toLocaleDateString()}`,
+      `Generated: ${formatDateNumeric(new Date())}`,
       '',
       '--- Summary ---',
       `Total Members: ${stats.totalMembers}`,
@@ -513,7 +514,7 @@ const AdminPage: React.FC = () => {
 
     const report = [
       'Rootwise Platform Admin Report',
-      `Generated: ${new Date().toLocaleDateString()}`,
+      `Generated: ${formatDateNumeric(new Date())}`,
       '',
       '--- Global Summary ---',
       `Total Users: ${platformStats.totalUsers}`,
@@ -1043,7 +1044,7 @@ const AdminPage: React.FC = () => {
                             <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 font-semibold">{report.status}</span>
                             <span className="text-xs px-2 py-1 rounded-full bg-amber-50 text-amber-700 font-semibold">{report.severity}</span>
                             <span className="text-xs text-slate-400">{t('admin.reportBy', { name: report.reporterName })}</span>
-                            <span className="text-xs text-slate-400">{new Date(report.created_at).toLocaleString()}</span>
+                            <span className="text-xs text-slate-400">{formatDateTime(report.created_at)}</span>
                           </div>
                           <p className="font-bold text-slate-800">{report.title}</p>
                           <p className="text-sm text-slate-600 mt-1">{report.description}</p>

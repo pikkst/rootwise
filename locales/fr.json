@@ -33,7 +33,6 @@
     "level": "Niveau",
     "members": "Membres",
     "member": "membre",
-    "membersPlural": "membres",
     "you": "Vous",
     "user": "Utilisateur",
     "or": "ou",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organisation",
     "unlimited": "Illimité",
-    "remaining": "{{count}} restant(s)",
     "total": "total",
     "noCreditCard": "Pas de carte de crédit",
     "startInMinutes": "Démarre dans quelques minutes",
     "coreFree": "L'expérience de base est gratuite",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} membre",
+    "membersPlural_other": "👥 {{count}} membres",
+    "remaining_one": "{{count}} restant",
+    "remaining_other": "{{count}} restants"
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -241,10 +243,11 @@
     "completed": "✓ TERMINÉ",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Soyez le premier !",
-    "countJoined": "{{count}} participants",
     "done": "Terminé !",
     "markComplete": "Marquer comme terminé",
-    "joinQuest": "Rejoindre la quête"
+    "joinQuest": "Rejoindre la quête",
+    "countJoined_one": "{{count}} a participé",
+    "countJoined_other": "{{count}} ont participé"
   },
   "questDetail": {
     "notFound": "Quête introuvable",
@@ -384,7 +387,6 @@
     "title": "Centre communautaire",
     "subtitle": "Connectez-vous avec des groupes d'apprenants permanents partageant les mêmes idées à travers toutes les générations.",
     "loading": "Chargement des communautés...",
-    "membersCount": "{{count}} Membres",
     "view": "Afficher →",
     "noCommunitiesTitle": "Aucune communauté pour le moment",
     "noCommunitiesDesc": "Les communautés apparaîtront une fois la base de données initialisée.",
@@ -393,7 +395,9 @@
     "join": "Rejoindre",
     "leave": "Quitter",
     "failedJoin": "Échec de la participation au groupe",
-    "failedLeave": "Échec de la suppression du groupe"
+    "failedLeave": "Échec de la suppression du groupe",
+    "membersCount_one": "{{count}} Membre",
+    "membersCount_other": "{{count}} Membres"
   },
   "communityDetail": {
     "tabOverview": "📋 Aperçu",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Rapport des membres téléchargé !",
     "platformReportFullDesc": "Aperçu complet au niveau de la plateforme des utilisateurs, des communautés, des quêtes et des indicateurs de trafic.",
     "orgReportFullDesc": "Aperçu complet des membres, des communautés, des quêtes et de l'XP dans toute votre organisation.",
-    "membersCount": "{{count}} membres",
-    "membersLabel": "Membres"
+    "membersLabel": "Membres",
+    "membersCount_one": "{{count}} membre",
+    "membersCount_other": "{{count}} membres"
   },
   "reports": {
     "seoTitle": "Soumettre un rapport - Rootwise",

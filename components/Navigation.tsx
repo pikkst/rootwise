@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocalePath } from '../hooks/useLocalePath';
 import { useAuth } from '../context/AuthContext';
 import { getInitials } from '../types';
 import { isPro, isOrg } from '../services/planService';
@@ -19,6 +20,7 @@ const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const lp = useLocalePath();
   const { user, profile, signOut } = useAuth();
   const [showMore, setShowMore] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
@@ -34,8 +36,12 @@ const Navigation: React.FC = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Strip locale prefix from pathname for route matching
+  const rawPath = location.pathname.replace(/^\/(en|et|de|fr|es|it|ru|fi|sv|lv|lt|pl|pt|nl|uk)(\/|$)/, '/');
+  const activePath = rawPath === '' ? '/' : rawPath;
+
   // Hide nav on landing and auth pages
-  if (location.pathname === '/' || location.pathname === '/auth') return null;
+  if (activePath === '/' || activePath === '/auth') return null;
 
   // Derived values from profile
   const plan = profile?.plan || 'free';
@@ -59,7 +65,7 @@ const Navigation: React.FC = () => {
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <div
           className="hidden md:flex items-center gap-2 font-bold text-indigo-600 text-xl cursor-pointer"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate(lp('/dashboard'))}
         >
           <span>ROOTWISE</span>
         </div>
@@ -67,9 +73,9 @@ const Navigation: React.FC = () => {
           {NAV_KEYS.map((item) => (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => navigate(lp(item.path))}
               className={`flex flex-col md:flex-row items-center gap-1 md:gap-2 px-3 py-1 rounded-full transition-all ${
-                location.pathname === item.path
+                activePath === item.path
                   ? 'text-indigo-600 bg-indigo-50 font-semibold'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
@@ -84,7 +90,7 @@ const Navigation: React.FC = () => {
             <button
               onClick={() => setShowMore(!showMore)}
               className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
-                ['/analytics', '/matching', '/admin', '/reports'].includes(location.pathname)
+                ['/analytics', '/matching', '/admin', '/reports'].includes(activePath)
                   ? 'text-indigo-600 bg-indigo-50 font-semibold'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
@@ -100,11 +106,11 @@ const Navigation: React.FC = () => {
                     <button
                       key={item.path}
                       onClick={() => {
-                        navigate(item.path);
+                        navigate(lp(item.path));
                         setShowMore(false);
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
-                        location.pathname === item.path
+                        activePath === item.path
                           ? 'bg-indigo-50 text-indigo-600 font-bold'
                           : 'text-slate-600 hover:bg-slate-50'
                       }`}
@@ -125,9 +131,9 @@ const Navigation: React.FC = () => {
 
           {/* Mobile profile + more */}
           <button
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate(lp('/profile'))}
             className={`flex flex-col items-center gap-1 px-3 py-1 rounded-full transition-all md:hidden ${
-              location.pathname === '/profile'
+              activePath === '/profile'
                 ? 'text-indigo-600 bg-indigo-50 font-semibold'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
@@ -140,9 +146,9 @@ const Navigation: React.FC = () => {
           <LanguageSelector compact />
           <PlanBadge plan={plan} size="sm" />
           <button
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate(lp('/profile'))}
             className={`w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden border-2 transition-all ${
-              location.pathname === '/profile'
+              activePath === '/profile'
                 ? 'border-indigo-600 ring-2 ring-indigo-100'
                 : 'border-transparent'
             }`}
@@ -157,7 +163,7 @@ const Navigation: React.FC = () => {
             <button
               onClick={async () => {
                 await signOut();
-                navigate('/');
+                navigate(lp('/'));
               }}
               className="text-xs text-slate-400 hover:text-red-500 transition-colors font-medium"
               title={t('common.signOut')}

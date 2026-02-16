@@ -6,6 +6,7 @@ import PlanBadge from '../components/PlanBadge';
 import { useAuth } from '../context/AuthContext';
 import { usePlan } from '../hooks/usePlan';
 import { redirectToCheckout, openBillingPortal } from '../services/stripeService';
+import { formatDateLong } from '../utils/formatDate';
 
 const PricingPage: React.FC = () => {
   const { t } = useTranslation();
@@ -221,9 +222,7 @@ const PricingPage: React.FC = () => {
                     {planInfo.subscription.status === 'cancelling' ? t('pricing.accessUntil') : t('pricing.renewsOn')}
                   </span>
                   <span className="text-sm font-medium text-slate-700">
-                    {new Date(planInfo.subscription.current_period_end).toLocaleDateString(undefined, {
-                      month: 'long', day: 'numeric', year: 'numeric',
-                    })}
+                    {formatDateLong(planInfo.subscription.current_period_end)}
                   </span>
                 </div>
               )}

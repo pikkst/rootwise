@@ -33,7 +33,6 @@
     "level": "Līmenis",
     "members": "Dalībnieki",
     "member": "dalībnieks",
-    "membersPlural": "dalībnieki",
     "you": "Jūs",
     "user": "Lietotājs",
     "or": "vai",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organizācija",
     "unlimited": "Neierobežots",
-    "remaining": "Atlicis {{count}}",
     "total": "kopā",
     "noCreditCard": "Nav kredītkartes",
     "startInMinutes": "Sāksies pēc minūtēm",
     "coreFree": "Galvenā pieredze ir bezmaksas",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} dalībnieks",
+    "membersPlural_other": "👥 {{count}} dalībnieki",
+    "remaining_one": "{{count}} atlicis",
+    "remaining_other": "{{count}} atlicis"
   },
   "nav": {
     "dashboard": "Informācijas panelis",
@@ -241,10 +243,11 @@
     "completed": "✓ PABEIGTS",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Esi pirmais!",
-    "countJoined": "Pievienojās {{count}}",
     "done": "Gatavs!",
     "markComplete": "Atzīmēt kā pabeigtu",
-    "joinQuest": "Pievienoties uzdevumam"
+    "joinQuest": "Pievienoties uzdevumam",
+    "countJoined_one": "{{count}} joined",
+    "countJoined_other": "{{count}} joined"
   },
   "questDetail": {
     "notFound": "Uzdevums nav atrasts",
@@ -384,7 +387,6 @@
     "title": "Kopienas centrs",
     "subtitle": "Sazinieties ar līdzīgi domājošu mūžizglītības entuziastu grupām visās paaudzēs.",
     "loading": "Ielādē kopienas...",
-    "membersCount": "{{count}} Dalībnieki",
     "view": "Skatīt →",
     "noCommunitiesTitle": "Kopienu vēl nav",
     "noCommunitiesDesc": "Kopienas parādīsies, tiklīdz datubāze būs aizpildīta.",
@@ -393,7 +395,9 @@
     "join": "Pievienoties",
     "leave": "Atstāt",
     "failedJoin": "Neizdevās pievienoties grupai",
-    "failedLeave": "Neizdevās atstāt grupu"
+    "failedLeave": "Neizdevās atstāt grupu",
+    "membersCount_one": "{{count}} Dalībnieks",
+    "membersCount_other": "{{count}} Dalībnieki"
   },
   "communityDetail": {
     "tabOverview": "📋 Pārskats",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Dalībnieku atskaite lejupielādēta!",
     "platformReportFullDesc": "Pilnīgs platformas līmeņa pārskats par lietotājiem, kopienām, uzdevumiem un datplūsmas rādītājiem.",
     "orgReportFullDesc": "Pilnīgs pārskats par dalībniekiem, kopienām, uzdevumiem un XP jūsu organizācijā.",
-    "membersCount": "{{count}} dalībnieki",
-    "membersLabel": "Dalībnieki"
+    "membersLabel": "Dalībnieki",
+    "membersCount_one": "{{count}} dalībnieks",
+    "membersCount_other": "{{count}} dalībnieki"
   },
   "reports": {
     "seoTitle": "Iesniegt ziņojumu - Rootwise",

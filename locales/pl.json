@@ -33,7 +33,6 @@
     "level": "Poziom",
     "members": "Członkowie",
     "member": "członek",
-    "membersPlural": "członkowie",
     "you": "Ty",
     "user": "Użytkownik",
     "or": "lub",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organizacja",
     "unlimited": "Nieograniczone",
-    "remaining": "Pozostało: {{count}}",
     "total": "łącznie",
     "noCreditCard": "Brak karty kredytowej",
     "startInMinutes": "Rozpocznij za kilka minut",
     "coreFree": "Podstawowe funkcje są darmowe",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} członek",
+    "membersPlural_other": "👥 {{count}} członków",
+    "remaining_one": "Pozostał {{count}}",
+    "remaining_other": "Pozostało {{count}}"
   },
   "nav": {
     "dashboard": "Panel",
@@ -241,10 +243,11 @@
     "completed": "✓ UKOŃCZONO",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Bądź pierwszy!",
-    "countJoined": "Dołączyło {{count}}",
     "done": "Gotowe!",
     "markComplete": "Oznacz jako ukończone",
-    "joinQuest": "Dołącz do misji"
+    "joinQuest": "Dołącz do misji",
+    "countJoined_one": "Dołączył {{count}}",
+    "countJoined_other": "Dołączyło {{count}}"
   },
   "questDetail": {
     "notFound": "Nie znaleziono misji",
@@ -384,7 +387,6 @@
     "title": "Centrum społeczności",
     "subtitle": "Dołącz do grup podobnie myślących osób uczących się przez całe życie, niezależnie od pokolenia.",
     "loading": "Ładowanie społeczności...",
-    "membersCount": "{{count}} Członków",
     "view": "Zobacz →",
     "noCommunitiesTitle": "Brak społeczności",
     "noCommunitiesDesc": "Społeczności pojawią się po zasianiu bazy danych.",
@@ -393,7 +395,9 @@
     "join": "Dołącz",
     "leave": "Opuść",
     "failedJoin": "Nie udało się dołączyć do grupy",
-    "failedLeave": "Nie udało się opuścić grupy"
+    "failedLeave": "Nie udało się opuścić grupy",
+    "membersCount_one": "{{count}} Członek",
+    "membersCount_other": "{{count}} Członków"
   },
   "communityDetail": {
     "tabOverview": "📋 Przegląd",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Raport członka pobrany!",
     "platformReportFullDesc": "Pełny przegląd platformy na poziomie użytkowników, społeczności, zadań i wskaźników ruchu.",
     "orgReportFullDesc": "Pełny przegląd członków, społeczności, zadań i XP w całej organizacji.",
-    "membersCount": "{{count}} członków",
-    "membersLabel": "Członkowie"
+    "membersLabel": "Członkowie",
+    "membersCount_one": "{{count}} członek",
+    "membersCount_other": "{{count}} członków"
   },
   "reports": {
     "seoTitle": "Zgłoś problem - Rootwise",

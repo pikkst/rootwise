@@ -33,7 +33,6 @@
     "level": "Nivå",
     "members": "Medlemmar",
     "member": "medlem",
-    "membersPlural": "medlemmar",
     "you": "Du",
     "user": "Användare",
     "or": "eller",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organisation",
     "unlimited": "Obegränsat",
-    "remaining": "{{count}} kvar",
     "total": "totalt",
     "noCreditCard": "Inget kreditkort",
     "startInMinutes": "Startar om några minuter",
     "coreFree": "Kärnupplevelsen är gratis",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} medlem",
+    "membersPlural_other": "👥 {{count}} medlemmar",
+    "remaining_one": "{{count}} kvar",
+    "remaining_other": "{{count}} kvar"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -241,10 +243,11 @@
     "completed": "✓ SLUTFÖRT",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Bli den första!",
-    "countJoined": "{{count}} anslutna",
     "done": "Klar!",
     "markComplete": "Markera som slutfört",
-    "joinQuest": "Gå med i uppdrag"
+    "joinQuest": "Gå med i uppdrag",
+    "countJoined_one": "{{count}} ansluten",
+    "countJoined_other": "{{count}} anslutna"
   },
   "questDetail": {
     "notFound": "Uppdrag hittades inte",
@@ -384,7 +387,6 @@
     "title": "Community Hub",
     "subtitle": "Få kontakt med grupper av likasinnade livslånga elever över alla generationer.",
     "loading": "Läser in communities...",
-    "membersCount": "{{count}} Medlemmar",
     "view": "Visa →",
     "noCommunitiesTitle": "Inga communities ännu",
     "noCommunitiesDesc": "Communities kommer att visas när databasen är seedad.",
@@ -393,7 +395,9 @@
     "join": "Gå med",
     "leave": "Lämna",
     "failedJoin": "Det gick inte att gå med i gruppen",
-    "failedLeave": "Det gick inte att lämna gruppen"
+    "failedLeave": "Det gick inte att lämna gruppen",
+    "membersCount_one": "{{count}} Medlem",
+    "membersCount_other": "{{count}} Medlemmar"
   },
   "communityDetail": {
     "tabOverview": "📋 Översikt",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Medlemsrapporten har laddats ner!",
     "platformReportFullDesc": "Komplett översikt på plattformsnivå över användare, gemenskaper, uppdrag och trafikindikatorer.",
     "orgReportFullDesc": "Komplett översikt över medlemmar, gemenskaper, uppdrag och XP inom din organisation.",
-    "membersCount": "{{count}} medlemmar",
-    "membersLabel": "Medlemmar"
+    "membersLabel": "Medlemmar",
+    "membersCount_one": "{{count}} medlem",
+    "membersCount_other": "{{count}} medlemmar"
   },
   "reports": {
     "seoTitle": "Skicka in en rapport - Rootwise",

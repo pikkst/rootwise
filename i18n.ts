@@ -20,21 +20,21 @@ import nl from './locales/nl.json';
 import uk from './locales/uk.json';
 
 export const SUPPORTED_LANGUAGES = [
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
   { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'et', name: 'Eesti', flag: '🇪🇪' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
   { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-  { code: 'fi', name: 'Suomi', flag: '🇫🇮' },
-  { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
   { code: 'lv', name: 'Latviešu', flag: '🇱🇻' },
   { code: 'lt', name: 'Lietuvių', flag: '🇱🇹' },
+  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
   { code: 'pl', name: 'Polski', flag: '🇵🇱' },
   { code: 'pt', name: 'Português', flag: '🇵🇹' },
-  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+  { code: 'fi', name: 'Suomi', flag: '🇫🇮' },
+  { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
   { code: 'uk', name: 'Українська', flag: '🇺🇦' },
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
 ] as const;
 
 export type LanguageCode = typeof SUPPORTED_LANGUAGES[number]['code'];
@@ -61,6 +61,7 @@ i18n
       uk: { translation: uk },
     },
     fallbackLng: 'en',
+    compatibilityJSON: 'v4',   // Enables proper plural rules (one/few/many/other)
     interpolation: {
       escapeValue: false, // React already escapes
     },

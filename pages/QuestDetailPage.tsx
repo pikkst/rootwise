@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { supabase } from '../services/supabase';
 import { useTranslation } from 'react-i18next';
 import { DbQuest, QuestMember, QuestMessage, QuestFile, QuestMilestone, Profile } from '../types';
+import { formatTime, formatDateNumeric } from '../utils/formatDate';
 
 type Tab = 'overview' | 'chat' | 'files' | 'milestones' | 'members' | 'proof';
 
@@ -691,7 +692,7 @@ const QuestDetailPage: React.FC = () => {
                                   {msg.user_id === profile?.id ? t('questDetail.chatYou') : `${t('questDetail.chatUser')} ${msg.user_id.slice(0, 8)}`}
                                 </span>
                                 <span className="text-xs text-slate-500">
-                                  {new Date(msg.created_at ?? '').toLocaleTimeString()}
+                                  {formatTime(msg.created_at ?? '')}
                                 </span>
                               </div>
                               <p className="text-slate-700">{msg.content}</p>
@@ -794,7 +795,7 @@ const QuestDetailPage: React.FC = () => {
                                 <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
                                   <span>{ALLOWED_TYPES[file.file_type ?? ''] || t('questDetail.filesFileLabel')}</span>
                                   {file.file_size && <span>· {formatBytes(file.file_size)}</span>}
-                                  <span>· {new Date(file.created_at ?? file.uploaded_at ?? '').toLocaleDateString()}</span>
+                                  <span>· {formatDateNumeric(file.created_at ?? file.uploaded_at ?? '')}</span>
                                 </div>
                               </a>
                               <div className="flex items-center gap-1 flex-shrink-0">
@@ -866,7 +867,7 @@ const QuestDetailPage: React.FC = () => {
                               )}
                             </div>
                             <span className="text-xs text-slate-500">
-                              {new Date(milestone.created_at ?? '').toLocaleDateString()}
+                              {formatDateNumeric(milestone.created_at ?? '')}
                             </span>
                           </div>
                         ))

@@ -33,7 +33,6 @@
     "level": "Taso",
     "members": "Jäsenet",
     "member": "jäsen",
-    "membersPlural": "jäsentä",
     "you": "Sinä",
     "user": "Käyttäjä",
     "or": "tai",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organisaatio",
     "unlimited": "Rajoittamaton",
-    "remaining": "{{count}} jäljellä",
     "total": "yhteensä",
     "noCreditCard": "Ei luottokorttia",
     "startInMinutes": "Alkaa muutaman minuutin kuluttua",
     "coreFree": "Peruskokemus on ilmainen",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} jäsen",
+    "membersPlural_other": "👥 {{count}} jäsentä",
+    "remaining_one": "{{count}} jäljellä",
+    "remaining_other": "{{count}} jäljellä"
   },
   "nav": {
     "dashboard": "Kojelauta",
@@ -241,10 +243,11 @@
     "completed": "✓ SUORITETTU",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Ole ensimmäinen!",
-    "countJoined": "{{count}} liittynyt",
     "done": "Valmis!",
     "markComplete": "Merkitse valmiiksi",
-    "joinQuest": "Liity tehtävään"
+    "joinQuest": "Liity tehtävään",
+    "countJoined_one": "{{count}} liittynyt",
+    "countJoined_other": "{{count}} liittynyt"
   },
   "questDetail": {
     "notFound": "Tehtävää ei löytynyt",
@@ -384,7 +387,6 @@
     "title": "Yhteisökeskus",
     "subtitle": "Ota yhteyttä samanhenkisten elinikäisten oppijoiden ryhmiin eri sukupolvien välillä.",
     "loading": "Ladataan yhteisöjä...",
-    "membersCount": "{{count}} jäsentä",
     "view": "Näytä →",
     "noCommunitiesTitle": "Ei vielä yhteisöjä",
     "noCommunitiesDesc": "Yhteisöt näkyvät, kun tietokanta on alustettu.",
@@ -393,7 +395,9 @@
     "join": "Liity",
     "leave": "Poistu",
     "failedJoin": "Ryhmään liittyminen epäonnistui",
-    "failedLeave": "Ryhmästä poistuminen epäonnistui"
+    "failedLeave": "Ryhmästä poistuminen epäonnistui",
+    "membersCount_one": "{{count}} Jäsen",
+    "membersCount_other": "{{count}} Jäsentä"
   },
   "communityDetail": {
     "tabOverview": "📋 Yleiskatsaus",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Jäsenraportti ladattu!",
     "platformReportFullDesc": "Täydellinen alustatason yleiskatsaus käyttäjistä, yhteisöistä, tehtävistä ja liikennemittareista.",
     "orgReportFullDesc": "Täydellinen yleiskatsaus jäsenistä, yhteisöistä, tehtävistä ja XP:stä koko organisaatiossasi.",
-    "membersCount": "{{count}} jäsentä",
-    "membersLabel": "Jäsenet"
+    "membersLabel": "Jäsenet",
+    "membersCount_one": "{{count}} jäsen",
+    "membersCount_other": "{{count}} jäsentä"
   },
   "reports": {
     "seoTitle": "Lähetä raportti - Rootwise",

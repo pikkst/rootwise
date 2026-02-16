@@ -1,16 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { SUPPORTED_LANGUAGES, type LanguageCode } from '../i18n';
 
-const LanguageSelector: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+interface Props {
+  compact?: boolean;   // navbar mode — smaller trigger
+  footer?: boolean;    // footer mode — upward dropdown
+}
+
+const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false }) => {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const LANG_CODES = new Set(SUPPORTED_LANGUAGES.map(l => l.code));
 
   const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === i18n.language) 
     || SUPPORTED_LANGUAGES.find(l => i18n.language.startsWith(l.code))
     || SUPPORTED_LANGUAGES[0];
 
+  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
@@ -19,14 +30,35 @@ const LanguageSelector: React.FC<{ compact?: boolean }> = ({ compact = false }) 
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    if (open) document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [open]);
+
   const changeLanguage = (code: LanguageCode) => {
     i18n.changeLanguage(code);
     localStorage.setItem('rootwise_language', code);
+    document.documentElement.lang = code;
     setOpen(false);
+
+    // Update URL to reflect new language
+    const pathSegments = location.pathname.split('/');
+    // Strip existing lang prefix if present
+    if (pathSegments[1] && LANG_CODES.has(pathSegments[1])) {
+      pathSegments.splice(1, 1);
+    }
+    const barePath = pathSegments.join('/') || '/';
+    const newPath = code === 'en' ? barePath : `/${code}${barePath === '/' ? '' : barePath}`;
+    navigate(newPath + location.search + location.hash, { replace: true });
   };
 
   return (
     <div ref={ref} className="relative">
+      {/* Trigger button — globe icon */}
       <button
         onClick={() => setOpen(!open)}
         className={`flex items-center gap-1.5 rounded-xl transition-all ${
@@ -35,32 +67,79 @@ const LanguageSelector: React.FC<{ compact?: boolean }> = ({ compact = false }) 
             : 'px-3 py-2 text-sm border border-slate-200 hover:border-indigo-400 hover:text-indigo-600 bg-white'
         }`}
         aria-label="Select language"
+        aria-expanded={open}
+        aria-haspopup="listbox"
       >
-        <span className="text-base">{currentLang.flag}</span>
-        {!compact && <span className="font-medium">{currentLang.name}</span>}
+        <span className="text-base" role="img" aria-hidden="true">🌐</span>
+        <span className={compact ? 'hidden sm:inline font-medium text-xs' : 'font-medium'}>
+          {currentLang.name}
+        </span>
         <svg className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
+      {/* Language panel */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-2 max-h-80 overflow-y-auto">
-          {SUPPORTED_LANGUAGES.map(lang => (
-            <button
-              key={lang.code}
-              onClick={() => changeLanguage(lang.code)}
-              className={`w-full text-left px-4 py-2.5 flex items-center gap-3 hover:bg-indigo-50 transition-colors ${
-                currentLang.code === lang.code ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-700'
-              }`}
-            >
-              <span className="text-lg">{lang.flag}</span>
-              <span className="text-sm">{lang.name}</span>
-              {currentLang.code === lang.code && (
-                <span className="ml-auto text-indigo-600">✓</span>
-              )}
-            </button>
-          ))}
-        </div>
+        <>
+          {/* Mobile: full-screen overlay */}
+          <div className="fixed inset-0 bg-black/30 z-40 sm:hidden" onClick={() => setOpen(false)} />
+
+          {/* Panel */}
+          <div
+            role="listbox"
+            aria-label="Languages"
+            className={`
+              z-50 bg-white border border-slate-200 shadow-2xl overflow-hidden
+              /* Mobile: centered bottom sheet */
+              fixed bottom-0 left-0 right-0 rounded-t-3xl p-4 pb-8
+              sm:absolute sm:rounded-2xl sm:p-2
+              ${footer
+                ? 'sm:bottom-full sm:mb-2 sm:top-auto sm:left-auto sm:right-0'
+                : 'sm:top-full sm:mt-2 sm:bottom-auto sm:left-auto sm:right-0'
+              }
+              sm:w-[340px]
+            `}
+          >
+            {/* Mobile handle bar */}
+            <div className="flex justify-center mb-3 sm:hidden">
+              <div className="w-10 h-1 rounded-full bg-slate-300" />
+            </div>
+
+            {/* Title (mobile only) */}
+            <p className="text-center text-sm font-semibold text-slate-500 mb-3 sm:hidden">
+              🌐 Choose language
+            </p>
+
+            {/* Grid of languages */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+              {SUPPORTED_LANGUAGES.map(lang => {
+                const isActive = currentLang.code === lang.code;
+                return (
+                  <button
+                    key={lang.code}
+                    role="option"
+                    aria-selected={isActive}
+                    onClick={() => changeLanguage(lang.code)}
+                    className={`
+                      flex items-center gap-2 px-3 py-3 sm:py-2.5 rounded-xl text-left transition-all
+                      ${isActive
+                        ? 'bg-indigo-50 text-indigo-700 ring-2 ring-indigo-200 font-bold'
+                        : 'text-slate-700 hover:bg-slate-50 active:bg-indigo-50'
+                      }
+                    `}
+                  >
+                    <span className="text-xl sm:text-lg" role="img" aria-hidden="true">{lang.flag}</span>
+                    <span className="text-sm sm:text-xs font-medium truncate">{lang.name}</span>
+                    {isActive && (
+                      <span className="ml-auto text-indigo-500 text-sm">✓</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

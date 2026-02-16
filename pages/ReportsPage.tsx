@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { UserReport } from '../types';
 import { supabase } from '../services/supabase';
+import { formatDateTime } from '../utils/formatDate';
 
 const ReportsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -193,7 +194,7 @@ const ReportsPage: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 font-semibold">{report.report_type}</span>
                   <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 font-semibold">{report.status}</span>
-                  <span className="text-xs text-slate-400">{new Date(report.created_at).toLocaleString()}</span>
+                  <span className="text-xs text-slate-400">{formatDateTime(report.created_at)}</span>
                 </div>
                 <p className="font-semibold text-slate-800">{report.title}</p>
                 <p className="text-sm text-slate-600 mt-1 line-clamp-2">{report.description}</p>

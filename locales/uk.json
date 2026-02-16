@@ -33,7 +33,6 @@
     "level": "Рівень",
     "members": "Учасники",
     "member": "учасник",
-    "membersPlural": "учасники",
     "you": "Ви",
     "user": "Користувач",
     "or": "або",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Організація",
     "unlimited": "Необмежено",
-    "remaining": "Залишилось: {{count}}",
     "total": "всього",
     "noCreditCard": "Немає кредитної картки",
     "startInMinutes": "Почнеться за лічені хвилини",
     "coreFree": "Основний досвід безкоштовний",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} учасник",
+    "membersPlural_other": "👥 {{count}} учасників",
+    "remaining_one": "{{count}} залишився",
+    "remaining_other": "{{count}} залишилося"
   },
   "nav": {
     "dashboard": "Панель приладів",
@@ -241,10 +243,11 @@
     "completed": "✓ ВИКОНАНО",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Будьте першим!",
-    "countJoined": "{{count}} приєдналися",
     "done": "Готово!",
     "markComplete": "Відмітити як виконане",
-    "joinQuest": "Приєднатися до квесту"
+    "joinQuest": "Приєднатися до квесту",
+    "countJoined_one": "{{count}} joined",
+    "countJoined_other": "{{count}} joined"
   },
   "questDetail": {
     "notFound": "Квест не знайдено",
@@ -384,7 +387,6 @@
     "title": "Центр спільноти",
     "subtitle": "Спілкуйтеся з групами однодумців, які навчаються протягом усього життя, з різних поколінь.",
     "loading": "Завантаження спільнот...",
-    "membersCount": "{{count}} Учасників",
     "view": "Переглянути →",
     "noCommunitiesTitle": "Спільнот ще немає",
     "noCommunitiesDesc": "Спільноти з'являться після заповнення бази даних.",
@@ -393,7 +395,9 @@
     "join": "Приєднатися",
     "leave": "Вийти",
     "failedJoin": "Не вдалося приєднатися до групи",
-    "failedLeave": "Не вдалося покинути групу"
+    "failedLeave": "Не вдалося покинути групу",
+    "membersCount_one": "{{count}} Учасник",
+    "membersCount_other": "{{count}} Учасники"
   },
   "communityDetail": {
     "tabOverview": "📋 Огляд",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Звіт учасника завантажено!",
     "platformReportFullDesc": "Повний огляд платформи на рівні користувачів, спільнот, квестів та показників трафіку.",
     "orgReportFullDesc": "Повний огляд учасників, спільнот, квестів та XP у вашій організації.",
-    "membersCount": "{{count}} учасників",
-    "membersLabel": "Учасники"
+    "membersLabel": "Учасники",
+    "membersCount_one": "{{count}} учасник",
+    "membersCount_other": "{{count}} учасників"
   },
   "reports": {
     "seoTitle": "Надіслати звіт - Rootwise",

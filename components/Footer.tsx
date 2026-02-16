@@ -58,7 +58,7 @@ const Footer: React.FC = () => {
         <div className="pt-8 border-t border-slate-100 flex flex-col gap-2 text-slate-500 text-sm">
           <p>{t('footer.copyright')}</p>
           <p>{t('footer.legalEntity')}</p>
-          <LanguageSelector />
+          <LanguageSelector footer />
           <p>
             <a href="mailto:villu@mail.eventnexus.eu" className="hover:text-indigo-600 transition-colors">villu@mail.eventnexus.eu</a>
           </p>

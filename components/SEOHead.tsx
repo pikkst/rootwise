@@ -1,5 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
+import { SUPPORTED_LANGUAGES } from '../i18n';
 
 interface SEOHeadProps {
   title?: string;
@@ -12,14 +14,33 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   description = 'Connect generations through collaborative Quests, shared wisdom, and AI-powered tools. Combat loneliness and foster lifelong learning.',
   path = '/',
 }) => {
+  const { i18n } = useTranslation();
   const siteUrl = 'https://rootwise.site';
-  const fullUrl = `${siteUrl}${path}`;
+  const currentLang = i18n.language || 'en';
+  // Build locale-prefixed canonical URL
+  const langPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
+  const fullUrl = `${siteUrl}${langPrefix}${path}`;
 
   return (
     <Helmet>
+      <html lang={currentLang} />
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={fullUrl} />
+
+      {/* hreflang tags for all supported languages */}
+      {SUPPORTED_LANGUAGES.map(lang => {
+        const prefix = lang.code === 'en' ? '' : `/${lang.code}`;
+        return (
+          <link
+            key={lang.code}
+            rel="alternate"
+            hrefLang={lang.code}
+            href={`${siteUrl}${prefix}${path}`}
+          />
+        );
+      })}
+      <link rel="alternate" hrefLang="x-default" href={`${siteUrl}${path}`} />
 
       {/* Open Graph */}
       <meta property="og:type" content="website" />
@@ -27,6 +48,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:site_name" content="Rootwise" />
+      <meta property="og:locale" content={currentLang} />
       <meta property="og:image" content={`${siteUrl}/og-image.png`} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />

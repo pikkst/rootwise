@@ -74,23 +74,24 @@ async function translateBatch(entries, targetLang, langName) {
     toTranslate[key] = value;
   }
 
-  const prompt = `You are a professional translator for a web application called Rootwise (an intergenerational learning platform).
+  const prompt = `You are a translation engine for the Rootwise web application (an intergenerational learning platform).
 
-Translate the following JSON values from English to ${langName} (${targetLang}).
+YOUR TASK: Translate the JSON **values** from English to ${langName} (${targetLang}).
 
-CRITICAL RULES:
-1. Translate ONLY the values, keep the keys exactly as they are.
-2. Preserve ALL placeholders like {{name}}, {{count}}, {{xp}}, {{n}}, etc. — do NOT translate them.
-3. Preserve emojis, symbols (✓, ✕, ℹ, 🌱, 📹, etc.), and special characters exactly.
-4. Preserve HTML entities and markdown if any.
-5. Keep brand names untranslated: "Rootwise", "Nexus AI", "Gemini AI", "EventNexus OÜ", "Pro", "XP".
-6. Keep currency amounts ($9.99, $49) as-is.
-7. Keep technical terms like "UUID", "CSV", "PDF", "MP4" as-is.
+ABSOLUTE RULES — VIOLATION = FAILURE:
+1. Return a JSON object with the EXACT SAME KEYS as the input. Do NOT translate, rename, or remove any key.
+2. Translate ONLY the string values. Keys must be byte-for-byte identical to the input.
+3. Preserve ALL placeholders EXACTLY: {{name}}, {{count}}, {{xp}}, {{n}}, {{level}}, {{plan}}, etc. — never translate or alter them.
+4. Preserve emojis, symbols (✓, ✕, ℹ, 🌱, 📹, →, ↔, etc.) in their original positions.
+5. Preserve HTML tags (<br/>, <strong>, etc.) and markdown formatting exactly.
+6. Keep these brand names UNTRANSLATED: "Rootwise", "Nexus AI", "Gemini AI", "EventNexus OÜ", "Pro", "XP", "Sage", "Seeker".
+7. Keep currency amounts ($9.99, $29.99, $49) and technical terms (UUID, CSV, PDF, MP4, URL) as-is.
 8. Use a warm, friendly, respectful tone suitable for all ages, especially seniors.
-9. Use formal/polite forms where the language has them (e.g., "vous" in French, "Sie" in German, "Вы" in Russian).
-10. Return ONLY valid JSON — no markdown, no explanation, no backticks.
+9. Use formal/polite address forms: "vous" (FR), "Sie" (DE), "Вы" (RU), "Lei" (IT), "usted" (ES), "Pan/Pani" (PL), "Vi" (SV), "Te" (ET), "Jūs" (LV), "Jūs" (LT), "Ви" (UK).
+10. For keys ending in _one, _other, _few, _many, _zero — these are i18next PLURAL forms. Translate the value but keep the plural suffix on the key unchanged. If ${langName} requires additional plural forms (e.g., Russian needs _one, _few, _many, _other), generate them.
+11. Return ONLY valid JSON. No markdown fences, no comments, no explanation text.
 
-Input JSON:
+INPUT:
 ${JSON.stringify(toTranslate, null, 2)}`;
 
   const body = {
@@ -118,7 +119,34 @@ ${JSON.stringify(toTranslate, null, 2)}`;
 
   // Parse — remove possible markdown wrappers
   const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-  return JSON.parse(cleaned);
+  const parsed = JSON.parse(cleaned);
+
+  // VALIDATION: ensure returned keys exactly match input keys
+  const inputKeys = new Set(Object.keys(toTranslate));
+  const outputKeys = new Set(Object.keys(parsed));
+  const extraKeys = [...outputKeys].filter(k => !inputKeys.has(k));
+  const missingKeys = [...inputKeys].filter(k => !outputKeys.has(k));
+
+  if (extraKeys.length > 0) {
+    console.warn(`      ⚠️  AI returned unexpected keys (removing): ${extraKeys.slice(0, 5).join(', ')}${extraKeys.length > 5 ? '...' : ''}`);
+    for (const k of extraKeys) delete parsed[k];
+  }
+  if (missingKeys.length > 0) {
+    console.warn(`      ⚠️  AI missed ${missingKeys.length} keys (keeping English)`);
+    for (const k of missingKeys) parsed[k] = toTranslate[k];
+  }
+
+  // VALIDATION: ensure {{placeholders}} are preserved
+  for (const [key, val] of Object.entries(toTranslate)) {
+    const srcPlaceholders = (val.match(/\{\{[^}]+\}\}/g) || []).sort();
+    const tgtPlaceholders = ((parsed[key] || '').match(/\{\{[^}]+\}\}/g) || []).sort();
+    if (JSON.stringify(srcPlaceholders) !== JSON.stringify(tgtPlaceholders)) {
+      console.warn(`      ⚠️  Placeholder mismatch in "${key}" — keeping English`);
+      parsed[key] = val;
+    }
+  }
+
+  return parsed;
 }
 
 async function translateLocale(langCode, langName, enFlat) {

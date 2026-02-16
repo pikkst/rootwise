@@ -8,6 +8,7 @@ import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
 import { usePlan } from '../hooks/usePlan';
 import { Follower, Friendship, Post, PostComment, PostLike, Profile, getInitials, profileToUser } from '../types';
+import { formatDateNumeric, formatDateTime } from '../utils/formatDate';
 import { redirectToCheckout, openBillingPortal } from '../services/stripeService';
 import { PLAN_FEATURES } from '../services/planService';
 import { supabase } from '../services/supabase';
@@ -838,7 +839,7 @@ const ProfilePage: React.FC = () => {
                           {planInfo.subscription.status === 'cancelling' ? t('profile.ends') : t('profile.renews')}
                         </span>
                         <span className="text-sm font-medium">
-                          {new Date(planInfo.subscription.current_period_end).toLocaleDateString()}
+                          {formatDateNumeric(planInfo.subscription.current_period_end)}
                         </span>
                       </div>
                     )}
@@ -921,7 +922,7 @@ const ProfilePage: React.FC = () => {
                           </div>
                           <div>
                             <p className="text-sm font-bold text-slate-800">{post.author.name}</p>
-                            <p className="text-xs text-slate-400">{new Date(post.created_at).toLocaleString()}</p>
+                            <p className="text-xs text-slate-400">{formatDateTime(post.created_at)}</p>
                           </div>
                         </div>
                         {post.user_id === profile.id && (

@@ -33,7 +33,6 @@
     "level": "Livello",
     "members": "Membri",
     "member": "membro",
-    "membersPlural": "membri",
     "you": "Tu",
     "user": "Utente",
     "or": "o",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organizzazione",
     "unlimited": "Illimitato",
-    "remaining": "{{count}} rimanenti",
     "total": "totale",
     "noCreditCard": "Nessuna carta di credito",
     "startInMinutes": "Inizia tra pochi minuti",
     "coreFree": "L'esperienza di base è gratuita",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} membro",
+    "membersPlural_other": "👥 {{count}} membri",
+    "remaining_one": "{{count}} rimanente",
+    "remaining_other": "{{count}} rimanenti"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -241,10 +243,11 @@
     "completed": "✓ COMPLETATA",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Sii il primo!",
-    "countJoined": "{{count}} partecipanti",
     "done": "Fatto!",
     "markComplete": "Segna come Completata",
-    "joinQuest": "Unisciti alla Missione"
+    "joinQuest": "Unisciti alla Missione",
+    "countJoined_one": "{{count}} partecipante",
+    "countJoined_other": "{{count}} partecipanti"
   },
   "questDetail": {
     "notFound": "Missione non trovata",
@@ -384,7 +387,6 @@
     "title": "Hub della community",
     "subtitle": "Entra in contatto con gruppi di studenti permanenti con interessi simili tra tutte le generazioni.",
     "loading": "Caricamento delle community...",
-    "membersCount": "{{count}} membri",
     "view": "Visualizza →",
     "noCommunitiesTitle": "Nessuna community ancora",
     "noCommunitiesDesc": "Le community appariranno una volta che il database sarà popolato.",
@@ -393,7 +395,9 @@
     "join": "Partecipa",
     "leave": "Abbandona",
     "failedJoin": "Impossibile partecipare al gruppo",
-    "failedLeave": "Impossibile abbandonare il gruppo"
+    "failedLeave": "Impossibile abbandonare il gruppo",
+    "membersCount_one": "{{count}} Membro",
+    "membersCount_other": "{{count}} Membri"
   },
   "communityDetail": {
     "tabOverview": "📋 Panoramica",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Rapporto dei membri scaricato!",
     "platformReportFullDesc": "Panoramica completa a livello di piattaforma di utenti, comunità, missioni e indicatori di traffico.",
     "orgReportFullDesc": "Panoramica completa di membri, comunità, missioni e XP in tutta l'organizzazione.",
-    "membersCount": "{{count}} membri",
-    "membersLabel": "Membri"
+    "membersLabel": "Membri",
+    "membersCount_one": "{{count}} membro",
+    "membersCount_other": "{{count}} membri"
   },
   "reports": {
     "seoTitle": "Invia un report - Rootwise",

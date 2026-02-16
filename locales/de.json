@@ -33,7 +33,6 @@
     "level": "Level",
     "members": "Mitglieder",
     "member": "Mitglied",
-    "membersPlural": "Mitglieder",
     "you": "Sie",
     "user": "Benutzer",
     "or": "oder",
@@ -42,12 +41,15 @@
     "pro": "Pro",
     "org": "Organisation",
     "unlimited": "Unbegrenzt",
-    "remaining": "{{count}} verbleibend",
     "total": "gesamt",
     "noCreditCard": "Keine Kreditkarte",
     "startInMinutes": "Startet in Minuten",
     "coreFree": "Das Kern-Erlebnis ist kostenlos",
-    "brand": "ROOTWISE"
+    "brand": "ROOTWISE",
+    "membersPlural_one": "👥 {{count}} Mitglied",
+    "membersPlural_other": "👥 {{count}} Mitglieder",
+    "remaining_one": "{{count}} verbleibend",
+    "remaining_other": "{{count}} verbleibend"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -241,10 +243,11 @@
     "completed": "✓ ABGESCHLOSSEN",
     "xpReward": "+{{xp}} XP",
     "beFirst": "Sei der/die Erste!",
-    "countJoined": "{{count}} beigetreten",
     "done": "Fertig!",
     "markComplete": "Als abgeschlossen markieren",
-    "joinQuest": "Quest beitreten"
+    "joinQuest": "Quest beitreten",
+    "countJoined_one": "{{count}} ist beigetreten",
+    "countJoined_other": "{{count}} sind beigetreten"
   },
   "questDetail": {
     "notFound": "Quest nicht gefunden",
@@ -384,7 +387,6 @@
     "title": "Community-Zentrale",
     "subtitle": "Vernetzen Sie sich mit Gruppen von gleichgesinnten, lebenslangen Lernenden aller Generationen.",
     "loading": "Communities werden geladen...",
-    "membersCount": "{{count}} Mitglieder",
     "view": "Ansehen →",
     "noCommunitiesTitle": "Noch keine Communities",
     "noCommunitiesDesc": "Communities werden angezeigt, sobald die Datenbank mit Daten gefüllt ist.",
@@ -393,7 +395,9 @@
     "join": "Beitreten",
     "leave": "Verlassen",
     "failedJoin": "Das Beitreten zur Gruppe ist fehlgeschlagen",
-    "failedLeave": "Das Verlassen der Gruppe ist fehlgeschlagen"
+    "failedLeave": "Das Verlassen der Gruppe ist fehlgeschlagen",
+    "membersCount_one": "{{count}} Mitglied",
+    "membersCount_other": "{{count}} Mitglieder"
   },
   "communityDetail": {
     "tabOverview": "📋 Übersicht",
@@ -844,8 +848,9 @@
     "memberReportDownloaded": "Mitgliederbericht heruntergeladen!",
     "platformReportFullDesc": "Vollständige Übersicht auf Plattformebene über Benutzer, Communities, Quests und Traffic-Indikatoren.",
     "orgReportFullDesc": "Vollständige Übersicht über Mitglieder, Communities, Quests und XP in Ihrer Organisation.",
-    "membersCount": "{{count}} Mitglieder",
-    "membersLabel": "Mitglieder"
+    "membersLabel": "Mitglieder",
+    "membersCount_one": "{{count}} Mitglied",
+    "membersCount_other": "{{count}} Mitglieder"
   },
   "reports": {
     "seoTitle": "Bericht einreichen - Rootwise",
