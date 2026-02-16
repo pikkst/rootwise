@@ -89,33 +89,17 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right: Product Preview */}
+            {/* Right: Hero Image */}
             <div className="relative hidden lg:block">
               <div className="absolute inset-0 bg-white/5 rounded-3xl rotate-2 scale-105"></div>
-              <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-2xl">
-                {/* Mini Quest Card Preview */}
-                <div className="bg-white rounded-2xl p-5 shadow-lg mb-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs font-bold">R</div>
-                    <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Quest Active</span>
-                    <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold">+250 XP</span>
-                  </div>
-                  <h3 className="text-lg font-black text-slate-800 mb-1">Restore a 1970s Camera</h3>
-                  <p className="text-slate-500 text-sm mb-3">Arthur (74) teaches film mechanics while Leo (19) helps digitize his photo collection.</p>
-                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-600 w-3/4 rounded-full"></div>
-                  </div>
-                  <p className="text-xs text-slate-400 mt-1 text-right">75% complete</p>
-                </div>
-                {/* Mini AI Chat Preview */}
-                <div className="bg-white rounded-2xl p-4 shadow-lg">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-lg">✨</span>
-                    <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">AI Mentor</span>
-                  </div>
-                  <div className="bg-indigo-50 rounded-xl p-3 text-sm text-slate-700">
-                    "That's a great question! Combining Arthur's darkroom expertise with modern scanning creates a perfect quest. Have you considered..."
-                  </div>
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20">
+                <img 
+                  src="/images/hero-together.jpeg" 
+                  alt="A younger person and an older person laughing together at a laptop — bridging generations through shared learning"
+                  className="w-full h-auto object-cover rounded-3xl"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-6">
+                  <p className="text-white/90 text-sm font-medium">Real connections. Real learning. Across generations.</p>
                 </div>
               </div>
             </div>
@@ -267,26 +251,31 @@ const LandingPage: React.FC = () => {
                 <span className="flex items-center gap-1">✓ Works on any device</span>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
-                <div className="text-2xl mb-3">🧭</div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">Guided onboarding</h3>
-                <p className="text-sm text-slate-500">Pick your interests and roles. We tailor your first quests automatically.</p>
+            <div className="flex flex-col gap-6">
+              <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200">
+                <img 
+                  src="/images/reading-wisdom.jpeg" 
+                  alt="An older woman peacefully reading a book on a sunny porch — wisdom worth sharing"
+                  className="w-full h-auto object-cover rounded-3xl"
+                />
               </div>
-              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
-                <div className="text-2xl mb-3">🧑‍🤝‍🧑</div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">Real people, real goals</h3>
-                <p className="text-sm text-slate-500">Pair across generations and solve meaningful, bite-sized missions.</p>
-              </div>
-              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
-                <div className="text-2xl mb-3">🧠</div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">AI mentor included</h3>
-                <p className="text-sm text-slate-500">Get instant suggestions, summaries, and next steps while you learn.</p>
-              </div>
-              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
-                <div className="text-2xl mb-3">🏅</div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">Progress that sticks</h3>
-                <p className="text-sm text-slate-500">Earn XP and build a track record of impact you can share.</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm text-center">
+                  <div className="text-2xl mb-2">🧭</div>
+                  <p className="text-sm font-bold text-slate-700">Guided onboarding</p>
+                </div>
+                <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm text-center">
+                  <div className="text-2xl mb-2">🧑‍🤝‍🧑</div>
+                  <p className="text-sm font-bold text-slate-700">Real people, real goals</p>
+                </div>
+                <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm text-center">
+                  <div className="text-2xl mb-2">🧠</div>
+                  <p className="text-sm font-bold text-slate-700">AI mentor included</p>
+                </div>
+                <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm text-center">
+                  <div className="text-2xl mb-2">🏅</div>
+                  <p className="text-sm font-bold text-slate-700">Progress that sticks</p>
+                </div>
               </div>
             </div>
           </div>
