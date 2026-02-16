@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
+import QuestVideoCall from '../components/QuestVideoCall';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../services/supabase';
@@ -34,6 +35,9 @@ const QuestDetailPage: React.FC = () => {
   const [uploadingFile, setUploadingFile] = useState(false);
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showVideoCall, setShowVideoCall] = useState(false);
+  const [activeCallUsers, setActiveCallUsers] = useState<any[]>([]);
+  const callChannelRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // File upload config
@@ -96,6 +100,29 @@ const QuestDetailPage: React.FC = () => {
     document.addEventListener('click', handler);
     return () => document.removeEventListener('click', handler);
   }, [showShareMenu]);
+
+  // Supabase Realtime Presence for video call awareness
+  useEffect(() => {
+    if (!questId || !profile?.id) return;
+
+    const channel = supabase.channel(`quest-call:${questId}`, {
+      config: { presence: { key: profile.id } },
+    });
+
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState();
+      const users = Object.values(state).flat();
+      setActiveCallUsers(users);
+    });
+
+    channel.subscribe();
+    callChannelRef.current = channel;
+
+    return () => {
+      supabase.removeChannel(channel);
+      callChannelRef.current = null;
+    };
+  }, [questId, profile?.id]);
 
   const fetchQuestDetails = async () => {
     if (!questId || !profile?.id) return;
@@ -413,6 +440,31 @@ const QuestDetailPage: React.FC = () => {
     }
   };
 
+  // Video call handlers
+  const handleStartCall = useCallback(() => {
+    setShowVideoCall(true);
+    callChannelRef.current?.track({
+      userId: profile?.id,
+      userName: profile?.name || 'User',
+      avatarUrl: profile?.avatar_url,
+      joinedAt: new Date().toISOString(),
+    });
+    // Log call start
+    if (profile?.id) {
+      supabase.from('quest_video_calls').insert({
+        quest_id: questId,
+        room_name: `Rootwise_${questId!.replace(/-/g, '').slice(0, 16)}`,
+        created_by: profile.id,
+        status: 'active',
+      }).then(() => {});
+    }
+  }, [questId, profile]);
+
+  const handleLeaveCall = useCallback(() => {
+    setShowVideoCall(false);
+    callChannelRef.current?.untrack();
+  }, []);
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-32">
       <SEOHead title={`${quest.title} - Rootwise`} description={quest.description ?? ''} path={`/quests/${questId}`} />
@@ -454,8 +506,24 @@ const QuestDetailPage: React.FC = () => {
             </span>
           )}
 
+          {/* Video Call button */}
+          {isMember && (
+            <button
+              onClick={handleStartCall}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full transition ml-auto ${
+                activeCallUsers.length > 0
+                  ? 'bg-red-100 text-red-700 hover:bg-red-200 animate-pulse'
+                  : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+              }`}
+            >
+              {activeCallUsers.length > 0
+                ? `🔴 Join Call (${activeCallUsers.length})`
+                : '📹 Video Call'}
+            </button>
+          )}
+
           {/* Share button */}
-          <div className="relative ml-auto" data-share-menu>
+          <div className={`relative ${!isMember ? 'ml-auto' : ''}`} data-share-menu>
             <button
               onClick={handleNativeShare}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-full transition"
@@ -495,6 +563,30 @@ const QuestDetailPage: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {/* Active call banner */}
+      {activeCallUsers.length > 0 && !showVideoCall && isMember && (
+        <div className="mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="w-3 h-3 bg-red-400 rounded-full animate-pulse flex-shrink-0" />
+              <div>
+                <p className="font-bold text-sm sm:text-base">Video call in progress</p>
+                <p className="text-indigo-200 text-xs sm:text-sm">
+                  {activeCallUsers.length} participant{activeCallUsers.length !== 1 ? 's' : ''} —{' '}
+                  {(activeCallUsers as any[]).map((u: any) => u.userName).join(', ')}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleStartCall}
+              className="px-5 py-2.5 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition text-sm shadow-sm"
+            >
+              📹 Join Call
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
@@ -921,6 +1013,43 @@ const QuestDetailPage: React.FC = () => {
               )}
             </div>
 
+            {/* Video Call section in sidebar */}
+            {isMember && (
+              <div className="mt-5 pt-4 border-t border-slate-100">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Video Call</p>
+                {activeCallUsers.length > 0 && !showVideoCall ? (
+                  <div className="mb-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                      <span className="text-xs text-slate-600 font-medium">
+                        {activeCallUsers.length} in call
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleStartCall}
+                      className="w-full px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-semibold text-sm shadow-sm"
+                    >
+                      📹 Join Active Call
+                    </button>
+                  </div>
+                ) : !showVideoCall ? (
+                  <button
+                    onClick={handleStartCall}
+                    className="w-full px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-semibold text-sm shadow-sm"
+                  >
+                    📹 Start Video Call
+                  </button>
+                ) : (
+                  <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-xl text-center">
+                    <span className="text-red-700 font-semibold text-xs">🔴 You're in a call</span>
+                  </div>
+                )}
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Call other quest members to work together live. Steps can be tracked during the call.
+                </p>
+              </div>
+            )}
+
             {/* Share buttons in sidebar */}
             <div className="mt-5 pt-4 border-t border-slate-100">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Share Quest</p>
@@ -952,6 +1081,18 @@ const QuestDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Video Call Overlay */}
+      {showVideoCall && quest && profile && (
+        <QuestVideoCall
+          questId={questId!}
+          questTitle={quest.title}
+          questSteps={quest.steps ?? []}
+          userName={profile.name || 'User'}
+          userAvatar={profile.avatar_url ?? undefined}
+          onClose={handleLeaveCall}
+        />
+      )}
     </div>
   );
 };
