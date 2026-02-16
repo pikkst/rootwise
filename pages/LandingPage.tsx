@@ -17,7 +17,7 @@ const LandingPage: React.FC = () => {
     setCtaVariant(next);
   }, []);
 
-  const primaryCtaText = ctaVariant === 'start' ? 'Start Free →' : 'Create Account →';
+  const primaryCtaText = ctaVariant === 'start' ? 'Register Now →' : 'Create Account →';
 
   return (
     <div className="min-h-screen bg-white">
@@ -58,7 +58,7 @@ const LandingPage: React.FC = () => {
             {/* Left: Copy */}
             <div>
               <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest mb-6">
-                🌱 Start Free
+                🌱 Always Free
               </div>
               <h1 className="text-3xl sm:text-5xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight font-display">
                 Make wisdom <br/> <span className="text-amber-300">a shared quest.</span>
@@ -228,7 +228,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-block px-4 py-1.5 bg-white text-slate-700 rounded-full text-xs font-bold uppercase tracking-widest mb-4 border border-slate-200">Start Free</div>
+              <div className="inline-block px-4 py-1.5 bg-white text-slate-700 rounded-full text-xs font-bold uppercase tracking-widest mb-4 border border-slate-200">Free Forever</div>
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">You are one profile away</h2>
               <p className="text-slate-500 text-lg mb-8">Create a profile, pick your first quest, and get paired with a mentor. No paywall to get started.</p>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -236,7 +236,7 @@ const LandingPage: React.FC = () => {
                   onClick={() => navigate('/auth')}
                   className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-lg"
                 >
-                  {ctaVariant === 'start' ? 'Start Free' : 'Create Account'}
+                  {ctaVariant === 'start' ? 'Register Now' : 'Create Account'}
                 </button>
                 <button
                   onClick={() => navigate('/quests')}
@@ -328,7 +328,7 @@ const LandingPage: React.FC = () => {
               onClick={() => navigate('/auth')}
               className="px-6 sm:px-10 py-4 sm:py-5 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-black text-lg sm:text-xl transition-all hover:scale-105 shadow-xl"
             >
-              {ctaVariant === 'start' ? 'Start Free' : 'Create Account'}
+              {ctaVariant === 'start' ? 'Register Now' : 'Create Account'}
             </button>
             <button 
               onClick={() => navigate('/quests')}
