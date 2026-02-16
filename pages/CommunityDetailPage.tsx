@@ -563,7 +563,7 @@ const CommunityDetailPage: React.FC = () => {
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="flex items-start gap-4">
                 {community.logo_url ? (
                   <img
@@ -575,7 +575,7 @@ const CommunityDetailPage: React.FC = () => {
                   <div className="text-5xl">{community.icon}</div>
                 )}
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{community.name}</h1>
+                  <h1 className="text-xl sm:text-3xl font-bold text-gray-900">{community.name}</h1>
                   <p className="text-gray-600 mt-1">{community.description}</p>
                   <div className="flex gap-3 mt-3 text-sm">
                     <span className="text-gray-600">👥 {members.length} members</span>

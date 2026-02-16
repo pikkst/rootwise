@@ -135,21 +135,21 @@ const AnalyticsPage: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
           <p className="text-sm text-slate-500 mb-1">Total XP</p>
-          <p className="text-3xl font-black text-indigo-600">{totalXp}</p>
+          <p className="text-2xl sm:text-3xl font-black text-indigo-600">{totalXp}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
           <p className="text-sm text-slate-500 mb-1">Completion Rate</p>
-          <p className="text-3xl font-black text-emerald-600">{completionRate}%</p>
+          <p className="text-2xl sm:text-3xl font-black text-emerald-600">{completionRate}%</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
           <p className="text-sm text-slate-500 mb-1">Active Quests</p>
-          <p className="text-3xl font-black text-amber-600">{activeQuests.length}</p>
+          <p className="text-2xl sm:text-3xl font-black text-amber-600">{activeQuests.length}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
           <p className="text-sm text-slate-500 mb-1">Avg XP/Quest</p>
-          <p className="text-3xl font-black text-purple-600">{avgXpPerQuest}</p>
+          <p className="text-2xl sm:text-3xl font-black text-purple-600">{avgXpPerQuest}</p>
         </div>
       </div>
 

@@ -5,9 +5,9 @@ const Footer: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <footer className="py-16 border-t border-slate-100 bg-white">
+    <footer className="py-10 md:py-16 border-t border-slate-100 bg-white">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-12">
           <div>
             <div className="flex items-center gap-2 font-bold text-indigo-600 text-xl mb-4">
               <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-black">R</div>

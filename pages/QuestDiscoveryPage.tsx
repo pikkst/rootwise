@@ -237,7 +237,7 @@ const QuestDiscoveryPage: React.FC = () => {
       />
 
       <header className="mb-10">
-        <h1 className="text-4xl font-bold text-slate-800">Discover Quests</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">Discover Quests</h1>
         <p className="text-slate-600 mt-2">Find quests matched to your interests and skills</p>
       </header>
 
@@ -337,9 +337,9 @@ const QuestDiscoveryPage: React.FC = () => {
                   key={quest.id}
                   className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all"
                 >
-                  <div className="flex justify-between items-start gap-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <h3 className="text-xl font-bold text-slate-800">{quest.title}</h3>
                         <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-full">
                           {quest.quest_type}
@@ -361,14 +361,14 @@ const QuestDiscoveryPage: React.FC = () => {
                         ))}
                       </div>
 
-                      <div className="flex items-center gap-4 text-sm text-slate-600">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
                         <span>🎯 {quest.reward_xp} XP</span>
                         <span>👥 {quest.memberCount} member{quest.memberCount !== 1 ? 's' : ''}</span>
                         <span>📚 {quest.category}</span>
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-row sm:flex-col items-center gap-3 sm:gap-2">
                       <div className="text-center">
                         <div className="text-3xl font-bold text-indigo-600">{Math.round(quest.matchScore)}</div>
                         <div className="text-xs text-slate-500">Match Score</div>
@@ -376,13 +376,13 @@ const QuestDiscoveryPage: React.FC = () => {
                       <button
                         onClick={() => handleJoin(quest.id)}
                         disabled={joiningQuestId === quest.id}
-                        className="w-24 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold"
+                        className="w-full sm:w-24 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold"
                       >
                         {joiningQuestId === quest.id ? 'Joining...' : 'Join'}
                       </button>
                       <button
                         onClick={() => navigate(`/quests/${quest.id}`)}
-                        className="w-24 px-4 py-2 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition text-sm font-semibold"
+                        className="w-full sm:w-24 px-4 py-2 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition text-sm font-semibold"
                       >
                         View Details
                       </button>

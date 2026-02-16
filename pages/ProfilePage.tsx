@@ -617,7 +617,7 @@ const ProfilePage: React.FC = () => {
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div
           ref={bannerDragRef}
-          className={`relative h-64 bg-slate-200 ${isEditingProfile ? (isDraggingBanner ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
+          className={`relative h-40 sm:h-64 bg-slate-200 ${isEditingProfile ? (isDraggingBanner ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
           onPointerDown={handleBannerPointerDown}
           onPointerMove={handleBannerPointerMove}
           onPointerUp={handleBannerPointerUp}
@@ -652,21 +652,21 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
 
-        <div className="px-8 pb-8">
+        <div className="px-4 sm:px-8 pb-8">
           <div className="-mt-14 flex flex-col lg:flex-row lg:items-end gap-6">
             <div className="relative">
               {currentUser.avatar ? (
                 <img
                   src={editAvatar || currentUser.avatar}
                   alt={currentUser.name}
-                  className="w-32 h-32 rounded-3xl border-4 border-white object-cover shadow-lg bg-slate-100"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl border-4 border-white object-cover shadow-lg bg-slate-100"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                     (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
                   }}
                 />
               ) : null}
-              <div className={`w-32 h-32 rounded-3xl border-4 border-white shadow-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold ${currentUser.avatar ? 'hidden' : ''}`}>
+              <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-3xl border-4 border-white shadow-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold ${currentUser.avatar ? 'hidden' : ''}`}>
                 {getInitials(currentUser.name)}
               </div>
               {isEditingProfile && (
@@ -763,7 +763,7 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="px-8 pb-10">
+        <div className="px-4 sm:px-8 pb-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="space-y-6">
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">

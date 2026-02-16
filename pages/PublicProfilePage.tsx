@@ -313,7 +313,7 @@ const PublicProfilePage: React.FC = () => {
       <SEOHead title={`${viewedProfile.name} - Rootwise`} description="Rootwise member profile." path={`/users/${viewedProfile.id}`} />
 
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="relative h-64 bg-slate-200">
+        <div className="relative h-40 sm:h-64 bg-slate-200">
           {viewedProfile.banner_url ? (
             <img
               src={viewedProfile.banner_url}
@@ -327,17 +327,17 @@ const PublicProfilePage: React.FC = () => {
           )}
         </div>
 
-        <div className="px-8 pb-8">
+        <div className="px-4 sm:px-8 pb-8">
           <div className="-mt-14 flex flex-col lg:flex-row lg:items-end gap-6">
             <div className="relative">
               {viewedProfile.avatar_url ? (
                 <img
                   src={viewedProfile.avatar_url}
                   alt={viewedProfile.name}
-                  className="w-32 h-32 rounded-3xl border-4 border-white object-cover shadow-lg bg-slate-100"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl border-4 border-white object-cover shadow-lg bg-slate-100"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-3xl border-4 border-white shadow-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl border-4 border-white shadow-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold">
                   {getInitials(viewedProfile.name)}
                 </div>
               )}
@@ -351,7 +351,7 @@ const PublicProfilePage: React.FC = () => {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {isOwner ? (
                 <button
                   onClick={() => navigate('/profile')}

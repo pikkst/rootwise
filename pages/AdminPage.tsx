@@ -763,7 +763,7 @@ const AdminPage: React.FC = () => {
                 <div className="divide-y divide-slate-100">
                   {communities.flatMap((c) =>
                     c.members.map((m) => (
-                      <div key={`${c.id}-${m.id}`} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors">
+                      <div key={`${c.id}-${m.id}`} className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 hover:bg-slate-50 transition-colors gap-2">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
                             {m.avatar_url ? (

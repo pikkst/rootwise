@@ -60,7 +60,7 @@ const LandingPage: React.FC = () => {
               <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest mb-6">
                 🌱 Start Free
               </div>
-              <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight font-display">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight font-display">
                 Make wisdom <br/> <span className="text-amber-300">a shared quest.</span>
               </h1>
               <p className="text-lg md:text-xl mb-8 text-indigo-100 max-w-xl font-medium leading-relaxed">
@@ -82,7 +82,7 @@ const LandingPage: React.FC = () => {
                   See How It Works
                 </button>
               </div>
-              <div className="mt-8 flex items-center gap-4 text-sm text-indigo-200">
+              <div className="mt-8 flex items-center gap-x-4 gap-y-1 flex-wrap text-sm text-indigo-200">
                 <span className="flex items-center gap-1">✓ No credit card</span>
                 <span className="flex items-center gap-1">✓ Start in minutes</span>
                 <span className="flex items-center gap-1">✓ Core experience is free</span>
@@ -153,7 +153,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">How It Works</div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Three steps to your first quest</h2>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Three steps to your first quest</h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">From sign-up to meaningful connection in minutes</p>
           </div>
 
@@ -182,7 +182,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">Why Rootwise</div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Fixing the disconnect</h2>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Fixing the disconnect</h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">Society is fractured by age silos. Rootwise is the bridge.</p>
           </div>
 
@@ -211,7 +211,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">Platform</div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Everything you need to start</h2>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Everything you need to start</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -245,7 +245,7 @@ const LandingPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-block px-4 py-1.5 bg-white text-slate-700 rounded-full text-xs font-bold uppercase tracking-widest mb-4 border border-slate-200">Start Free</div>
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">You are one profile away</h2>
+              <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">You are one profile away</h2>
               <p className="text-slate-500 text-lg mb-8">Create a profile, pick your first quest, and get paired with a mentor. No paywall to get started.</p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
@@ -298,7 +298,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-12">
             <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">FAQ</div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Frequently asked</h2>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4 font-display">Frequently asked</h2>
             <p className="text-slate-500 text-lg">Quick answers before you begin.</p>
           </div>
           <div className="space-y-4">
@@ -329,21 +329,21 @@ const LandingPage: React.FC = () => {
 
       {/* Final CTA */}
       <section className="py-24 px-6">
-        <div className="max-w-5xl mx-auto bg-slate-900 rounded-[40px] p-12 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
+        <div className="max-w-5xl mx-auto bg-slate-900 rounded-3xl sm:rounded-[40px] p-6 sm:p-12 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/30 blur-[100px]"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-600/30 blur-[100px]"></div>
-          <h2 className="text-4xl md:text-5xl font-black mb-6 relative z-10 font-display">Ready to bridge generations?</h2>
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black mb-6 relative z-10 font-display">Ready to bridge generations?</h2>
           <p className="text-lg text-slate-400 mb-10 relative z-10 max-w-xl mx-auto">Join the movement where every interaction is an investment in our collective future. Start your first quest today.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
             <button 
               onClick={() => navigate('/auth')}
-              className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-black text-xl transition-all hover:scale-105 shadow-xl"
+              className="px-6 sm:px-10 py-4 sm:py-5 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-black text-lg sm:text-xl transition-all hover:scale-105 shadow-xl"
             >
               {ctaVariant === 'start' ? 'Start Free' : 'Create Account'}
             </button>
             <button 
               onClick={() => navigate('/quests')}
-              className="px-10 py-5 bg-white/10 border border-white/20 hover:bg-white/20 rounded-2xl font-bold text-xl transition-all"
+              className="px-6 sm:px-10 py-4 sm:py-5 bg-white/10 border border-white/20 hover:bg-white/20 rounded-2xl font-bold text-lg sm:text-xl transition-all"
             >
               Browse Quests
             </button>

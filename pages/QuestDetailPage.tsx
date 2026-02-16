@@ -501,13 +501,13 @@ const QuestDetailPage: React.FC = () => {
         <div className="lg:col-span-2">
           {/* Tabs */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm mb-6">
-            <div className="flex border-b border-slate-200">
+            <div className="flex border-b border-slate-200 overflow-x-auto">
               {(['overview', 'chat', 'files', 'milestones', 'members', 'proof'] as Tab[]).map(
                 (tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex-1 py-4 px-4 text-center font-semibold transition ${
+                    className={`whitespace-nowrap flex-shrink-0 py-3 px-3 sm:py-4 sm:px-4 sm:flex-1 text-center font-semibold transition text-sm sm:text-base ${
                       activeTab === tab
                         ? 'text-indigo-600 border-b-2 border-indigo-600'
                         : 'text-slate-600 hover:text-slate-800'
@@ -519,14 +519,14 @@ const QuestDetailPage: React.FC = () => {
               )}
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {/* Overview Tab */}
               {activeTab === 'overview' && (
                 <div>
                   <h2 className="text-xl font-bold text-slate-800 mb-3">About This Quest</h2>
                   <p className="text-slate-600 leading-relaxed mb-6 text-[15px]">{quest.description}</p>
 
-                  <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-xl p-4 border border-indigo-100">
                       <div className="text-xs font-medium text-indigo-500 uppercase tracking-wide mb-1">XP Reward</div>
                       <div className="text-2xl font-bold text-indigo-600">⭐ {quest.reward_xp}</div>

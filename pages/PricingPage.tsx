@@ -46,7 +46,7 @@ const PricingPage: React.FC = () => {
         <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-widest mb-4">
           Pricing
         </div>
-        <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-4">
           Simple, transparent pricing
         </h1>
         <p className="text-slate-500 text-lg max-w-xl mx-auto">
@@ -267,13 +267,14 @@ const PricingPage: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold text-slate-800 text-center mb-8">Feature Comparison</h2>
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[500px]">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="text-left p-4 text-sm font-bold text-slate-600">Feature</th>
-                <th className="text-center p-4 text-sm font-bold text-slate-600">Free</th>
-                <th className="text-center p-4 text-sm font-bold text-indigo-600">Pro</th>
-                <th className="text-center p-4 text-sm font-bold text-amber-600">Organization</th>
+                <th className="text-left p-3 sm:p-4 text-sm font-bold text-slate-600">Feature</th>
+                <th className="text-center p-3 sm:p-4 text-sm font-bold text-slate-600">Free</th>
+                <th className="text-center p-3 sm:p-4 text-sm font-bold text-indigo-600">Pro</th>
+                <th className="text-center p-3 sm:p-4 text-sm font-bold text-amber-600">Organization</th>
               </tr>
             </thead>
             <tbody>
@@ -291,14 +292,15 @@ const PricingPage: React.FC = () => {
                 { feature: 'Reporting & Export', free: '—', pro: '—', org: '✓' },
               ].map((row, i) => (
                 <tr key={i} className="border-b border-slate-100 last:border-0">
-                  <td className="p-4 text-sm font-medium text-slate-700">{row.feature}</td>
-                  <td className="p-4 text-center text-sm text-slate-500">{row.free}</td>
-                  <td className={`p-4 text-center text-sm ${row.pro === '✓' || row.pro === 'Unlimited' ? 'text-indigo-600 font-bold' : 'text-slate-400'}`}>{row.pro}</td>
-                  <td className={`p-4 text-center text-sm ${row.org === '✓' || row.org === 'Unlimited' || row.org === 'Up to 50' ? 'text-amber-600 font-bold' : 'text-slate-400'}`}>{row.org}</td>
+                  <td className="p-3 sm:p-4 text-sm font-medium text-slate-700">{row.feature}</td>
+                  <td className="p-3 sm:p-4 text-center text-sm text-slate-500">{row.free}</td>
+                  <td className={`p-3 sm:p-4 text-center text-sm ${row.pro === '✓' || row.pro === 'Unlimited' ? 'text-indigo-600 font-bold' : 'text-slate-400'}`}>{row.pro}</td>
+                  <td className={`p-3 sm:p-4 text-center text-sm ${row.org === '✓' || row.org === 'Unlimited' || row.org === 'Up to 50' ? 'text-amber-600 font-bold' : 'text-slate-400'}`}>{row.org}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

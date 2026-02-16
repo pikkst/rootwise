@@ -18,7 +18,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, r
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
+      <div className="bg-white rounded-[32px] p-6 sm:p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
         {/* Decorative blur */}
         <div className={`absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl -translate-y-20 translate-x-20 ${isPro ? 'bg-indigo-500/20' : 'bg-amber-500/20'}`} />
 
