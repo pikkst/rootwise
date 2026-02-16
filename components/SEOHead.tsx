@@ -27,6 +27,12 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:site_name" content="Rootwise" />
+      <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content="Rootwise - Intergenerational Wisdom Hub" />
+      <meta property="fb:page_id" content="61588303257095" />
+      <meta property="article:publisher" content="https://www.facebook.com/profile.php?id=61588303257095" />
       
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
