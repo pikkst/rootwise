@@ -33,6 +33,7 @@ const QuestDetailPage: React.FC = () => {
   const [proofText, setProofText] = useState('');
   const [uploadingFile, setUploadingFile] = useState(false);
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
+  const [showShareMenu, setShowShareMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // File upload config
@@ -84,6 +85,17 @@ const QuestDetailPage: React.FC = () => {
     if (!questId || !profile?.id) return;
     fetchQuestDetails();
   }, [questId, profile?.id]);
+
+  // Close share menu on outside click
+  useEffect(() => {
+    if (!showShareMenu) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-share-menu]')) setShowShareMenu(false);
+    };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [showShareMenu]);
 
   const fetchQuestDetails = async () => {
     if (!questId || !profile?.id) return;
@@ -372,6 +384,35 @@ const QuestDetailPage: React.FC = () => {
   const isLearner = currentMember?.role === 'learner';
   const isMember = !!currentMember;
 
+  const questUrl = `https://rootwise.site/quests/${questId}`;
+  const shareText = `Check out this quest on Rootwise: "${quest.title}" — ${quest.description?.slice(0, 100) ?? ''}...`;
+
+  const shareLinks = {
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(questUrl)}`,
+    twitter: `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(questUrl)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(questUrl)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${questUrl}`)}`,
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(questUrl);
+      showToast('success', 'Link copied to clipboard!');
+    } catch {
+      showToast('error', 'Failed to copy link');
+    }
+  };
+
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: quest.title, text: shareText, url: questUrl });
+      } catch { /* user cancelled */ }
+    } else {
+      setShowShareMenu((v) => !v);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-32">
       <SEOHead title={`${quest.title} - Rootwise`} description={quest.description ?? ''} path={`/quests/${questId}`} />
@@ -393,7 +434,7 @@ const QuestDetailPage: React.FC = () => {
         )}
 
         <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 leading-tight">{quest.title}</h1>
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           {quest.quest_type && (
             <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full uppercase tracking-wide">
               {quest.quest_type}
@@ -412,6 +453,46 @@ const QuestDetailPage: React.FC = () => {
               🌐 Virtual
             </span>
           )}
+
+          {/* Share button */}
+          <div className="relative ml-auto" data-share-menu>
+            <button
+              onClick={handleNativeShare}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-full transition"
+            >
+              📤 Share
+            </button>
+
+            {showShareMenu && (
+              <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-3 z-50 min-w-[200px]">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Share this quest</p>
+                <div className="flex gap-2 mb-3">
+                  <a href={shareLinks.facebook} target="_blank" rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center p-2.5 bg-[#1877F2] text-white rounded-lg hover:opacity-90 transition text-sm" title="Facebook">
+                    f
+                  </a>
+                  <a href={shareLinks.twitter} target="_blank" rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center p-2.5 bg-black text-white rounded-lg hover:opacity-90 transition text-sm" title="X (Twitter)">
+                    𝕏
+                  </a>
+                  <a href={shareLinks.linkedin} target="_blank" rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center p-2.5 bg-[#0A66C2] text-white rounded-lg hover:opacity-90 transition text-sm" title="LinkedIn">
+                    in
+                  </a>
+                  <a href={shareLinks.whatsapp} target="_blank" rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center p-2.5 bg-[#25D366] text-white rounded-lg hover:opacity-90 transition text-sm" title="WhatsApp">
+                    💬
+                  </a>
+                </div>
+                <button
+                  onClick={() => { handleCopyLink(); setShowShareMenu(false); }}
+                  className="w-full px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition text-center"
+                >
+                  🔗 Copy link
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -838,6 +919,35 @@ const QuestDetailPage: React.FC = () => {
                   <span className="text-sm text-slate-800">{quest.location}</span>
                 </div>
               )}
+            </div>
+
+            {/* Share buttons in sidebar */}
+            <div className="mt-5 pt-4 border-t border-slate-100">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Share Quest</p>
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                <a href={shareLinks.facebook} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center p-2.5 bg-[#1877F2] text-white rounded-lg hover:opacity-90 transition text-sm" title="Facebook">
+                  f
+                </a>
+                <a href={shareLinks.twitter} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center p-2.5 bg-black text-white rounded-lg hover:opacity-90 transition text-sm" title="X (Twitter)">
+                  𝕏
+                </a>
+                <a href={shareLinks.linkedin} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center p-2.5 bg-[#0A66C2] text-white rounded-lg hover:opacity-90 transition text-sm" title="LinkedIn">
+                  in
+                </a>
+                <a href={shareLinks.whatsapp} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center p-2.5 bg-[#25D366] text-white rounded-lg hover:opacity-90 transition text-sm" title="WhatsApp">
+                  💬
+                </a>
+              </div>
+              <button
+                onClick={handleCopyLink}
+                className="w-full px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition text-center"
+              >
+                🔗 Copy link
+              </button>
             </div>
           </div>
         </div>
