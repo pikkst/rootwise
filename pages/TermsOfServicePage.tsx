@@ -1,17 +1,20 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
 
 const TermsOfServicePage: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="max-w-4xl mx-auto px-6 pt-24 pb-24">
       <SEOHead
-        title="Terms of Service - Rootwise"
-        description="Terms of Service for Rootwise by EventNexus OÜ."
+        title={`${t('footer.termsOfService')} - Rootwise`}
+        description={`${t('footer.termsOfService')} for Rootwise by EventNexus OÜ.`}
         path="/terms-of-service"
       />
 
       <div className="bg-white border border-slate-200 rounded-3xl p-8 md:p-10 shadow-sm">
-        <h1 className="text-3xl font-black text-slate-900 mb-2">Terms of Service</h1>
+        <h1 className="text-3xl font-black text-slate-900 mb-2">{t('footer.termsOfService')}</h1>
         <p className="text-sm text-slate-500 mb-8">Last updated: February 15, 2026</p>
 
         <div className="space-y-6 text-sm text-slate-600 leading-relaxed">

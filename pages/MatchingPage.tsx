@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -13,6 +14,7 @@ interface MatchedProfile extends Profile {
 }
 
 const MatchingPage: React.FC = () => {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { showToast } = useToast();
   const [matches, setMatches] = useState<MatchedProfile[]>([]);
@@ -74,7 +76,7 @@ const MatchingPage: React.FC = () => {
       );
       if (sharedInterests.length > 0) {
         score += sharedInterests.length * 20;
-        matchReasons.push(`${sharedInterests.length} shared interest${sharedInterests.length > 1 ? 's' : ''}: ${sharedInterests.slice(0, 3).join(', ')}`);
+        matchReasons.push(t('matching.sharedInterestsReason', { count: sharedInterests.length, items: sharedInterests.slice(0, 3).join(', ') }));
       }
 
       // Complementary skills (Sage has what Seeker wants)
@@ -83,7 +85,7 @@ const MatchingPage: React.FC = () => {
       );
       if (complementarySkills.length > 0) {
         score += complementarySkills.length * 25;
-        matchReasons.push(`Can teach you: ${complementarySkills.slice(0, 3).join(', ')}`);
+        matchReasons.push(t('matching.canTeachYou', { items: complementarySkills.slice(0, 3).join(', ') }));
       }
 
       // You can teach them
@@ -92,7 +94,7 @@ const MatchingPage: React.FC = () => {
       );
       if (youCanTeach.length > 0) {
         score += youCanTeach.length * 15;
-        matchReasons.push(`You can share: ${youCanTeach.slice(0, 3).join(', ')}`);
+        matchReasons.push(t('matching.youCanShare', { items: youCanTeach.slice(0, 3).join(', ') }));
       }
 
       // Role compatibility (Sage-Seeker pairs score highest)
@@ -101,7 +103,7 @@ const MatchingPage: React.FC = () => {
         (profile.role === 'Seeker' && p.role === 'Sage')
       ) {
         score += 30;
-        matchReasons.push('Complementary roles (Sage ↔ Seeker)');
+        matchReasons.push(t('matching.complementaryRoles'));
       } else if (profile.role === 'Hybrid' || p.role === 'Hybrid') {
         score += 10;
       }
@@ -111,7 +113,7 @@ const MatchingPage: React.FC = () => {
       const sharedCommunities = [...userCommunityIds].filter((c) => otherComms.has(c));
       if (sharedCommunities.length > 0) {
         score += sharedCommunities.length * 15;
-        matchReasons.push(`${sharedCommunities.length} shared communit${sharedCommunities.length > 1 ? 'ies' : 'y'}`);
+        matchReasons.push(t('matching.sharedCommunitiesReason', { count: sharedCommunities.length }));
       }
 
       // Age diversity bonus (intergenerational!)
@@ -119,12 +121,12 @@ const MatchingPage: React.FC = () => {
         const ageDiff = Math.abs(profile.age - p.age);
         if (ageDiff >= 20) {
           score += 20;
-          matchReasons.push('Intergenerational match');
+          matchReasons.push(t('matching.intergenerationalMatch'));
         }
       }
 
       if (matchReasons.length === 0) {
-        matchReasons.push('Explore a new connection');
+        matchReasons.push(t('matching.exploreConnection'));
       }
 
       return { ...p, score, matchReasons };
@@ -152,7 +154,7 @@ const MatchingPage: React.FC = () => {
       .limit(1);
 
     if (existing && existing.length > 0) {
-      showToast('info', 'You already have a connection with this person.');
+      showToast('info', t('matching.alreadyConnected'));
       setConnectingId(null);
       return;
     }
@@ -161,14 +163,14 @@ const MatchingPage: React.FC = () => {
       user_id: profile.id,
       partner_id: partnerId,
       status: 'scheduled',
-      topic: 'Matched by Rootwise AI',
+      topic: t('matching.matchedByAi'),
       scheduled_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     });
 
     if (error) {
-      showToast('error', 'Failed to create connection.');
+      showToast('error', t('matching.connectError'));
     } else {
-      showToast('success', 'Connection request sent! Check your dashboard.');
+      showToast('success', t('matching.connectSuccess'));
     }
     setConnectingId(null);
   };
@@ -177,19 +179,19 @@ const MatchingPage: React.FC = () => {
   if (!hasPro) {
     return (
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-32">
-        <SEOHead title="Priority Matching - Rootwise" description="Find your ideal intergenerational partner." path="/matching" />
+        <SEOHead title={t('matching.seoTitle')} description={t('matching.seoDescription')} path="/matching" />
         <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
           <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-6">🤝</div>
-          <h2 className="text-3xl font-black text-slate-800 mb-4">Priority Matching</h2>
+          <h2 className="text-3xl font-black text-slate-800 mb-4">{t('matching.title')}</h2>
           <p className="text-slate-500 max-w-md mx-auto mb-2">
-            Our AI analyzes your skills, interests, role, and community involvement to find your ideal intergenerational partners.
+            {t('matching.upgradeDescription')}
           </p>
-          <p className="text-slate-400 text-sm mb-8">Available on Pro and Organization plans.</p>
+          <p className="text-slate-400 text-sm mb-8">{t('matching.upgradeHint')}</p>
           <button
             onClick={() => redirectToCheckout('pro')}
             className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/30"
           >
-            Upgrade to Pro — $9.99/mo
+            {t('matching.upgradeCta')}
           </button>
         </div>
       </div>
@@ -198,12 +200,12 @@ const MatchingPage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
-      <SEOHead title="Priority Matching - Rootwise" description="Find your ideal intergenerational partner." path="/matching" />
+      <SEOHead title={t('matching.seoTitle')} description={t('matching.seoDescription')} path="/matching" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-slate-800">Priority Matching</h2>
-          <p className="text-slate-500">AI-powered partner recommendations based on your profile.</p>
+          <h2 className="text-3xl font-bold text-slate-800">{t('matching.title')}</h2>
+          <p className="text-slate-500">{t('matching.subtitle')}</p>
         </div>
         <button
           onClick={findMatches}
@@ -211,14 +213,14 @@ const MatchingPage: React.FC = () => {
           className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all flex items-center gap-2 disabled:opacity-50"
         >
           {loading ? <span className="animate-spin">⟳</span> : <span>🔄</span>}
-          Refresh Matches
+          {t('matching.refreshMatches')}
         </button>
       </div>
 
       {loading ? (
         <div className="text-center py-20">
           <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-500">Finding your best matches...</p>
+          <p className="text-slate-500">{t('matching.loading')}</p>
         </div>
       ) : matches.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -226,9 +228,9 @@ const MatchingPage: React.FC = () => {
             <div key={match.id} className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all overflow-hidden">
               {/* Match score badge */}
               <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 flex items-center justify-between">
-                <span className="text-white font-bold text-sm">Match #{index + 1}</span>
+                <span className="text-white font-bold text-sm">{t('matching.matchNumber', { number: index + 1 })}</span>
                 <span className="px-3 py-1 bg-white/20 rounded-full text-white text-xs font-bold">
-                  {match.score}% match
+                  {t('matching.matchScore', { score: match.score })}
                 </span>
               </div>
 
@@ -252,7 +254,7 @@ const MatchingPage: React.FC = () => {
                       }`}>
                         {match.role}
                       </span>
-                      {match.age && <span className="text-xs text-slate-400">Age {match.age}</span>}
+                      {match.age && <span className="text-xs text-slate-400">{t('matching.age', { age: match.age })}</span>}
                     </div>
                   </div>
                 </div>
@@ -289,7 +291,7 @@ const MatchingPage: React.FC = () => {
                   disabled={connectingId === match.id}
                   className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50"
                 >
-                  {connectingId === match.id ? 'Connecting...' : '🤝 Connect'}
+                  {connectingId === match.id ? t('matching.connecting') : `🤝 ${t('matching.connect')}`}
                 </button>
               </div>
             </div>
@@ -298,9 +300,9 @@ const MatchingPage: React.FC = () => {
       ) : (
         <div className="text-center py-20 bg-white rounded-3xl border border-slate-200">
           <p className="text-6xl mb-4">🔍</p>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">No matches yet</h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">{t('matching.noMatches')}</h3>
           <p className="text-slate-500 max-w-md mx-auto">
-            Add skills and interests to your profile, and join communities to improve your matching results.
+            {t('matching.noMatchesHint')}
           </p>
         </div>
       )}

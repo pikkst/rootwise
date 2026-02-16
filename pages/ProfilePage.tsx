@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
 import PlanBadge from '../components/PlanBadge';
 import { useAuth } from '../context/AuthContext';
@@ -21,6 +22,7 @@ type PostWithMeta = Post & {
 type CommentWithMeta = PostComment & { author: ProfileLite };
 
 const ProfilePage: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const { profile, updateProfile, refreshProfile } = useAuth();
   const { showToast } = useToast();
@@ -88,7 +90,7 @@ const ProfilePage: React.FC = () => {
           .maybeSingle();
 
         if (data?.plan && data.plan !== 'free') {
-          showToast('success', `Subscription active: ${data.plan.toUpperCase()} plan enabled.`);
+          showToast('success', t('profile.subscriptionActive', { plan: data.plan.toUpperCase() }));
           return;
         }
 
@@ -96,7 +98,7 @@ const ProfilePage: React.FC = () => {
       }
 
       if (!cancelled) {
-        showToast('info', 'Payment successful. Plan update may take a moment—refresh if needed.');
+        showToast('info', t('profile.paymentSuccessful'));
       }
     };
 
@@ -241,7 +243,7 @@ const ProfilePage: React.FC = () => {
       bio: editBio || null,
     });
     await savePrimaryLocation(editLocationLabel);
-    showToast('success', 'Profile updated!');
+    showToast('success', t('profile.profileUpdated'));
     setIsEditingProfile(false);
     await loadPrimaryLocation();
   };
@@ -430,7 +432,7 @@ const ProfilePage: React.FC = () => {
 
     if (error) {
       console.error('uploadProfileMedia error:', error.message);
-      showToast('error', 'Upload failed. Please try again.');
+      showToast('error', t('profile.uploadFailed'));
       setUploading(false);
       return;
     }
@@ -442,7 +444,7 @@ const ProfilePage: React.FC = () => {
         setEditBanner(data.publicUrl);
         setEditBannerPosition({ x: 50, y: 50 });
       }
-      showToast('success', 'Image updated!');
+      showToast('success', t('profile.imageUpdated'));
     }
     setUploading(false);
   };
@@ -482,7 +484,7 @@ const ProfilePage: React.FC = () => {
       .from('posts')
       .insert({ user_id: profile.id, content: postDraft.trim() });
     if (error) {
-      showToast('error', 'Unable to post right now.');
+      showToast('error', t('profile.postError'));
       return;
     }
     setPostDraft('');
@@ -496,7 +498,7 @@ const ProfilePage: React.FC = () => {
       .from('post_comments')
       .insert({ post_id: postId, user_id: profile.id, content });
     if (error) {
-      showToast('error', 'Unable to comment right now.');
+      showToast('error', t('profile.commentError'));
       return;
     }
     setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
@@ -532,7 +534,7 @@ const ProfilePage: React.FC = () => {
       .eq('id', postId)
       .eq('user_id', profile.id);
     if (error) {
-      showToast('error', 'Unable to update the post.');
+      showToast('error', t('profile.updatePostError'));
       return;
     }
     setEditingPostId(null);
@@ -547,7 +549,7 @@ const ProfilePage: React.FC = () => {
       .eq('id', postId)
       .eq('user_id', profile.id);
     if (error) {
-      showToast('error', 'Unable to delete the post.');
+      showToast('error', t('profile.deletePostError'));
       return;
     }
     await loadPosts();
@@ -612,7 +614,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
-      <SEOHead title={`${currentUser.name} - Rootwise Profile`} description="Your Rootwise profile." path="/profile" />
+      <SEOHead title={`${currentUser.name} - Rootwise Profile`} description={t('profile.seoDesc')} path="/profile" />
 
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div
@@ -626,7 +628,7 @@ const ProfilePage: React.FC = () => {
           {profile.banner_url || editBanner ? (
             <img
               src={editBanner || profile.banner_url || ''}
-              alt="Profile banner"
+              alt={t('profile.bannerAlt')}
               className="w-full h-full object-cover bg-slate-200"
               style={{ objectPosition: `${bannerPosition.x}% ${bannerPosition.y}%` }}
               draggable={false}
@@ -637,7 +639,7 @@ const ProfilePage: React.FC = () => {
 
           {isEditingProfile && (editBanner || profile.banner_url) && (
             <div className="absolute left-6 bottom-4 bg-white/90 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
-              Drag to reposition
+              {t('profile.dragToReposition')}
             </div>
           )}
 
@@ -647,7 +649,7 @@ const ProfilePage: React.FC = () => {
               className="absolute bottom-4 right-6 px-4 py-2 bg-white/90 text-slate-700 rounded-xl text-sm font-bold shadow-sm"
               disabled={isUploadingBanner}
             >
-              {isUploadingBanner ? 'Uploading...' : 'Change Cover'}
+              {isUploadingBanner ? t('profile.uploading') : t('profile.changeCover')}
             </button>
           )}
         </div>
@@ -675,14 +677,14 @@ const ProfilePage: React.FC = () => {
                   className="absolute -bottom-2 right-2 px-3 py-1.5 bg-white text-slate-700 rounded-full text-xs font-bold shadow-md"
                   disabled={isUploadingAvatar}
                 >
-                  {isUploadingAvatar ? 'Uploading...' : 'Change'}
+                  {isUploadingAvatar ? t('profile.uploading') : t('profile.changeAvatar')}
                 </button>
               )}
             </div>
 
             <div className="flex-1">
               <h2 className="text-3xl font-bold text-slate-800">{currentUser.name}</h2>
-              <p className="text-slate-500">{profile.role}  {profile.age ?? 'Age not set'}</p>
+              <p className="text-slate-500">{profile.role}  {profile.age ?? t('profile.ageNotSet')}</p>
               {!isEditingProfile && (profile.preferred_language || primaryLocationLabel) && (
                 <p className="text-sm text-slate-500 mt-1">
                   {[profile.preferred_language, primaryLocationLabel].filter(Boolean).join(' • ')}
@@ -699,7 +701,7 @@ const ProfilePage: React.FC = () => {
                   onClick={startEditing}
                   className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-bold"
                 >
-                  Edit Profile
+                  {t('profile.editProfile')}
                 </button>
               ) : (
                 <div className="flex gap-2">
@@ -707,14 +709,14 @@ const ProfilePage: React.FC = () => {
                     onClick={() => setIsEditingProfile(false)}
                     className="px-5 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold"
                   >
-                    Cancel
+                    {t('profile.cancel')}
                   </button>
                   <button
                     form="profile-form"
                     type="submit"
                     className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-bold"
                   >
-                    Save Changes
+                    {t('profile.saveChanges')}
                   </button>
                 </div>
               )}
@@ -724,29 +726,29 @@ const ProfilePage: React.FC = () => {
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="bg-slate-50 rounded-2xl py-3">
               <p className="text-xl font-bold text-slate-800">{stats.posts}</p>
-              <p className="text-xs text-slate-500">Posts</p>
+              <p className="text-xs text-slate-500">{t('profile.tabPosts')}</p>
             </div>
             <div className="bg-slate-50 rounded-2xl py-3">
               <p className="text-xl font-bold text-slate-800">{stats.friends}</p>
-              <p className="text-xs text-slate-500">Friends</p>
+              <p className="text-xs text-slate-500">{t('profile.tabFriends')}</p>
             </div>
             <div className="bg-slate-50 rounded-2xl py-3">
               <p className="text-xl font-bold text-slate-800">{stats.followers}</p>
-              <p className="text-xs text-slate-500">Followers</p>
+              <p className="text-xs text-slate-500">{t('profile.tabFollowers')}</p>
             </div>
             <div className="bg-slate-50 rounded-2xl py-3">
               <p className="text-xl font-bold text-slate-800">{stats.following}</p>
-              <p className="text-xs text-slate-500">Following</p>
+              <p className="text-xs text-slate-500">{t('profile.followingLabel')}</p>
             </div>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-2 border-b border-slate-200 pb-4">
             {[
-              { key: 'posts', label: 'Posts' },
-              { key: 'friends', label: 'Friends' },
-              { key: 'followers', label: 'Followers' },
-              { key: 'about', label: 'About' },
-              { key: 'photos', label: 'Photos' },
+              { key: 'posts', label: t('profile.tabPosts') },
+              { key: 'friends', label: t('profile.tabFriends') },
+              { key: 'followers', label: t('profile.tabFollowers') },
+              { key: 'about', label: t('profile.tabAbout') },
+              { key: 'photos', label: t('profile.tabPhotos') },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -767,49 +769,49 @@ const ProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="space-y-6">
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <h4 className="font-bold mb-4">Intro</h4>
+                <h4 className="font-bold mb-4">{t('profile.intro')}</h4>
                 <p className="text-sm text-slate-500 mb-4">
-                  {profile.bio || 'Add a short bio to help people understand your story.'}
+                  {profile.bio || t('profile.addBio')}
                 </p>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Role</span>
+                    <span className="text-slate-400">{t('profile.roleLabel')}</span>
                     <span className="font-semibold text-slate-700">{profile.role}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Age</span>
-                    <span className="font-semibold text-slate-700">{profile.age ?? 'Not set'}</span>
+                    <span className="text-slate-400">{t('profile.ageLabel')}</span>
+                    <span className="font-semibold text-slate-700">{profile.age ?? t('profile.notSet')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Language</span>
-                    <span className="font-semibold text-slate-700">{profile.preferred_language ?? 'Not set'}</span>
+                    <span className="text-slate-400">{t('profile.languageLabel')}</span>
+                    <span className="font-semibold text-slate-700">{profile.preferred_language ?? t('profile.notSet')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Location</span>
-                    <span className="font-semibold text-slate-700">{primaryLocationLabel ?? 'Not set'}</span>
+                    <span className="text-slate-400">{t('profile.locationLabel')}</span>
+                    <span className="font-semibold text-slate-700">{primaryLocationLabel ?? t('profile.notSet')}</span>
                   </div>
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                <h4 className="font-bold mb-4">Legacy Stats</h4>
+                <h4 className="font-bold mb-4">{t('profile.legacyStats')}</h4>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-500">Plan</span>
+                    <span className="text-sm text-slate-500">{t('profile.planLabel')}</span>
                     <div className="flex items-center gap-2">
                       <PlanBadge plan={profile.plan || 'free'} size="md" />
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-500">Total XP</span>
+                    <span className="text-sm text-slate-500">{t('profile.totalXp')}</span>
                     <span className="font-bold">{currentUser.xp}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-500">Level</span>
+                    <span className="text-sm text-slate-500">{t('profile.levelLabel')}</span>
                     <span className="font-bold">{profile.level}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-500">Quests Completed</span>
+                    <span className="text-sm text-slate-500">{t('profile.questsCompleted')}</span>
                     <span className="font-bold">{completedQuests}</span>
                   </div>
                 </div>
@@ -817,10 +819,10 @@ const ProfilePage: React.FC = () => {
 
               {planInfo.subscription ? (
                 <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                  <h4 className="font-bold mb-3">Subscription</h4>
+                  <h4 className="font-bold mb-3">{t('profile.subscription')}</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-500">Status</span>
+                      <span className="text-sm text-slate-500">{t('profile.status')}</span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                         planInfo.subscription.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
                         planInfo.subscription.status === 'trialing' ? 'bg-blue-100 text-blue-700' :
@@ -833,7 +835,7 @@ const ProfilePage: React.FC = () => {
                     {planInfo.subscription.current_period_end && (
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-slate-500">
-                          {planInfo.subscription.status === 'cancelling' ? 'Ends' : 'Renews'}
+                          {planInfo.subscription.status === 'cancelling' ? t('profile.ends') : t('profile.renews')}
                         </span>
                         <span className="text-sm font-medium">
                           {new Date(planInfo.subscription.current_period_end).toLocaleDateString()}
@@ -850,14 +852,14 @@ const ProfilePage: React.FC = () => {
                     disabled={billingLoading}
                     className="w-full mt-4 py-2 border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:border-indigo-400 hover:text-indigo-600 transition-all disabled:opacity-50"
                   >
-                    {billingLoading ? 'Loading...' : ' Manage Billing'}
+                    {billingLoading ? t('profile.loading') : ` ${t('profile.manageBilling')}`}
                   </button>
                 </div>
               ) : (
                 (!profile.plan || profile.plan === 'free') && (
                   <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-2xl text-white">
-                    <h4 className="font-bold mb-2">Upgrade to Pro</h4>
-                    <p className="text-sm text-indigo-100 mb-3">Unlock all features:</p>
+                    <h4 className="font-bold mb-2">{t('profile.upgradeTitle')}</h4>
+                    <p className="text-sm text-indigo-100 mb-3">{t('profile.unlockFeatures')}</p>
                     <ul className="space-y-1.5 mb-4">
                       {PLAN_FEATURES.pro.map((f) => (
                         <li key={f.label} className="flex items-center gap-2 text-sm text-indigo-100">
@@ -869,7 +871,7 @@ const ProfilePage: React.FC = () => {
                       onClick={() => redirectToCheckout('pro')}
                       className="w-full py-2 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors"
                     >
-                      Upgrade — $9.99/mo
+                      {t('profile.upgradeBtn')}
                     </button>
                   </div>
                 )
@@ -883,16 +885,16 @@ const ProfilePage: React.FC = () => {
                     <textarea
                       value={postDraft}
                       onChange={(e) => setPostDraft(e.target.value)}
-                      placeholder="Share an update or a learning win..."
+                      placeholder={t('profile.postPlaceholder')}
                       className="w-full min-h-[120px] resize-none border border-slate-200 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                     <div className="mt-3 flex justify-between items-center">
-                      <span className="text-xs text-slate-400">Keep it friendly and focused on learning.</span>
+                      <span className="text-xs text-slate-400">{t('profile.postGuideline')}</span>
                       <button
                         onClick={handlePostCreate}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold"
                       >
-                        Post
+                        {t('profile.postBtn')}
                       </button>
                     </div>
                   </div>
@@ -900,7 +902,7 @@ const ProfilePage: React.FC = () => {
                   {posts.length === 0 && (
                     <div className="text-center py-12 text-slate-400">
                       <p className="text-4xl mb-2"></p>
-                      <p>No posts yet. Share your first update!</p>
+                      <p>{t('profile.noPostsYet')}</p>
                     </div>
                   )}
 
@@ -930,7 +932,7 @@ const ProfilePage: React.FC = () => {
                                   onClick={() => handlePostSave(post.id)}
                                   className="text-xs font-bold text-indigo-600"
                                 >
-                                  Save
+                                  {t('profile.save')}
                                 </button>
                                 <button
                                   onClick={() => {
@@ -939,7 +941,7 @@ const ProfilePage: React.FC = () => {
                                   }}
                                   className="text-xs font-bold text-slate-400"
                                 >
-                                  Cancel
+                                  {t('profile.cancel')}
                                 </button>
                               </>
                             ) : (
@@ -948,13 +950,13 @@ const ProfilePage: React.FC = () => {
                                   onClick={() => startEditPost(post)}
                                   className="text-xs font-bold text-slate-500"
                                 >
-                                  Edit
+                                  {t('profile.edit')}
                                 </button>
                                 <button
                                   onClick={() => handlePostDelete(post.id)}
                                   className="text-xs font-bold text-red-500"
                                 >
-                                  Delete
+                                  {t('profile.delete')}
                                 </button>
                               </>
                             )}
@@ -979,7 +981,7 @@ const ProfilePage: React.FC = () => {
                         >
                           {post.likedByMe ? '♥' : '♡'} {post.likeCount}
                         </button>
-                        <span>{post.comments?.length ?? 0} Comments</span>
+                        <span>{post.comments?.length ?? 0} {t('profile.comments')}</span>
                       </div>
 
                       <div className="mt-4 border-t border-slate-100 pt-4 space-y-3">
@@ -1005,14 +1007,14 @@ const ProfilePage: React.FC = () => {
                             type="text"
                             value={commentDrafts[post.id] || ''}
                             onChange={(e) => setCommentDrafts((prev) => ({ ...prev, [post.id]: e.target.value }))}
-                            placeholder="Write a comment..."
+                            placeholder={t('profile.commentPlaceholder')}
                             className="flex-1 border border-slate-200 rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           />
                           <button
                             onClick={() => handleCommentCreate(post.id)}
                             className="px-4 py-2 bg-indigo-600 text-white rounded-full text-xs font-bold"
                           >
-                            Comment
+                            {t('profile.commentBtn')}
                           </button>
                         </div>
                       </div>
@@ -1024,9 +1026,9 @@ const ProfilePage: React.FC = () => {
               {activeTab === 'friends' && (
                 <div className="space-y-6">
                   <div className="bg-white border border-slate-200 rounded-2xl p-5">
-                    <h4 className="font-bold mb-3">Friend requests</h4>
+                    <h4 className="font-bold mb-3">{t('profile.friendRequests')}</h4>
                     {incomingRequests.length === 0 && (
-                      <p className="text-sm text-slate-400">No friend requests right now.</p>
+                      <p className="text-sm text-slate-400">{t('profile.noFriendRequests')}</p>
                     )}
                     <div className="space-y-3">
                       {incomingRequests.map((req) => (
@@ -1036,21 +1038,21 @@ const ProfilePage: React.FC = () => {
                               {requestProfiles[req.user_id_a]?.avatar_url ? (
                                 <img
                                   src={requestProfiles[req.user_id_a]?.avatar_url || ''}
-                                  alt={requestProfiles[req.user_id_a]?.name || 'Requester'}
+                                  alt={requestProfiles[req.user_id_a]?.name || t('profile.newRequest')}
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-white bg-indigo-500">
-                                  {getInitials(requestProfiles[req.user_id_a]?.name || 'User')}
+                                  {getInitials(requestProfiles[req.user_id_a]?.name || t('profile.member'))}
                                 </div>
                               )}
                             </div>
                             <div>
                               <p className="text-sm font-bold text-slate-800">
-                                {requestProfiles[req.user_id_a]?.name || 'New request'}
+                                {requestProfiles[req.user_id_a]?.name || t('profile.newRequest')}
                               </p>
                               <p className="text-xs text-slate-400">
-                                {requestProfiles[req.user_id_a]?.role || 'Member'}
+                                {requestProfiles[req.user_id_a]?.role || t('profile.member')}
                               </p>
                             </div>
                           </div>
@@ -1059,13 +1061,13 @@ const ProfilePage: React.FC = () => {
                               onClick={() => handleFriendResponse(req.id, 'accepted')}
                               className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold"
                             >
-                              Accept
+                              {t('profile.accept')}
                             </button>
                             <button
                               onClick={() => handleFriendResponse(req.id, 'declined')}
                               className="px-3 py-1.5 bg-slate-200 text-slate-600 rounded-lg text-xs font-bold"
                             >
-                              Decline
+                              {t('profile.decline')}
                             </button>
                           </div>
                         </div>
@@ -1075,11 +1077,11 @@ const ProfilePage: React.FC = () => {
 
                   <div className="bg-white border border-slate-200 rounded-2xl p-5">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-bold">Friends</h4>
-                      <span className="text-xs text-slate-400">{friends.length} total</span>
+                      <h4 className="font-bold">{t('profile.friendsLabel')}</h4>
+                      <span className="text-xs text-slate-400">{t('profile.friendsTotal', { n: friends.length })}</span>
                     </div>
                     {friends.length === 0 ? (
-                      <p className="text-sm text-slate-400">No friends yet. Use search below to connect.</p>
+                      <p className="text-sm text-slate-400">{t('profile.noFriends')}</p>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {friends.map((friend) => (
@@ -1104,20 +1106,20 @@ const ProfilePage: React.FC = () => {
                   </div>
 
                   <div className="bg-white border border-slate-200 rounded-2xl p-5">
-                    <h4 className="font-bold mb-3">Find people</h4>
+                    <h4 className="font-bold mb-3">{t('profile.findPeople')}</h4>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search by name"
+                        placeholder={t('profile.searchByName')}
                         className="flex-1 border border-slate-200 rounded-xl px-4 py-2 text-sm"
                       />
                       <button
                         onClick={handleSearch}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold"
                       >
-                        Search
+                        {t('profile.searchBtn')}
                       </button>
                     </div>
                     <div className="mt-4 space-y-3">
@@ -1140,22 +1142,22 @@ const ProfilePage: React.FC = () => {
                           </div>
                           <div className="flex gap-2">
                             {friends.some((f) => f.id === person.id) ? (
-                              <span className="text-xs text-emerald-600 font-bold">Friends</span>
+                              <span className="text-xs text-emerald-600 font-bold">{t('profile.friendsAlready')}</span>
                             ) : pendingOutgoingIds.has(person.id) ? (
-                              <span className="text-xs text-slate-400 font-bold">Request sent</span>
+                              <span className="text-xs text-slate-400 font-bold">{t('profile.requestSent')}</span>
                             ) : (
                               <button
                                 onClick={() => handleFriendRequest(person.id)}
                                 className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold"
                               >
-                                Add friend
+                                {t('profile.addFriend')}
                               </button>
                             )}
                           </div>
                         </div>
                       ))}
                       {searchQuery && searchResults.length === 0 && (
-                        <p className="text-sm text-slate-400">No results. Try a different name.</p>
+                        <p className="text-sm text-slate-400">{t('profile.noResults')}</p>
                       )}
                     </div>
                   </div>
@@ -1271,12 +1273,12 @@ const ProfilePage: React.FC = () => {
                             onClick={() => handleFollowToggle(person.id)}
                             className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold"
                           >
-                            {following.some((p) => p.id === person.id) ? 'Unfollow' : 'Follow'}
+                            {following.some((p) => p.id === person.id) ? t('profile.unfollow') : t('profile.follow')}
                           </button>
                         </div>
                       ))}
                       {searchQuery && searchResults.length === 0 && (
-                        <p className="text-sm text-slate-400">No results. Try a different name.</p>
+                        <p className="text-sm text-slate-400">{t('profile.noResults')}</p>
                       )}
                     </div>
                   </div>

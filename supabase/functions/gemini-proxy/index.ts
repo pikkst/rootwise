@@ -399,13 +399,16 @@ targetAge: ${JSON.stringify(targetAge)}
 
     if (action === 'generateQuest') {
       // Quest generation with structured output
-      const { topic, userLevel } = payload;
+      const { topic, userLevel, locale } = payload;
+      const langInstruction = locale && locale !== 'en'
+        ? `IMPORTANT: Generate ALL text (title, description, steps) in the language with code "${locale}". Do NOT use English.`
+        : '';
       const body = {
         contents: [
           {
             parts: [
               {
-                text: `Create a productive multi-generational 'Quest' for the topic: ${topic}. The quest should be achievable for a ${userLevel} user. Return JSON with: title, description (compelling), 3 actionable steps, and a category (one of: Technology, Environment, Finance, Arts, Lifestyle, Education, History).`,
+                text: `Create a productive multi-generational 'Quest' for the topic: ${topic}. The quest should be achievable for a ${userLevel} user. ${langInstruction} Return JSON with: title, description (compelling), 3 actionable steps, and a category (one of: Technology, Environment, Finance, Arts, Lifestyle, Education, History).`,
               },
             ],
           },

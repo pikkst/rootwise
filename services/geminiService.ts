@@ -1,5 +1,6 @@
 
 import { supabase } from './supabase';
+import i18next from 'i18next';
 
 export class RootwiseAIService {
   private async callProxy(action: string, payload: Record<string, unknown>) {
@@ -23,10 +24,11 @@ export class RootwiseAIService {
         p_type: 'quest_gen',
       });
       if (usage && !usage.allowed) {
-        return { error: `Daily quest generation limit reached (${usage.limit}/day). Upgrade to Pro for unlimited.` };
+        return { error: i18next.t('ai.rateLimitQuest', { limit: usage.limit }) };
       }
 
-      const result = await this.callProxy('generateQuest', { topic, userLevel });
+      const locale = i18next.language || 'en';
+      const result = await this.callProxy('generateQuest', { topic, userLevel, locale });
       return result.quest || null;
     } catch (error) {
       console.error("Quest generation error:", error);
@@ -42,7 +44,7 @@ export class RootwiseAIService {
         p_type: 'chat',
       });
       if (usage && !usage.allowed) {
-        return `You've reached your daily AI chat limit (${usage.limit} messages/day). Upgrade to Pro for unlimited AI mentoring!`;
+        return i18next.t('ai.rateLimitChat', { limit: usage.limit });
       }
 
       const contents = history.map((h) => ({
@@ -50,19 +52,19 @@ export class RootwiseAIService {
         parts: h.parts.map((p) => ({ text: p.text })),
       }));
 
-      const systemInstruction = "You are Rootwise AI, a wise and encouraging mentor for an intergenerational wisdom platform. You help connect generations through shared wisdom and roots. Your tone is warm, patient, and highly productive. Encourage users to share their unique life perspectives regardless of age. When asked about quests, suggest collaborative activities between different generations. Keep responses concise but meaningful — aim for 2-4 paragraphs max.";
+      const systemInstruction = `You are Rootwise AI, a wise and encouraging mentor for an intergenerational wisdom platform. You help connect generations through shared wisdom and roots. Your tone is warm, patient, and highly productive. Encourage users to share their unique life perspectives regardless of age. When asked about quests, suggest collaborative activities between different generations. Keep responses concise but meaningful — aim for 2-4 paragraphs max. IMPORTANT: Always respond in the user's language. The user's current language is: ${i18next.language || 'en'}.`;
 
-      const result = await this.callProxy('chat', { contents, systemInstruction });
-      const baseText = result.text ?? "I'm having a little trouble right now. Please try again.";
+      const result = await this.callProxy('chat', { contents, systemInstruction, locale: i18next.language || 'en' });
+      const baseText = result.text ?? i18next.t('ai.troubleNow');
 
       if (result.createdQuest?.id) {
-        return `${baseText}\n\n✅ I created a quest for this request: ${result.createdQuest.title} (ID: ${result.createdQuest.id}).`;
+        return `${baseText}\n\n${i18next.t('ai.questCreated', { title: result.createdQuest.title, id: result.createdQuest.id })}`;
       }
 
       return baseText;
     } catch (error) {
       console.error("AI Mentor Error:", error);
-      return "I'm having a little trouble connecting right now. Please try again in a moment.";
+      return i18next.t('ai.troubleConnecting');
     }
   }
 

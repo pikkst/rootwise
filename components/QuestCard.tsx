@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Quest } from '../types';
 
 // Category to emoji mapping for quest images
@@ -34,6 +35,7 @@ interface QuestCardProps {
 }
 
 const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onComplete }) => {
+  const { t } = useTranslation();
   const isCompleted = quest.status === 'completed';
   const emoji = categoryEmoji[quest.category] || '⚡';
   const gradient = categoryGradient[quest.category] || categoryGradient.General;
@@ -53,7 +55,7 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onC
           </div>
         )}
         <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-lg text-xs font-bold text-indigo-600 shadow-sm">
-          {isCompleted ? '✓ COMPLETED' : `+${quest.rewardXP} XP`}
+          {isCompleted ? t('questCard.completed') : t('questCard.xpReward', { xp: quest.rewardXP })}
         </div>
       </div>
       <div className="p-5">
@@ -83,26 +85,26 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onC
             )}
             <span className="text-[10px] text-slate-400 font-medium pl-2">
               {quest.participants.length === 0
-                ? 'Be the first!'
-                : `${quest.participants.length} joined`}
+                ? t('questCard.beFirst')
+                : t('questCard.countJoined', { count: quest.participants.length })}
             </span>
           </div>
           
           {isCompleted ? (
-            <span className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-bold">Done!</span>
+            <span className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-bold">{t('questCard.done')}</span>
           ) : isParticipant ? (
             <button 
               onClick={() => onComplete?.(quest.id)}
               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-emerald-600/20"
             >
-              Mark Complete
+              {t('questCard.markComplete')}
             </button>
           ) : (
             <button 
               onClick={() => onJoin?.(quest.id)}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition-colors"
             >
-              Join Quest
+              {t('questCard.joinQuest')}
             </button>
           )}
         </div>

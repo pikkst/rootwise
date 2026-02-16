@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import SEOHead from '../components/SEOHead';
 
@@ -14,6 +15,7 @@ const AuthPage: React.FC = () => {
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Redirect to dashboard once user state is confirmed after login
   useEffect(() => {
@@ -38,7 +40,7 @@ const AuthPage: React.FC = () => {
         // once onAuthStateChange sets the user
       } else {
         if (!name.trim()) {
-          setError('Please enter your name.');
+          setError(t('auth.validationName'));
           setLoading(false);
           return;
         }
@@ -46,13 +48,13 @@ const AuthPage: React.FC = () => {
         if (error) {
           setError(error);
         } else {
-          setSuccess('Account created! Check your email to verify, then log in.');
+          setSuccess(t('auth.successCreated'));
           setIsLogin(true);
         }
       }
     } catch (err: unknown) {
       console.error('Auth error:', err);
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.');
+      setError(err instanceof Error ? err.message : t('common.error'));
     }
     setLoading(false);
   };
@@ -60,8 +62,8 @@ const AuthPage: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-6">
       <SEOHead
-        title={isLogin ? 'Sign In - Rootwise' : 'Create Account - Rootwise'}
-        description="Join Rootwise to connect generations through shared wisdom and collaborative quests."
+        title={isLogin ? t('auth.seoSignIn') : t('auth.seoSignUp')}
+        description={isLogin ? t('auth.seoSignInDesc') : t('auth.seoSignUpDesc')}
         path="/auth"
       />
 
@@ -75,10 +77,10 @@ const AuthPage: React.FC = () => {
             <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">
               R
             </div>
-            <span className="text-2xl font-black text-indigo-600">ROOTWISE</span>
+            <span className="text-2xl font-black text-indigo-600">{t('common.brand')}</span>
           </div>
           <p className="text-slate-500 mt-3">
-            {isLogin ? 'Welcome back! Continue your journey.' : 'Start your intergenerational adventure.'}
+            {isLogin ? t('auth.welcomeBack') : t('auth.startAdventure')}
           </p>
         </div>
 
@@ -95,7 +97,7 @@ const AuthPage: React.FC = () => {
                   : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              Sign In
+              {t('auth.tabSignIn')}
             </button>
             <button
               type="button"
@@ -106,7 +108,7 @@ const AuthPage: React.FC = () => {
                   : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              Create Account
+              {t('auth.tabCreateAccount')}
             </button>
           </div>
 
@@ -126,30 +128,30 @@ const AuthPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-600">Full Name</label>
+                <label className="text-sm font-bold text-slate-600">{t('auth.labelName')}</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
+                  placeholder={t('auth.placeholderName')}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
                   required={!isLogin}
                 />
               </div>
             )}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-600">Email</label>
+              <label className="text-sm font-bold text-slate-600">{t('auth.labelEmail')}</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t('auth.placeholderEmail')}
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
                 required
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-600">Password</label>
+              <label className="text-sm font-bold text-slate-600">{t('auth.labelPassword')}</label>
               <input
                 type="password"
                 value={password}
@@ -169,19 +171,22 @@ const AuthPage: React.FC = () => {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  Processing...
+                  {t('common.processing')}
                 </span>
               ) : isLogin ? (
-                'Sign In →'
+                t('auth.btnSignIn')
               ) : (
-                'Create Account →'
+                t('auth.btnCreateAccount')
               )}
             </button>
           </form>
         </div>
 
         <p className="text-center text-sm text-slate-400 mt-6">
-          By continuing, you agree to Rootwise's Terms of Service and Privacy Policy.
+          {t('auth.legalAgree')}{' '}
+          <a href="/terms" className="underline">{t('footer.termsOfService')}</a>{' '}
+          {t('auth.legalAnd')}{' '}
+          <a href="/privacy" className="underline">{t('footer.privacyPolicy')}</a>
         </p>
       </div>
     </div>

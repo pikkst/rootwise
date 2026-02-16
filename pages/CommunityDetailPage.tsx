@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
@@ -40,6 +41,7 @@ const CommunityDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const supabaseAny = supabase as any;
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const aiService = useRef(new RootwiseAIService());
@@ -235,7 +237,7 @@ const CommunityDetailPage: React.FC = () => {
       await fetchMessages();
     } catch (error) {
       console.error('Error fetching community details:', error);
-      showToast('error', 'Error loading community details');
+      showToast('error', t('communityDetail.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -280,7 +282,7 @@ const CommunityDetailPage: React.FC = () => {
     if (!communityId || !community) return;
 
     if (!isMember) {
-      showToast('info', 'Join this community to generate a community quest.');
+      showToast('info', t('communityDetail.joinToGenerate'));
       return;
     }
 
@@ -290,7 +292,7 @@ const CommunityDetailPage: React.FC = () => {
       const generated = await aiService.current.generateQuest(topic, profile.role);
 
       if (!generated || generated.error) {
-        showToast('error', generated?.error || 'Could not generate a community quest right now.');
+        showToast('error', generated?.error || t('communityDetail.couldNotGenerate'));
         return;
       }
 
@@ -369,10 +371,10 @@ const CommunityDetailPage: React.FC = () => {
 
       await fetchCommunityDetails();
       setActiveTab('quests');
-      showToast('success', `Community quest "${createdQuest.title}" generated! Members can now join.`);
+      showToast('success', t('communityDetail.questGenerated', { title: createdQuest.title }));
     } catch (error) {
       console.error('Error generating community quest:', error);
-      showToast('error', 'Failed to generate a community quest. Please try again.');
+      showToast('error', t('communityDetail.questGenerateFailed'));
     } finally {
       setGeneratingCommunityQuest(false);
     }
@@ -384,7 +386,7 @@ const CommunityDetailPage: React.FC = () => {
     setJoiningCommunity(true);
     try {
       if (community?.member_limit && members.length >= community.member_limit) {
-        showToast('error', `Community member limit reached (${community.member_limit}).`);
+        showToast('error', t('communityDetail.memberLimitReached', { limit: community.member_limit }));
         return;
       }
 
@@ -396,7 +398,7 @@ const CommunityDetailPage: React.FC = () => {
       if (error) throw error;
 
       setIsMember(true);
-      showToast('success', 'Joined community!');
+      showToast('success', t('communityDetail.joinedSuccess'));
 
       // Log activity
       await supabaseAny.from('activity_feed').insert({
@@ -407,7 +409,7 @@ const CommunityDetailPage: React.FC = () => {
       });
     } catch (error) {
       console.error('Error joining community:', error);
-      showToast('error', 'Error joining community');
+      showToast('error', t('communityDetail.errorJoining'));
     } finally {
       setJoiningCommunity(false);
     }
@@ -427,10 +429,10 @@ const CommunityDetailPage: React.FC = () => {
       if (error) throw error;
 
       setIsMember(false);
-      showToast('success', 'Left community');
+      showToast('success', t('communityDetail.leftSuccess'));
     } catch (error) {
       console.error('Error leaving community:', error);
-      showToast('error', 'Error leaving community');
+      showToast('error', t('communityDetail.errorLeaving'));
     } finally {
       setJoiningCommunity(false);
     }
@@ -452,7 +454,7 @@ const CommunityDetailPage: React.FC = () => {
           m.user_id === userId ? { ...m, isFollowing: true } : m
         )
       );
-      showToast('success', 'Following member');
+      showToast('success', t('communityDetail.followingMember'));
     } catch (error) {
       console.error('Error following member:', error);
     }
@@ -475,7 +477,7 @@ const CommunityDetailPage: React.FC = () => {
           m.user_id === userId ? { ...m, isFollowing: false } : m
         )
       );
-      showToast('success', 'Unfollowed member');
+      showToast('success', t('communityDetail.unfollowedMember'));
     } catch (error) {
       console.error('Error unfollowing member:', error);
     }
@@ -497,7 +499,7 @@ const CommunityDetailPage: React.FC = () => {
           m.user_id === userId ? { ...m, isFriend: true } : m
         )
       );
-      showToast('success', 'Added as friend!');
+      showToast('success', t('communityDetail.addedFriend'));
     } catch (error) {
       console.error('Error adding friend:', error);
     }
@@ -520,7 +522,7 @@ const CommunityDetailPage: React.FC = () => {
       await fetchMessages();
     } catch (error) {
       console.error('Error sending message:', error);
-      showToast('error', 'Error sending message');
+      showToast('error', t('communityDetail.errorSendingMessage'));
     } finally {
       setSendingMessage(false);
     }
@@ -531,7 +533,7 @@ const CommunityDetailPage: React.FC = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
-          <p className="mt-4 text-gray-600">Loading community...</p>
+          <p className="mt-4 text-gray-600">{t('communityDetail.communityLoading')}</p>
         </div>
       </div>
     );
@@ -541,12 +543,12 @@ const CommunityDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Community not found</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('communityDetail.notFound')}</h1>
           <button
             onClick={() => navigate('/community')}
             className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
           >
-            Back to Communities
+            {t('communityDetail.backToCommunities')}
           </button>
         </div>
       </div>
@@ -578,7 +580,7 @@ const CommunityDetailPage: React.FC = () => {
                   <h1 className="text-xl sm:text-3xl font-bold text-gray-900">{community.name}</h1>
                   <p className="text-gray-600 mt-1">{community.description}</p>
                   <div className="flex gap-3 mt-3 text-sm">
-                    <span className="text-gray-600">👥 {members.length} members</span>
+                    <span className="text-gray-600">👥 {members.length} {t('common.membersPlural')}</span>
                     <span className="text-gray-600">🏷️ {community.category}</span>
                   </div>
                 </div>
@@ -590,7 +592,7 @@ const CommunityDetailPage: React.FC = () => {
                     disabled={joiningCommunity}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
                   >
-                    {joiningCommunity ? 'Loading...' : 'Leave'}
+                    {joiningCommunity ? t('common.loading') : t('common.leave')}
                   </button>
                 ) : (
                   <button
@@ -598,7 +600,7 @@ const CommunityDetailPage: React.FC = () => {
                     disabled={joiningCommunity}
                     className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 disabled:opacity-50"
                   >
-                    {joiningCommunity ? 'Joining...' : 'Join Community'}
+                    {joiningCommunity ? t('common.joining') : t('communityDetail.joinCommunity')}
                   </button>
                 )}
               </div>
@@ -619,11 +621,11 @@ const CommunityDetailPage: React.FC = () => {
                     : 'text-gray-600 border-transparent hover:text-gray-900'
                 }`}
               >
-                {tab === 'overview' && '📋 Overview'}
-                {tab === 'members' && '👥 Members'}
-                {tab === 'quests' && '⚔️ Quests'}
-                {tab === 'activity' && '📰 Activity'}
-                {tab === 'chat' && '💬 Chat'}
+                {tab === 'overview' && t('communityDetail.tabOverview')}
+                {tab === 'members' && t('communityDetail.tabMembers')}
+                {tab === 'quests' && t('communityDetail.tabQuests')}
+                {tab === 'activity' && t('communityDetail.tabActivity')}
+                {tab === 'chat' && t('communityDetail.tabChat')}
               </button>
             ))}
           </div>
@@ -633,17 +635,17 @@ const CommunityDetailPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-2">
                 <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold mb-3">About</h2>
+                  <h2 className="text-xl font-bold mb-3">{t('communityDetail.about')}</h2>
                   <p className="text-gray-700">{community.description}</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="font-bold text-lg mb-2">📊 Stats</h3>
+                  <h3 className="font-bold text-lg mb-2">{t('communityDetail.stats')}</h3>
                   <div className="space-y-2 text-sm">
-                    <p>Members: {members.length}</p>
-                    <p>Quests: {quests.length}</p>
-                    <p>Category: {community.category}</p>
+                    <p>{t('communityDetail.statsMembers')}: {members.length}</p>
+                    <p>{t('communityDetail.statsQuests')}: {quests.length}</p>
+                    <p>{t('communityDetail.statsCategory')}: {community.category}</p>
                   </div>
                 </div>
               </div>
@@ -657,7 +659,7 @@ const CommunityDetailPage: React.FC = () => {
               <div className="bg-white rounded-lg shadow-sm p-4 space-y-3">
                 <input
                   type="text"
-                  placeholder="Search members by name..."
+                  placeholder={t('communityDetail.searchMembersPlaceholder')}
                   value={memberSearch}
                   onChange={(e) => setMemberSearch(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -668,7 +670,7 @@ const CommunityDetailPage: React.FC = () => {
                     onChange={(e) => setSkillFilter(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   >
-                    <option value="">Filter by skill...</option>
+                    <option value="">{t('communityDetail.filterSkillPlaceholder')}</option>
                     {allSkills.map((skill) => (
                       <option key={skill} value={skill}>
                         {skill}
@@ -677,7 +679,7 @@ const CommunityDetailPage: React.FC = () => {
                   </select>
                 )}
                 <p className="text-sm text-gray-600">
-                  Showing {filteredMembers.length} of {members.length} members
+                  {t('communityDetail.showingMembers', { shown: filteredMembers.length, total: members.length })}
                 </p>
               </div>
 
@@ -701,7 +703,7 @@ const CommunityDetailPage: React.FC = () => {
                         >
                           {member.profile?.name}
                         </h3>
-                        <p className="text-sm text-gray-600">{member.profile?.role || 'Member'}</p>
+                        <p className="text-sm text-gray-600">{member.profile?.role || t('communityDetail.defaultRole')}</p>
                       </div>
                     </div>
                     {member.profile?.bio && (
@@ -727,29 +729,29 @@ const CommunityDetailPage: React.FC = () => {
                               onClick={() => handleUnfollowMember(member.user_id)}
                               className="px-2 py-1 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
                             >
-                              ✓ Following
+                              {'✓ ' + t('common.following')}
                             </button>
                           ) : (
                             <button
                               onClick={() => handleFollowMember(member.user_id)}
                               className="px-2 py-1 text-sm bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200"
                             >
-                              Follow
+                              {t('common.follow')}
                             </button>
                           )}
                           <button
                             onClick={() => navigate(`/users/${member.user_id}`)}
                             className="px-2 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                            title="Send message"
+                            title={t('communityDetail.sendMessage')}
                           >
-                            💬 Message
+                            {t('communityDetail.message')}
                           </button>
                           {!member.isFriend && (
                             <button
                               onClick={() => handleAddFriend(member.user_id)}
                               className="px-2 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200"
                             >
-                              Add Friend
+                              {t('communityDetail.addFriend')}
                             </button>
                           )}
                         </>
@@ -758,7 +760,7 @@ const CommunityDetailPage: React.FC = () => {
                         onClick={() => navigate(`/users/${member.user_id}`)}
                         className="px-2 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
                       >
-                        📋 Profile
+                        {t('communityDetail.profile')}
                       </button>
                     </div>
                   </div>
@@ -773,29 +775,29 @@ const CommunityDetailPage: React.FC = () => {
               {isMember && (
                 <div className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-gray-900">Create a community quest</p>
-                    <p className="text-sm text-gray-600">Generates a team quest linked to this community so members can join.</p>
+                    <p className="font-semibold text-gray-900">{t('communityDetail.createQuestTitle')}</p>
+                    <p className="text-sm text-gray-600">{t('communityDetail.createQuestDesc')}</p>
                   </div>
                   <button
                     onClick={handleGenerateCommunityQuest}
                     disabled={generatingCommunityQuest}
                     className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 disabled:opacity-50"
                   >
-                    {generatingCommunityQuest ? 'Generating...' : '✨ Generate Community Quest'}
+                    {generatingCommunityQuest ? t('communityDetail.generating') : t('communityDetail.generateQuest')}
                   </button>
                 </div>
               )}
 
               {quests.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                  <p className="text-gray-600 mb-4">No quests in this community yet</p>
+                  <p className="text-gray-600 mb-4">{t('communityDetail.noQuestsYet')}</p>
                   {isMember && (
                     <button
                       onClick={handleGenerateCommunityQuest}
                       disabled={generatingCommunityQuest}
                       className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
                     >
-                      {generatingCommunityQuest ? 'Generating...' : '✨ Generate First Community Quest'}
+                      {generatingCommunityQuest ? t('communityDetail.generating') : t('communityDetail.generateFirstQuest')}
                     </button>
                   )}
                 </div>
@@ -834,7 +836,7 @@ const CommunityDetailPage: React.FC = () => {
             <div className="space-y-4">
               {activities.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-600">
-                  No activity yet. Be the first to contribute!
+                  {t('communityDetail.activityEmpty')}
                 </div>
               ) : (
                 activities.map((activity) => (
@@ -849,12 +851,12 @@ const CommunityDetailPage: React.FC = () => {
                       )}
                       <div className="flex-1">
                         <p className="font-semibold text-gray-900">
-                          {activity.profile?.name || 'Unknown'} 
+                          {activity.profile?.name || t('communityDetail.unknown')} 
                           <span className="font-normal text-gray-600 ml-2">
-                            {activity.activity_type === 'quest_completed' && '✓ completed a quest'}
-                            {activity.activity_type === 'achievement' && '🏆 earned an achievement'}
-                            {activity.activity_type === 'joined_community' && '👋 joined the community'}
-                            {activity.activity_type === 'post' && '📝 posted'}
+                            {activity.activity_type === 'quest_completed' && `✓ ${t('communityDetail.activityCompleted')}`}
+                            {activity.activity_type === 'achievement' && `🏆 ${t('communityDetail.activityAchievement')}`}
+                            {activity.activity_type === 'joined_community' && `👋 ${t('communityDetail.activityJoined')}`}
+                            {activity.activity_type === 'post' && `📝 ${t('communityDetail.activityPosted')}`}
                           </span>
                         </p>
                         {activity.title && <p className="text-gray-700 mt-1">{activity.title}</p>}
@@ -875,7 +877,7 @@ const CommunityDetailPage: React.FC = () => {
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {messages.length === 0 ? (
-                  <div className="text-center text-gray-500 py-8">No messages yet. Start the conversation!</div>
+                  <div className="text-center text-gray-500 py-8">{t('communityDetail.chatEmpty')}</div>
                 ) : (
                   messages.map((msg) => (
                     <div key={msg.id} className="flex gap-3">
@@ -904,7 +906,7 @@ const CommunityDetailPage: React.FC = () => {
                 <div className="border-t border-gray-200 p-4 flex gap-2">
                   <input
                     type="text"
-                    placeholder="Type a message..."
+                    placeholder={t('communityDetail.chatPlaceholder')}
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -916,12 +918,12 @@ const CommunityDetailPage: React.FC = () => {
                     disabled={sendingMessage || !messageInput.trim()}
                     className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 disabled:opacity-50"
                   >
-                    {sendingMessage ? '...' : 'Send'}
+                    {sendingMessage ? '...' : t('common.send')}
                   </button>
                 </div>
               ) : (
                 <div className="border-t border-gray-200 p-4 text-center text-gray-600 text-sm">
-                  Join the community to chat
+                  {t('communityDetail.chatJoinFirst')}
                 </div>
               )}
             </div>

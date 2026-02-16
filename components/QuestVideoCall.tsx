@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface QuestVideoCallProps {
   questId: string;
@@ -24,6 +25,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   userAvatar,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<any>(null);
   const startTimeRef = useRef(Date.now());
@@ -53,7 +55,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         script.src = 'https://meet.jit.si/external_api.js';
         script.async = true;
         script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Video call service could not be loaded. Please check your internet connection.'));
+        script.onerror = () => reject(new Error(t('videoCall.serviceError')));
         document.head.appendChild(script);
       });
     };
@@ -141,7 +143,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         }
       } catch (err: any) {
         if (mounted) {
-          setError(err.message || 'Failed to start the video call');
+          setError(err.message || t('videoCall.startError'));
           setLoading(false);
         }
       }
@@ -191,16 +193,16 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
       <div className="fixed inset-0 z-[60] bg-slate-900/95 flex items-center justify-center p-6">
         <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl">
           <div className="text-5xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Video call unavailable</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">{t('videoCall.unavailableTitle')}</h2>
           <p className="text-slate-500 text-sm mb-6 leading-relaxed">{error}</p>
           <p className="text-xs text-slate-400 mb-6">
-            Make sure your browser allows camera and microphone access, and that you have a stable internet connection.
+            {t('videoCall.unavailableDesc')}
           </p>
           <button
             onClick={onClose}
             className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition text-base"
           >
-            Go Back
+            {t('goBack')}
           </button>
         </div>
       </div>
@@ -236,14 +238,14 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
               onClick={() => setShowPanel(!showPanel)}
               className="px-3 py-1.5 text-xs font-semibold bg-slate-700 hover:bg-slate-600 rounded-lg transition hidden sm:flex items-center gap-1"
             >
-              📋 {showPanel ? 'Hide Steps' : 'Show Steps'}
+              📋 {showPanel ? t('videoCall.hideSteps') : t('videoCall.showSteps')}
             </button>
           )}
           <button
             onClick={onClose}
             className="px-3 sm:px-4 py-2 text-sm font-bold bg-red-600 hover:bg-red-500 rounded-lg transition"
           >
-            ✕ Leave
+            ✕ {t('videoCall.leave')}
           </button>
         </div>
       </div>
@@ -260,10 +262,10 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
             <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
               <div className="text-center px-6">
                 <div className="w-14 h-14 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-5" />
-                <p className="text-white text-lg font-semibold mb-1">Connecting…</p>
-                <p className="text-slate-400 text-sm">Setting up your video call</p>
+                <p className="text-white text-lg font-semibold mb-1">{t('videoCall.connecting')}</p>
+                <p className="text-slate-400 text-sm">{t('videoCall.settingUp')}</p>
                 <p className="text-slate-500 text-xs mt-4 max-w-xs mx-auto leading-relaxed">
-                  💡 Tip: Allow camera and microphone access when your browser asks.
+                  {t('videoCall.cameraTip')}
                 </p>
               </div>
             </div>
@@ -284,14 +286,14 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
               {/* Panel header */}
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
-                  📋 Quest Steps
+                  📋 {t('videoCall.questSteps')}
                 </h3>
                 <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
                   {checkedSteps.size}/{questSteps.length}
                 </span>
               </div>
               <p className="text-xs text-slate-500 mb-5 leading-relaxed">
-                Mark steps as you complete them together during the call. This is a personal tracker — others see their own progress.
+                {t('videoCall.stepsHint')} {t('videoCall.personalTracker')}
               </p>
 
               {/* Steps list */}
@@ -332,7 +334,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
               {/* Progress bar */}
               <div className="mt-5 pt-4 border-t border-slate-100">
                 <div className="flex items-center justify-between text-xs mb-2">
-                  <span className="text-slate-500 font-medium">Progress</span>
+                  <span className="text-slate-500 font-medium">{t('videoCall.progress')}</span>
                   <span className="font-bold text-slate-700">{stepsProgress}%</span>
                 </div>
                 <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
@@ -346,8 +348,8 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
               {/* Completion celebration */}
               {checkedSteps.size === questSteps.length && questSteps.length > 0 && (
                 <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
-                  <p className="text-emerald-700 font-bold text-sm">🎉 All steps completed!</p>
-                  <p className="text-emerald-600 text-xs mt-1">Great teamwork!</p>
+                  <p className="text-emerald-700 font-bold text-sm">🎉 {t('videoCall.allComplete')}</p>
+                  <p className="text-emerald-600 text-xs mt-1">{t('videoCall.greatTeamwork')}</p>
                 </div>
               )}
             </div>
@@ -367,7 +369,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
                   : 'bg-slate-100 text-slate-700'
               }`}
             >
-              📹 Video
+              📹 {t('videoCall.tabVideo')}
             </button>
             <button
               onClick={() => setMobileView('steps')}
@@ -377,7 +379,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
                   : 'bg-slate-100 text-slate-700'
               }`}
             >
-              📋 Steps ({checkedSteps.size}/{questSteps.length})
+              📋 {t('videoCall.tabSteps')} ({checkedSteps.size}/{questSteps.length})
             </button>
           </div>
         </div>
@@ -386,7 +388,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
       {/* ─── Mobile duration/participant info bar ─── */}
       {!loading && (
         <div className="sm:hidden bg-slate-800 text-white px-4 py-1.5 text-center text-xs text-slate-400 flex-shrink-0">
-          {formatDuration(duration)} · {participantCount} participant{participantCount !== 1 ? 's' : ''}
+          {formatDuration(duration)} · {participantCount} {participantCount !== 1 ? t('videoCall.participants') : t('videoCall.participant')}
         </div>
       )}
     </div>

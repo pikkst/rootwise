@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../services/supabase';
 import { CommunityWithCount } from '../types';
 
 export function useCommunities() {
+  const { t } = useTranslation();
   const [communities, setCommunities] = useState<CommunityWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [userCommunities, setUserCommunities] = useState<string[]>([]);
@@ -49,7 +51,7 @@ export function useCommunities() {
         .eq('community_id', communityId);
 
       if ((count ?? 0) >= community.member_limit) {
-        return { error: `Community member limit reached (${community.member_limit}).` };
+        return { error: t('hooks.communityMemberLimit', { limit: community.member_limit }) };
       }
     }
 

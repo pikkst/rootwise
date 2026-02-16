@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -18,6 +19,7 @@ type PostWithMeta = Post & {
 const PublicProfilePage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, profile } = useAuth();
   const { showToast } = useToast();
   const [viewedProfile, setViewedProfile] = useState<Profile | null>(null);
@@ -283,7 +285,7 @@ const PublicProfilePage: React.FC = () => {
       .from('post_comments')
       .insert({ post_id: postId, user_id: user.id, content });
     if (error) {
-      showToast('error', 'Unable to comment right now.');
+      showToast('error', t('publicProfile.commentError'));
       return;
     }
     setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
@@ -301,7 +303,7 @@ const PublicProfilePage: React.FC = () => {
   if (!viewedProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="text-slate-500">Profile not found.</p>
+        <p className="text-slate-500">{t('publicProfile.notFound')}</p>
       </div>
     );
   }
@@ -310,14 +312,14 @@ const PublicProfilePage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
-      <SEOHead title={`${viewedProfile.name} - Rootwise`} description="Rootwise member profile." path={`/users/${viewedProfile.id}`} />
+      <SEOHead title={`${viewedProfile.name} - Rootwise`} description={t('publicProfile.seoDescription')} path={`/users/${viewedProfile.id}`} />
 
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="relative h-40 sm:h-64 bg-slate-200">
           {viewedProfile.banner_url ? (
             <img
               src={viewedProfile.banner_url}
-              alt="Profile banner"
+              alt={t('publicProfile.profileBanner')}
               className="w-full h-full object-cover bg-slate-200"
               style={{ objectPosition: `${viewedProfile.banner_position_x ?? 50}% ${viewedProfile.banner_position_y ?? 50}%` }}
               draggable={false}
@@ -345,7 +347,7 @@ const PublicProfilePage: React.FC = () => {
 
             <div className="flex-1">
               <h2 className="text-3xl font-bold text-slate-800">{viewedProfile.name}</h2>
-              <p className="text-slate-500">{viewedProfile.role} • {viewedProfile.age ?? 'Age not set'}</p>
+              <p className="text-slate-500">{viewedProfile.role} • {viewedProfile.age ?? t('publicProfile.ageNotSet')}</p>
               {viewedProfile.bio && (
                 <p className="mt-3 text-sm text-slate-600 max-w-2xl">{viewedProfile.bio}</p>
               )}
@@ -357,7 +359,7 @@ const PublicProfilePage: React.FC = () => {
                   onClick={() => navigate('/profile')}
                   className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-bold"
                 >
-                  Edit Profile
+                  {t('publicProfile.editProfile')}
                 </button>
               ) : (
                 <>
@@ -365,20 +367,20 @@ const PublicProfilePage: React.FC = () => {
                     onClick={handleFollowToggle}
                     className={`px-5 py-2 rounded-xl font-bold ${isFollowing ? 'bg-slate-100 text-slate-700' : 'bg-indigo-600 text-white'}`}
                   >
-                    {isFollowing ? 'Following' : 'Follow'}
+                    {isFollowing ? t('publicProfile.following') : t('publicProfile.follow')}
                   </button>
                   <button
                     onClick={handleFriendRequest}
                     disabled={friendStatus !== 'none'}
                     className="px-5 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold disabled:opacity-60"
                   >
-                    {friendStatus === 'accepted' ? 'Friends' : friendStatus === 'pending' ? 'Request sent' : 'Add Friend'}
+                    {friendStatus === 'accepted' ? t('publicProfile.friends') : friendStatus === 'pending' ? t('publicProfile.requestSent') : t('publicProfile.addFriend')}
                   </button>
                   <button
                     onClick={() => navigate(`/reports?type=user&targetUserId=${viewedProfile.id}`)}
                     className="px-5 py-2 bg-rose-50 text-rose-700 rounded-xl font-bold"
                   >
-                    Report User
+                    {t('publicProfile.reportUser')}
                   </button>
                 </>
               )}
@@ -388,19 +390,19 @@ const PublicProfilePage: React.FC = () => {
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="bg-slate-50 rounded-2xl py-3">
               <p className="text-xl font-bold text-slate-800">{posts.length}</p>
-              <p className="text-xs text-slate-500">Posts</p>
+              <p className="text-xs text-slate-500">{t('publicProfile.posts')}</p>
             </div>
             <div className="bg-slate-50 rounded-2xl py-3">
               <p className="text-xl font-bold text-slate-800">{friendsCount}</p>
-              <p className="text-xs text-slate-500">Friends</p>
+              <p className="text-xs text-slate-500">{t('publicProfile.friends')}</p>
             </div>
             <div className="bg-slate-50 rounded-2xl py-3">
               <p className="text-xl font-bold text-slate-800">{followersCount}</p>
-              <p className="text-xs text-slate-500">Followers</p>
+              <p className="text-xs text-slate-500">{t('publicProfile.followers')}</p>
             </div>
             <div className="bg-slate-50 rounded-2xl py-3">
               <p className="text-xl font-bold text-slate-800">{followingCount}</p>
-              <p className="text-xs text-slate-500">Following</p>
+              <p className="text-xs text-slate-500">{t('publicProfile.following')}</p>
             </div>
           </div>
         </div>
@@ -409,18 +411,18 @@ const PublicProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="space-y-6">
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <h4 className="font-bold mb-4">Intro</h4>
+                <h4 className="font-bold mb-4">{t('publicProfile.intro')}</h4>
                 <p className="text-sm text-slate-500 mb-4">
-                  {viewedProfile.bio || 'No bio yet.'}
+                  {viewedProfile.bio || t('publicProfile.noBio')}
                 </p>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Role</span>
+                    <span className="text-slate-400">{t('publicProfile.role')}</span>
                     <span className="font-semibold text-slate-700">{viewedProfile.role}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Age</span>
-                    <span className="font-semibold text-slate-700">{viewedProfile.age ?? 'Not set'}</span>
+                    <span className="text-slate-400">{t('publicProfile.age')}</span>
+                    <span className="font-semibold text-slate-700">{viewedProfile.age ?? t('publicProfile.notSet')}</span>
                   </div>
                 </div>
               </div>
@@ -430,7 +432,7 @@ const PublicProfilePage: React.FC = () => {
               {posts.length === 0 && (
                 <div className="text-center py-12 text-slate-400 bg-white border border-slate-200 rounded-2xl">
                   <p className="text-4xl mb-2">📝</p>
-                  <p>No posts yet.</p>
+                  <p>{t('publicProfile.noPosts')}</p>
                 </div>
               )}
 
@@ -460,12 +462,12 @@ const PublicProfilePage: React.FC = () => {
                     >
                       {post.likedByMe ? '♥' : '♡'} {post.likeCount}
                     </button>
-                    <span>{post.comments?.length ?? 0} Comments</span>
+                    <span>{post.comments?.length ?? 0} {t('publicProfile.comments')}</span>
                     <button
                       onClick={() => navigate(`/reports?type=post&targetUserId=${viewedProfile.id}&targetPostId=${post.id}`)}
                       className="font-semibold text-rose-600"
                     >
-                      Report Post
+                      {t('publicProfile.reportPost')}
                     </button>
                   </div>
 
@@ -493,7 +495,7 @@ const PublicProfilePage: React.FC = () => {
                         type="text"
                         value={commentDrafts[post.id] || ''}
                         onChange={(e) => setCommentDrafts((prev) => ({ ...prev, [post.id]: e.target.value }))}
-                        placeholder={user ? 'Write a comment...' : 'Sign in to comment'}
+                        placeholder={user ? t('publicProfile.writeComment') : t('publicProfile.signInToComment')}
                         className="flex-1 border border-slate-200 rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         disabled={!user}
                       />
@@ -502,7 +504,7 @@ const PublicProfilePage: React.FC = () => {
                         className="px-4 py-2 bg-indigo-600 text-white rounded-full text-xs font-bold disabled:opacity-60"
                         disabled={!user}
                       >
-                        Comment
+                        {t('publicProfile.comment')}
                       </button>
                     </div>
                   </div>

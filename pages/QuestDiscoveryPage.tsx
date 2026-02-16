@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
@@ -20,6 +21,7 @@ interface Filters {
 }
 
 const QuestDiscoveryPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { showToast } = useToast();
@@ -53,7 +55,7 @@ const QuestDiscoveryPage: React.FC = () => {
       const { data: questsData, error } = await query;
 
       if (error || !questsData) {
-        showToast('error', 'Failed to load quests');
+        showToast('error', t('questDiscovery.failedToLoad'));
         setLoading(false);
         return;
       }
@@ -95,7 +97,7 @@ const QuestDiscoveryPage: React.FC = () => {
 
           if (matchingSkills.length > 0) {
             score += matchingSkills.length * 25;
-            reasons.push(`${matchingSkills.length} matching skill${matchingSkills.length > 1 ? 's' : ''}`);
+            reasons.push(t('questDiscovery.matchingSkills', { count: matchingSkills.length }));
           }
 
           // Location match: check if within radius
@@ -109,7 +111,7 @@ const QuestDiscoveryPage: React.FC = () => {
 
             if (distance <= filters.locationRadius) {
               score += Math.max(0, 50 - distance); // Closer = higher score
-              reasons.push(`${Math.round(distance)} km away`);
+              reasons.push(t('questDiscovery.kmAway', { distance: Math.round(distance) }));
             } else {
               score -= 20; // Penalize far quests
             }
@@ -119,7 +121,7 @@ const QuestDiscoveryPage: React.FC = () => {
           const userInterests = profile.interests ?? [];
           if (userInterests.includes(quest.category)) {
             score += 15;
-            reasons.push(`Matches your interest in ${quest.category}`);
+            reasons.push(t('questDiscovery.matchesInterest', { category: quest.category }));
           }
 
           // Age range match
@@ -129,23 +131,23 @@ const QuestDiscoveryPage: React.FC = () => {
 
           if (userAge >= minAge && userAge <= maxAge) {
             score += 10;
-            reasons.push('Matches your age range');
+            reasons.push(t('questDiscovery.matchesAgeRange'));
           }
 
           // Virtual preference
           if (quest.is_virtual) {
             score += 5;
-            reasons.push('Virtual quest (no travel needed)');
+            reasons.push(t('questDiscovery.virtualNoTravel'));
           }
 
           // XP reward bonus for high-value quests
           if ((quest.reward_xp ?? 0) >= 200) {
             score += 10;
-            reasons.push(`${quest.reward_xp} XP reward`);
+            reasons.push(t('questDiscovery.xpRewardReason', { xp: quest.reward_xp }));
           }
 
           if (reasons.length === 0) {
-            reasons.push('New quest to explore');
+            reasons.push(t('questDiscovery.newQuest'));
           }
 
           return {
@@ -161,7 +163,7 @@ const QuestDiscoveryPage: React.FC = () => {
       setQuests(matched);
     } catch (err) {
       console.error('Error fetching quests:', err);
-      showToast('error', 'Failed to load quests');
+      showToast('error', t('questDiscovery.failedToLoad'));
     }
     setLoading(false);
   };
@@ -200,13 +202,13 @@ const QuestDiscoveryPage: React.FC = () => {
       });
 
       if (error) {
-        showToast('error', error.message || 'Failed to join quest');
+        showToast('error', error.message || t('questDiscovery.failedToJoin'));
       } else {
-        showToast('success', 'Joined quest! Head to your dashboard to start.');
+        showToast('success', t('questDiscovery.joinSuccess'));
         await fetchAndMatchQuests();
       }
     } catch (err) {
-      showToast('error', 'An error occurred while joining the quest');
+      showToast('error', t('questDiscovery.joinError'));
     } finally {
       setJoiningQuestId(null);
     }
@@ -216,12 +218,12 @@ const QuestDiscoveryPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <p className="text-slate-500 mb-4">Please log in to discover quests</p>
+          <p className="text-slate-500 mb-4">{t('questDiscovery.loginRequired')}</p>
           <button
             onClick={() => navigate('/auth')}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
           >
-            Log In
+            {t('questDiscovery.logIn')}
           </button>
         </div>
       </div>
@@ -231,25 +233,25 @@ const QuestDiscoveryPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-6 pt-24 pb-32">
       <SEOHead
-        title="Discover Quests - Rootwise"
-        description="Find and join quests matched to your interests and skills."
+        title={t('questDiscovery.seoTitle')}
+        description={t('questDiscovery.seoDescription')}
         path="/quest-discovery"
       />
 
       <header className="mb-10">
-        <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">Discover Quests</h1>
-        <p className="text-slate-600 mt-2">Find quests matched to your interests and skills</p>
+        <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">{t('questDiscovery.title')}</h1>
+        <p className="text-slate-600 mt-2">{t('questDiscovery.subtitle')}</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Filters Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-24">
-            <h2 className="text-lg font-bold text-slate-800 mb-4">Filters</h2>
+            <h2 className="text-lg font-bold text-slate-800 mb-4">{t('questDiscovery.filters')}</h2>
 
             {/* Quest Type */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Quest Type</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">{t('questDiscovery.questType')}</label>
               <select
                 value={filters.questType}
                 onChange={(e) =>
@@ -257,17 +259,17 @@ const QuestDiscoveryPage: React.FC = () => {
                 }
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="all">All Types</option>
-                <option value="solo">Solo</option>
-                <option value="duo">Duo</option>
-                <option value="team">Team</option>
+                <option value="all">{t('questDiscovery.allTypes')}</option>
+                <option value="solo">{t('questDiscovery.solo')}</option>
+                <option value="duo">{t('questDiscovery.duo')}</option>
+                <option value="team">{t('questDiscovery.team')}</option>
               </select>
             </div>
 
             {/* Location Radius */}
             <div className="mb-6">
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Location Radius
+                {t('questDiscovery.locationRadius')}
               </label>
               <div className="flex items-center gap-3">
                 <input
@@ -281,14 +283,14 @@ const QuestDiscoveryPage: React.FC = () => {
                   }
                   className="flex-1"
                 />
-                <span className="text-sm font-medium text-slate-600 min-w-fit">{filters.locationRadius} km</span>
+                <span className="text-sm font-medium text-slate-600 min-w-fit">{t('questDiscovery.locationKm', { distance: filters.locationRadius })}</span>
               </div>
             </div>
 
             {/* Minimum XP Reward */}
             <div className="mb-6">
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Min XP Reward
+                {t('questDiscovery.minXp')}
               </label>
               <input
                 type="number"
@@ -314,7 +316,7 @@ const QuestDiscoveryPage: React.FC = () => {
               }
               className="w-full px-4 py-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition"
             >
-              Reset Filters
+              {t('questDiscovery.resetFilters')}
             </button>
           </div>
         </div>
@@ -327,8 +329,8 @@ const QuestDiscoveryPage: React.FC = () => {
             </div>
           ) : quests.length === 0 ? (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-              <p className="text-slate-600 text-lg">No quests match your criteria</p>
-              <p className="text-slate-500 text-sm mt-2">Try adjusting your filters</p>
+              <p className="text-slate-600 text-lg">{t('questDiscovery.noMatch')}</p>
+              <p className="text-slate-500 text-sm mt-2">{t('questDiscovery.noMatchHint')}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -346,7 +348,7 @@ const QuestDiscoveryPage: React.FC = () => {
                         </span>
                         {quest.is_virtual && (
                           <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
-                            Virtual
+                            {t('questDiscovery.virtual')}
                           </span>
                         )}
                       </div>
@@ -362,29 +364,29 @@ const QuestDiscoveryPage: React.FC = () => {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                        <span>🎯 {quest.reward_xp} XP</span>
-                        <span>👥 {quest.memberCount} member{quest.memberCount !== 1 ? 's' : ''}</span>
-                        <span>📚 {quest.category}</span>
+                        <span>{t('questDiscovery.xpDisplay', { xp: quest.reward_xp })}</span>
+                        <span>{t('questDiscovery.memberCount', { count: quest.memberCount })}</span>
+                        <span>{t('questDiscovery.categoryDisplay', { category: quest.category })}</span>
                       </div>
                     </div>
 
                     <div className="flex flex-row sm:flex-col items-center gap-3 sm:gap-2">
                       <div className="text-center">
                         <div className="text-3xl font-bold text-indigo-600">{Math.round(quest.matchScore)}</div>
-                        <div className="text-xs text-slate-500">Match Score</div>
+                        <div className="text-xs text-slate-500">{t('questDiscovery.matchScoreLabel')}</div>
                       </div>
                       <button
                         onClick={() => handleJoin(quest.id)}
                         disabled={joiningQuestId === quest.id}
                         className="w-full sm:w-24 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold"
                       >
-                        {joiningQuestId === quest.id ? 'Joining...' : 'Join'}
+                        {joiningQuestId === quest.id ? t('common.joining') : t('common.join')}
                       </button>
                       <button
                         onClick={() => navigate(`/quests/${quest.id}`)}
                         className="w-full sm:w-24 px-4 py-2 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition text-sm font-semibold"
                       >
-                        View Details
+                        {t('common.viewDetails')}
                       </button>
                     </div>
                   </div>

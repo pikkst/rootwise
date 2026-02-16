@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useCommunities } from '../hooks/useCommunities';
 
 const CommunityPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { showToast } = useToast();
@@ -31,16 +33,16 @@ const CommunityPage: React.FC = () => {
     if (userCommunities.includes(communityId)) {
       const result = await leaveCommunity(communityId, profile.id);
       if (result.error) {
-        showToast('error', result.error || 'Failed to leave group');
+        showToast('error', result.error || t('communities.failedLeave'));
       } else {
-        showToast('info', 'Left community');
+        showToast('info', t('communities.leftToast'));
       }
     } else {
       const result = await joinCommunity(communityId, profile.id);
       if (result.error) {
-        showToast('error', result.error || 'Failed to join group');
+        showToast('error', result.error || t('communities.failedJoin'));
       } else {
-        showToast('success', 'Joined community!');
+        showToast('success', t('communities.joinedToast'));
       }
     }
   };
@@ -48,22 +50,22 @@ const CommunityPage: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
       <SEOHead
-        title="Community Hub - Rootwise"
-        description="Join intergenerational communities around cooking, technology, gardening, and more. Share skills across generations."
+        title={`${t('communities.title')} - Rootwise`}
+        description={t('communities.subtitle')}
         path="/community"
       />
 
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold mb-4">Community Hub</h2>
+        <h2 className="text-3xl font-bold mb-4">{t('communities.title')}</h2>
         <p className="text-slate-500 max-w-lg mx-auto">
-          Connect with groups of like-minded lifelong learners across all generations.
+          {t('communities.subtitle')}
         </p>
       </div>
 
       {loading ? (
         <div className="text-center py-20">
           <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-500">Loading communities...</p>
+          <p className="text-slate-500">{t('communities.loading')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -90,7 +92,7 @@ const CommunityPage: React.FC = () => {
                   )}
                   <div className="flex-1 cursor-pointer" onClick={() => navigate(`/community/${group.id}`)}>
                     <h4 className="text-xl font-bold mb-1 group-hover:text-indigo-600 transition">{group.name}</h4>
-                    <p className="text-sm text-slate-500 mb-2">{group.member_count} Members</p>
+                    <p className="text-sm text-slate-500 mb-2">{t('communities.membersCount', { count: group.member_count })}</p>
                   </div>
                 </div>
                 {group.description && (
@@ -101,7 +103,7 @@ const CommunityPage: React.FC = () => {
                     onClick={() => navigate(`/community/${group.id}`)}
                     className="flex-1 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold rounded-xl transition text-sm"
                   >
-                    View →
+                    {t('communities.view')}
                   </button>
                   <button
                     onClick={() => handleToggleMembership(group.id)}
@@ -111,7 +113,7 @@ const CommunityPage: React.FC = () => {
                         : 'border border-indigo-100 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
                     }`}
                   >
-                    {isMember ? 'Leave' : 'Join'}
+                    {isMember ? t('communities.leave') : t('communities.join')}
                   </button>
                 </div>
               </div>
@@ -120,8 +122,8 @@ const CommunityPage: React.FC = () => {
           {communities.length === 0 && (
             <div className="col-span-3 text-center py-20 text-slate-400">
               <p className="text-6xl mb-4">🤝</p>
-              <p className="font-bold text-xl">No communities yet</p>
-              <p>Communities will appear once the database is seeded.</p>
+              <p className="font-bold text-xl">{t('communities.noCommunitiesTitle')}</p>
+              <p>{t('communities.noCommunitiesDesc')}</p>
             </div>
           )}
         </div>

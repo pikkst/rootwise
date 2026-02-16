@@ -1,21 +1,24 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { getInitials } from '../types';
 import { isPro, isOrg } from '../services/planService';
 import PlanBadge from './PlanBadge';
+import LanguageSelector from './LanguageSelector';
 
-const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
-  { path: '/quests', label: 'Quests', icon: '📜' },
-  { path: '/community', label: 'Community', icon: '🤝' },
-  { path: '/ai-nexus', label: 'Nexus AI', icon: '✨' },
+const NAV_KEYS = [
+  { path: '/dashboard', key: 'nav.dashboard', icon: '🏠' },
+  { path: '/quests', key: 'nav.quests', icon: '📜' },
+  { path: '/community', key: 'nav.community', icon: '🤝' },
+  { path: '/ai-nexus', key: 'nav.nexusAi', icon: '✨' },
 ];
 
 const Navigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, profile, signOut } = useAuth();
   const [showMore, setShowMore] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
@@ -44,11 +47,11 @@ const Navigation: React.FC = () => {
 
   // Pro/Org nav items for "More" menu
   const moreItems = [
-    { path: '/analytics', label: 'Analytics', icon: '📊', requiresPro: true },
-    { path: '/matching', label: 'Matching', icon: '🔗', requiresPro: true },
-    { path: '/admin', label: 'Admin', icon: '👑', requiresOrg: true },
-    { path: '/reports', label: 'Report', icon: '🚩', requiresPro: false, requiresOrg: false },
-    { path: '/pricing', label: 'Pricing', icon: '💎', requiresPro: false, requiresOrg: false },
+    { path: '/analytics', key: 'nav.analytics', icon: '📊', requiresPro: true },
+    { path: '/matching', key: 'nav.matching', icon: '🔗', requiresPro: true },
+    { path: '/admin', key: 'nav.admin', icon: '👑', requiresOrg: true },
+    { path: '/reports', key: 'nav.report', icon: '🚩', requiresPro: false, requiresOrg: false },
+    { path: '/pricing', key: 'nav.pricing', icon: '💎', requiresPro: false, requiresOrg: false },
   ];
 
   return (
@@ -61,7 +64,7 @@ const Navigation: React.FC = () => {
           <span>ROOTWISE</span>
         </div>
         <div className="flex items-center gap-2 md:gap-6 justify-center flex-1 md:flex-none md:w-auto">
-          {navItems.map((item) => (
+          {NAV_KEYS.map((item) => (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
@@ -72,7 +75,7 @@ const Navigation: React.FC = () => {
               }`}
             >
               <span className="text-xl md:text-base">{item.icon}</span>
-              <span className="text-[10px] md:text-sm">{item.label}</span>
+              <span className="text-[10px] md:text-sm">{t(item.key)}</span>
             </button>
           ))}
 
@@ -87,7 +90,7 @@ const Navigation: React.FC = () => {
               }`}
             >
               <span className="text-base">⋯</span>
-              <span className="text-sm">More</span>
+              <span className="text-sm">{t('nav.more')}</span>
             </button>
             {showMore && (
               <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-2xl border border-slate-200 shadow-xl py-2 z-50">
@@ -107,10 +110,10 @@ const Navigation: React.FC = () => {
                       }`}
                     >
                       <span>{item.icon}</span>
-                      <span>{item.label}</span>
+                      <span>{t(item.key)}</span>
                       {locked && (
                         <span className="ml-auto text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-400 rounded-full font-bold">
-                          {item.requiresOrg ? 'ORG' : 'PRO'}
+                          {item.requiresOrg ? t('nav.orgBadge') : t('nav.proBadge')}
                         </span>
                       )}
                     </button>
@@ -134,6 +137,7 @@ const Navigation: React.FC = () => {
           </button>
         </div>
         <div className="hidden md:flex items-center gap-3">
+          <LanguageSelector compact />
           <PlanBadge plan={plan} size="sm" />
           <button
             onClick={() => navigate('/profile')}
@@ -156,9 +160,9 @@ const Navigation: React.FC = () => {
                 navigate('/');
               }}
               className="text-xs text-slate-400 hover:text-red-500 transition-colors font-medium"
-              title="Sign out"
+              title={t('common.signOut')}
             >
-              Sign out
+              {t('common.signOut')}
             </button>
           )}
         </div>

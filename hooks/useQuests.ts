@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../services/supabase';
 import { Quest, DbQuest, QuestMember } from '../types';
 import { canJoinQuest } from '../services/planService';
 import { Plan } from '../services/stripeService';
 
 export function useQuests() {
+  const { t } = useTranslation();
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('All');
@@ -74,7 +76,7 @@ export function useQuests() {
     // Check if already a member
     const quest = quests.find((q) => q.id === questId);
     if (quest && quest.participants.includes(userId)) {
-      return { error: 'Already joined this quest' };
+      return { error: t('hooks.alreadyJoined') };
     }
 
     // If this is a community quest, user must be a member of that community
@@ -93,7 +95,7 @@ export function useQuests() {
         .maybeSingle();
 
       if (!memberRow) {
-        return { error: 'This is a community quest. Join the community first to participate.' };
+        return { error: t('hooks.communityQuestFirst') };
       }
     }
 
@@ -115,7 +117,7 @@ export function useQuests() {
     
     const activeCount = activeMemberships?.length ?? 0;
     if (!canJoinQuest(plan, activeCount)) {
-      return { error: 'Free plan allows only 3 active quests. Upgrade to Pro for unlimited!' };
+      return { error: t('hooks.freeQuestLimit') };
     }
 
     // Add as member with learner role
@@ -278,7 +280,7 @@ export function useQuests() {
     // Submit proof
     const submitResult = await submitProof(questId, userId, {
       type: 'text',
-      content: 'Marked complete via legacy interface',
+      content: t('hooks.legacyComplete'),
     });
     if (submitResult.error) return submitResult;
 

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '../services/supabase';
 import { Profile } from '../types';
@@ -24,6 +25,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation();
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -33,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const now = new Date().toISOString();
     return {
       id: data?.id ?? authUser.id,
-      name: data?.name ?? authUser.user_metadata?.name ?? authUser.email ?? 'User',
+      name: data?.name ?? authUser.user_metadata?.name ?? authUser.email ?? t('common.user'),
       age: data?.age ?? null,
       role: data?.role ?? 'Hybrid',
       preferred_language: data?.preferred_language ?? null,
@@ -59,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .from('profiles')
       .insert({
         id: authUser.id,
-        name: authUser.user_metadata?.name ?? authUser.email ?? 'User',
+        name: authUser.user_metadata?.name ?? authUser.email ?? t('common.user'),
         avatar_url: authUser.user_metadata?.avatar_url ?? null,
       })
       .select('*')
@@ -175,7 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: error?.message ?? null };
     } catch (err) {
       console.error('signIn exception:', err);
-      return { error: err instanceof Error ? err.message : 'Sign in failed' };
+      return { error: err instanceof Error ? err.message : t('hooks.signInFailed') };
     }
   };
 

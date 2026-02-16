@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PlanBadgeProps {
   plan: string;
@@ -6,6 +7,7 @@ interface PlanBadgeProps {
 }
 
 const PlanBadge: React.FC<PlanBadgeProps> = ({ plan, size = 'sm' }) => {
+  const { t } = useTranslation();
   const styles: Record<string, string> = {
     free: 'bg-slate-100 text-slate-600',
     pro: 'bg-indigo-100 text-indigo-700',
@@ -13,9 +15,9 @@ const PlanBadge: React.FC<PlanBadgeProps> = ({ plan, size = 'sm' }) => {
   };
 
   const labels: Record<string, string> = {
-    free: 'Free',
-    pro: 'Pro',
-    org: 'Org',
+    free: t('common.free'),
+    pro: t('common.pro'),
+    org: t('common.org'),
   };
 
   const sizeClass = size === 'md'
@@ -24,7 +26,7 @@ const PlanBadge: React.FC<PlanBadgeProps> = ({ plan, size = 'sm' }) => {
 
   return (
     <span className={`${sizeClass} rounded-full font-bold uppercase tracking-wide ${styles[plan] || styles.free} inline-flex items-center gap-1`}>
-      {labels[plan] || 'Free'}
+      {labels[plan] || t('common.free')}
     </span>
   );
 };

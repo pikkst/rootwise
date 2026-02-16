@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { redirectToCheckout } from '../services/stripeService';
 
 interface UpgradeModalProps {
@@ -11,6 +12,7 @@ interface UpgradeModalProps {
 
 const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, requiredPlan = 'pro' }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   if (!isOpen) return null;
 
@@ -27,31 +29,31 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, r
         </div>
 
         <h3 className="text-2xl font-black text-slate-800 text-center mb-2">
-          Upgrade to {isPro ? 'Pro' : 'Organization'}
+          {isPro ? t('upgradeModal.titlePro') : t('upgradeModal.titleOrg')}
         </h3>
 
         <p className="text-slate-500 text-center mb-6 text-sm leading-relaxed">
-          <strong>{feature}</strong> requires the {isPro ? 'Pro' : 'Organization'} plan.
-          {isPro ? ' Unlock unlimited quests, AI, analytics, and priority matching.' : ' Get admin tools, branded communities, and team reporting.'}
+          <strong>{feature}</strong> {t('upgradeModal.requiresPlan', { plan: isPro ? t('common.pro') : t('common.org') })}{' '}
+          {isPro ? t('upgradeModal.descPro') : t('upgradeModal.descOrg')}
         </p>
 
         {/* Feature list */}
         <div className="bg-slate-50 rounded-2xl p-4 mb-6">
           {isPro ? (
             <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> Unlimited quests</li>
-              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> Unlimited AI mentor</li>
-              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> AI quest generation</li>
-              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> Advanced analytics</li>
-              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> Priority matching</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> {t('plans.proF1')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> {t('plans.proF2')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> {t('plans.proF3')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> {t('plans.proF4')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> {t('plans.proF5')}</li>
             </ul>
           ) : (
             <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> Everything in Pro</li>
-              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> Up to 50 members</li>
-              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> Admin dashboard</li>
-              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> Branded communities</li>
-              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> Reporting & analytics</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> {t('plans.orgF1')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> {t('plans.orgF2')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> {t('plans.orgF3')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> {t('plans.orgF4')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> {t('plans.orgF5')}</li>
             </ul>
           )}
         </div>
@@ -65,26 +67,26 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, r
                 : 'bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/30'
             }`}
           >
-            {isPro ? 'Upgrade to Pro — $9.99/mo' : 'Upgrade to Organization — $49/mo'}
+            {isPro ? t('upgradeModal.upgradePro') : t('upgradeModal.upgradeOrg')}
           </button>
 
           <button
             onClick={() => { onClose(); navigate('/pricing'); }}
             className="w-full py-3 text-sm text-indigo-600 font-semibold hover:underline"
           >
-            Compare all plans
+            {t('upgradeModal.compareAll')}
           </button>
 
           <button
             onClick={onClose}
             className="w-full py-3 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all text-sm"
           >
-            Maybe later
+            {t('upgradeModal.maybeLater')}
           </button>
         </div>
 
         <p className="text-center text-xs text-slate-400 mt-4">
-          Upgrade anytime from your profile or billing settings.
+          {t('upgradeModal.footer')}
         </p>
       </div>
     </div>

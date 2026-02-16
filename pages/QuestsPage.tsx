@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import QuestCard from '../components/QuestCard';
 import SEOHead from '../components/SEOHead';
 import AiUsageBadge from '../components/AiUsageBadge';
@@ -12,9 +13,10 @@ import { RootwiseAIService } from '../services/geminiService';
 import { supabase } from '../services/supabase';
 import { PLAN_LIMITS, isPro, getEffectivePlan } from '../services/planService';
 
-const CATEGORIES = ['All', 'Technology', 'Environment', 'Finance', 'Arts', 'Lifestyle', 'Education', 'History'];
+const CATEGORY_KEYS = ['All', 'Technology', 'Environment', 'Finance', 'Arts', 'Lifestyle', 'Education', 'History'];
 
 const QuestsPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { showToast } = useToast();
@@ -39,7 +41,7 @@ const QuestsPage: React.FC = () => {
     if (result.error) {
       showToast('error', result.error);
     } else {
-      showToast('success', 'Joined quest successfully!');
+      showToast('success', t('quests.joinedToast'));
     }
   };
 
@@ -53,7 +55,7 @@ const QuestsPage: React.FC = () => {
     if (result.error) {
       showToast('error', result.error);
     } else {
-      showToast('success', 'Quest completed! XP awarded.');
+      showToast('success', t('quests.completedToast', { xp: '' }));
     }
     setCompletingQuestId(null);
   };
@@ -65,7 +67,7 @@ const QuestsPage: React.FC = () => {
     }
     // Check rate limit for free users
     if (!hasPro && !aiUsage.canGenerateQuest) {
-      setUpgradeFeature('AI Quest Generation');
+      setUpgradeFeature(t('quests.aiQuestGeneration'));
       setShowUpgrade(true);
       return;
     }
@@ -126,11 +128,11 @@ const QuestsPage: React.FC = () => {
           is_virtual: true,
           image_url: imageUrl,
         });
-        showToast('success', `Quest "${data.title}" created${imageUrl ? ' with AI-generated image!' : '!'}`);
+        showToast('success', t('quests.generatedToast'));
       }
     } catch (err) {
       console.error('Quest generation error:', err);
-      showToast('error', 'Failed to generate quest. Please try again.');
+      showToast('error', t('quests.aiFailToast'));
     }
     setIsAiLoading(false);
     aiUsage.refresh();
@@ -146,22 +148,22 @@ const QuestsPage: React.FC = () => {
 
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-slate-800">Explore Quests</h2>
-          <p className="text-slate-500">Find a mission that matches your skills or curiosity.</p>
+          <h2 className="text-3xl font-bold text-slate-800">{t('quests.title')}</h2>
+          <p className="text-slate-500">{t('quests.subtitle')}</p>
           {profile && !isPro(profile.plan || 'free') && (() => {
             const activeCount = quests.filter(q => q.participants.includes(profile.id) && q.status !== 'completed').length;
             const max = PLAN_LIMITS.free.maxActiveQuests;
             return (
               <div>
                 <p className="text-xs text-amber-600 mt-1 font-medium">
-                  Active quests: {activeCount}/{max} (Free plan) — <button onClick={() => { setUpgradeFeature('Unlimited Quests'); setShowUpgrade(true); }} className="underline">Upgrade for unlimited</button>
+                  {t('quests.activeCount', { n: activeCount, max })} — <button onClick={() => { setUpgradeFeature(t('quests.upgradeUnlimited')); setShowUpgrade(true); }} className="underline">{t('quests.upgradeUnlimited')}</button>
                 </p>
               </div>
             );
           })()}
           {hasPro && (
             <p className="text-xs text-emerald-600 mt-1 font-medium">
-              ∞ Unlimited quests
+              {t('quests.unlimitedQuests')}
             </p>
           )}
         </div>
@@ -171,7 +173,7 @@ const QuestsPage: React.FC = () => {
               <AiUsageBadge
                 used={aiUsage.questGensUsed}
                 limit={aiUsage.questGenLimit}
-                label="quest gens left"
+                label={t('quests.aiGensLeft', { n: aiUsage.questGenLimit - aiUsage.questGensUsed })}
                 compact
               />
             </div>
@@ -182,13 +184,13 @@ const QuestsPage: React.FC = () => {
             className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all flex items-center gap-2 disabled:opacity-50"
           >
             {isAiLoading ? <span className="animate-spin text-xl">✨</span> : <span>✨</span>}
-            Generate AI Quest
+            {t('quests.generateAi')}
           </button>
         </div>
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-6 mb-8 no-scrollbar">
-        {CATEGORIES.map((cat) => (
+        {CATEGORY_KEYS.map((cat) => (
           <button
             key={cat}
             onClick={() => setFilter(cat)}
@@ -198,7 +200,7 @@ const QuestsPage: React.FC = () => {
                 : 'bg-white border-slate-200 hover:border-indigo-300 hover:text-indigo-600'
             }`}
           >
-            {cat}
+            {t(`quests.category${cat}`)}
           </button>
         ))}
       </div>
@@ -206,7 +208,7 @@ const QuestsPage: React.FC = () => {
       {loading ? (
         <div className="text-center py-20">
           <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-500">Loading quests...</p>
+          <p className="text-slate-500">{t('quests.loading')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -222,8 +224,8 @@ const QuestsPage: React.FC = () => {
           {quests.length === 0 && (
             <div className="col-span-3 text-center py-20 text-slate-400">
               <p className="text-6xl mb-4">📜</p>
-              <p className="font-bold text-xl">No quests found</p>
-              <p>Try a different category or generate one with AI!</p>
+              <p className="font-bold text-xl">{t('quests.noQuests')}</p>
+              <p>{t('quests.noQuestsHint')}</p>
             </div>
           )}
         </div>
@@ -237,22 +239,22 @@ const QuestsPage: React.FC = () => {
             <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-6">
               🎖️
             </div>
-            <h3 className="text-2xl font-black text-slate-800 text-center mb-4">Mission Accomplished?</h3>
+            <h3 className="text-2xl font-black text-slate-800 text-center mb-4">{t('quests.completeConfirmTitle')}</h3>
             <p className="text-slate-500 text-center mb-10 leading-relaxed">
-              Confirm that you've shared wisdom and completed this Quest.
+              {t('quests.completeConfirmDesc')}
             </p>
             <div className="flex flex-col gap-3">
               <button
                 onClick={confirmCompletion}
                 className="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/30"
               >
-                Yes, Mission Complete! 🎉
+                {t('quests.completeConfirmYes')}
               </button>
               <button
                 onClick={() => setCompletingQuestId(null)}
                 className="w-full py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
               >
-                Not yet, keep working
+                {t('quests.completeConfirmNo')}
               </button>
             </div>
           </div>

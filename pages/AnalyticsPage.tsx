@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -14,6 +15,7 @@ import { supabase } from '../services/supabase';
 const COLORS = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#818cf8', '#4f46e5'];
 
 const AnalyticsPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { quests } = useQuests();
@@ -108,16 +110,16 @@ const AnalyticsPage: React.FC = () => {
         <SEOHead title="Analytics - Rootwise" description="Advanced analytics for your learning journey." path="/analytics" />
         <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
           <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-6">📊</div>
-          <h2 className="text-3xl font-black text-slate-800 mb-4">Advanced Analytics</h2>
+          <h2 className="text-3xl font-black text-slate-800 mb-4">{t('analytics.title')}</h2>
           <p className="text-slate-500 max-w-md mx-auto mb-2">
-            Get detailed insights into your learning journey, quest performance, skill development, and AI usage patterns.
+            {t('analytics.upgradeDescription')}
           </p>
-          <p className="text-slate-400 text-sm mb-8">Available on Pro and Organization plans.</p>
+          <p className="text-slate-400 text-sm mb-8">{t('analytics.upgradeHint')}</p>
           <button
             onClick={() => redirectToCheckout('pro')}
             className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/30"
           >
-            Upgrade to Pro — $9.99/mo
+            {t('analytics.upgradeCta')}
           </button>
         </div>
       </div>
@@ -129,26 +131,26 @@ const AnalyticsPage: React.FC = () => {
       <SEOHead title="Analytics - Rootwise" description="Advanced analytics for your learning journey." path="/analytics" />
 
       <div className="mb-10">
-        <h2 className="text-3xl font-bold text-slate-800">Advanced Analytics</h2>
-        <p className="text-slate-500">Deep insights into your learning journey and growth patterns.</p>
+        <h2 className="text-3xl font-bold text-slate-800">{t('analytics.title')}</h2>
+        <p className="text-slate-500">{t('analytics.subtitle')}</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <p className="text-sm text-slate-500 mb-1">Total XP</p>
+          <p className="text-sm text-slate-500 mb-1">{t('analytics.totalXp')}</p>
           <p className="text-2xl sm:text-3xl font-black text-indigo-600">{totalXp}</p>
         </div>
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <p className="text-sm text-slate-500 mb-1">Completion Rate</p>
+          <p className="text-sm text-slate-500 mb-1">{t('analytics.completionRate')}</p>
           <p className="text-2xl sm:text-3xl font-black text-emerald-600">{completionRate}%</p>
         </div>
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <p className="text-sm text-slate-500 mb-1">Active Quests</p>
+          <p className="text-sm text-slate-500 mb-1">{t('analytics.activeQuests')}</p>
           <p className="text-2xl sm:text-3xl font-black text-amber-600">{activeQuests.length}</p>
         </div>
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <p className="text-sm text-slate-500 mb-1">Avg XP/Quest</p>
+          <p className="text-sm text-slate-500 mb-1">{t('analytics.avgXpPerQuest')}</p>
           <p className="text-2xl sm:text-3xl font-black text-purple-600">{avgXpPerQuest}</p>
         </div>
       </div>
@@ -157,7 +159,7 @@ const AnalyticsPage: React.FC = () => {
         {/* XP Growth Chart */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <span>📈</span> XP Growth Over Time
+            <span>📈</span> {t('analytics.xpOverTime')}
           </h3>
           {xpHistory.length > 0 ? (
             <div className="h-64">
@@ -172,14 +174,14 @@ const AnalyticsPage: React.FC = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-slate-400 text-center py-16">Complete quests to see your growth chart.</p>
+            <p className="text-slate-400 text-center py-16">{t('analytics.noXpData')}</p>
           )}
         </div>
 
         {/* Quest Category Breakdown */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <span>🎯</span> Quest Categories
+            <span>🎯</span> {t('analytics.questActivity')}
           </h3>
           {categoryData.length > 0 ? (
             <div className="h-64">
@@ -203,7 +205,7 @@ const AnalyticsPage: React.FC = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-slate-400 text-center py-16">Join quests to see category distribution.</p>
+            <p className="text-slate-400 text-center py-16">{t('analytics.noCategoryData')}</p>
           )}
         </div>
       </div>
@@ -212,7 +214,7 @@ const AnalyticsPage: React.FC = () => {
         {/* Skill Coverage */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <span>🧠</span> Skill Development
+            <span>🧠</span> {t('analytics.skillsBreakdown')}
           </h3>
           {skillData.length > 0 ? (
             <div className="h-64">
@@ -222,25 +224,25 @@ const AnalyticsPage: React.FC = () => {
                   <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
                   <YAxis type="category" dataKey="skill" axisLine={false} tickLine={false} tick={{ fill: '#334155', fontSize: 12 }} width={100} />
                   <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                  <Bar dataKey="quests" fill="#8b5cf6" radius={[0, 8, 8, 0]} name="Related Quests" />
+                  <Bar dataKey="quests" fill="#8b5cf6" radius={[0, 8, 8, 0]} name={t('analytics.relatedQuests')} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-slate-400 text-center py-16">Add skills to your profile to track development.</p>
+            <p className="text-slate-400 text-center py-16">{t('analytics.noSkillData')}</p>
           )}
         </div>
 
         {/* AI Usage Stats */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <span>✨</span> AI Usage
+            <span>✨</span> {t('analytics.aiUsage')}
           </h3>
           <div className="space-y-6 pt-4">
             <div>
               <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-slate-600">AI Mentor Messages</span>
-                <span className="text-sm font-bold text-indigo-600">{aiUsage.messages} total</span>
+                <span className="text-sm font-medium text-slate-600">{t('analytics.aiMentorMessages')}</span>
+                <span className="text-sm font-bold text-indigo-600">{aiUsage.messages} {t('analytics.total')}</span>
               </div>
               <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                 <div
@@ -251,8 +253,8 @@ const AnalyticsPage: React.FC = () => {
             </div>
             <div>
               <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-slate-600">AI Quest Generations</span>
-                <span className="text-sm font-bold text-purple-600">{aiUsage.quests} total</span>
+                <span className="text-sm font-medium text-slate-600">{t('analytics.aiQuestGenerations')}</span>
+                <span className="text-sm font-bold text-purple-600">{aiUsage.quests} {t('analytics.total')}</span>
               </div>
               <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                 <div
@@ -263,7 +265,7 @@ const AnalyticsPage: React.FC = () => {
             </div>
             <div className="pt-4 border-t border-slate-100">
               <p className="text-sm text-slate-500">
-                <span className="font-bold text-slate-700">Unlimited</span> — Your Pro plan includes unlimited AI usage.
+                <span className="font-bold text-slate-700">{t('analytics.unlimited')}</span> — {t('analytics.unlimitedDescription')}
               </p>
             </div>
           </div>

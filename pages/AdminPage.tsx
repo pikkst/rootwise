@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
@@ -52,6 +53,7 @@ interface UserReportWithReporter extends UserReport {
 }
 
 const AdminPage: React.FC = () => {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { showToast } = useToast();
   const [communities, setCommunities] = useState<CommunityWithMembers[]>([]);
@@ -295,11 +297,11 @@ const AdminPage: React.FC = () => {
       .eq('id', reportId);
 
     if (error) {
-      showToast('error', error.message || 'Failed to update report status');
+      showToast('error', error.message || t('admin.failedUpdateReport'));
       return;
     }
 
-    showToast('success', `Report marked as ${status.replace('_', ' ')}`);
+    showToast('success', t('admin.reportStatusUpdated', { status: status.replace('_', ' ') }));
     setModerationReports((prev) =>
       prev.map((r) =>
         r.id === reportId
@@ -328,11 +330,11 @@ const AdminPage: React.FC = () => {
       .eq('id', reportId);
 
     if (error) {
-      showToast('error', error.message || 'Failed to save admin note');
+      showToast('error', error.message || t('admin.failedSaveNote'));
       return;
     }
 
-    showToast('success', 'Admin note saved');
+    showToast('success', t('admin.noteSaved'));
     setModerationReports((prev) =>
       prev.map((r) =>
         r.id === reportId
@@ -424,13 +426,13 @@ const AdminPage: React.FC = () => {
     const currentCount = stats?.totalMembers ?? 0;
     if (!canAddOrgMember(plan, currentCount)) {
       const max = PLAN_LIMITS.org.maxOrgMembers;
-      showToast('error', `Member limit reached (${currentCount}/${max}). Remove a member or contact support.`);
+      showToast('error', t('admin.memberLimitReached', { current: currentCount, max }));
       return;
     }
 
     // In a real app, this would send an email invitation
     const remaining = remainingOrgSlots(currentCount) - 1;
-    showToast('success', `Invitation sent to ${inviteEmail}! ${remaining} seats remaining.`);
+    showToast('success', t('admin.inviteSent', { email: inviteEmail, remaining }));
     setInviteEmail('');
   };
 
@@ -458,7 +460,7 @@ const AdminPage: React.FC = () => {
         role: 'admin',
       });
 
-      showToast('success', `🎉 "${newCommName}" community created!`);
+      showToast('success', t('admin.communityCreated', { name: newCommName }));
       setNewCommName('');
       setNewCommDesc('');
       setNewCommIcon('🌱');
@@ -468,7 +470,7 @@ const AdminPage: React.FC = () => {
       setShowCreate(false);
       fetchAdminData(); // Refresh
     } catch (err: any) {
-      showToast('error', err.message || 'Failed to create community');
+      showToast('error', err.message || t('admin.failedCreateCommunity'));
     } finally {
       setCreating(false);
     }
@@ -503,7 +505,7 @@ const AdminPage: React.FC = () => {
     a.download = `rootwise-report-${new Date().toISOString().split('T')[0]}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('success', 'Report downloaded!');
+    showToast('success', t('admin.reportDownloaded'));
   };
 
   const handleExportPlatformReport = () => {
@@ -533,26 +535,26 @@ const AdminPage: React.FC = () => {
     a.download = `rootwise-platform-report-${new Date().toISOString().split('T')[0]}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('success', 'Platform report downloaded!');
+    showToast('success', t('admin.platformReportDownloaded'));
   };
 
   // Upgrade wall for non-org users
   if (!hasOrg && !isPlatformAdmin) {
     return (
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-32">
-        <SEOHead title="Admin Dashboard - Rootwise" description="Manage your organization." path="/admin" />
+        <SEOHead title={t('admin.seoTitle')} description={t('admin.seoDesc')} path="/admin" />
         <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
           <div className="w-20 h-20 bg-amber-50 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-6">👑</div>
-          <h2 className="text-3xl font-black text-slate-800 mb-4">Organization Dashboard</h2>
+          <h2 className="text-3xl font-black text-slate-800 mb-4">{t('admin.authWallTitle')}</h2>
           <p className="text-slate-500 max-w-md mx-auto mb-2">
-            Manage up to 50 members, create branded communities, track team analytics, and download reports.
+            {t('admin.authWallDesc')}
           </p>
-          <p className="text-slate-400 text-sm mb-8">Available on the Organization plan.</p>
+          <p className="text-slate-400 text-sm mb-8">{t('admin.authWallNote')}</p>
           <button
             onClick={() => redirectToCheckout('org')}
             className="px-8 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/30"
           >
-            Upgrade to Organization — $49/mo
+            {t('admin.authWallBtn')}
           </button>
         </div>
       </div>
@@ -563,17 +565,17 @@ const AdminPage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
-      <SEOHead title="Admin Dashboard - Rootwise" description="Manage your organization." path="/admin" />
+      <SEOHead title={t('admin.seoTitle')} description={t('admin.seoDesc')} path="/admin" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
           <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-            <span className="text-amber-500">👑</span> Admin Dashboard
+            <span className="text-amber-500">👑</span> {t('admin.title')}
           </h2>
           <p className="text-slate-500">
             {isPlatformAdmin
-              ? 'Platform administration: reports, traffic, statistics, and system activity.'
-              : 'Manage your organization, members, and communities.'}
+              ? t('admin.platformSubtitle')
+              : t('admin.orgSubtitle')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -581,7 +583,7 @@ const AdminPage: React.FC = () => {
             onClick={isPlatformAdmin ? handleExportPlatformReport : handleExportReport}
             className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2"
           >
-            📥 Export Report
+            📥 {t('admin.exportReport')}
           </button>
         </div>
       </div>
@@ -606,7 +608,7 @@ const AdminPage: React.FC = () => {
             {tab === 'members' && '👥 '}
             {tab === 'communities' && '🏘️ '}
             {tab === 'reports' && '📋 '}
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            {t(`admin.tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`)}
           </button>
         ))}
       </div>
@@ -614,7 +616,7 @@ const AdminPage: React.FC = () => {
       {loading ? (
         <div className="text-center py-20">
           <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-500">Loading admin data...</p>
+          <p className="text-slate-500">{t('admin.loadingData')}</p>
         </div>
       ) : (
         <>
@@ -624,39 +626,39 @@ const AdminPage: React.FC = () => {
               {isPlatformAdmin && platformStats ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Total Users</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalUsers')}</p>
                     <p className="text-3xl font-black text-indigo-600">{platformStats.totalUsers}</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Active Users (7d)</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.activeUsers')}</p>
                     <p className="text-3xl font-black text-emerald-600">{platformStats.activeUsers7d}</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Total Quests</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalQuests')}</p>
                     <p className="text-3xl font-black text-amber-600">{platformStats.totalQuests}</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Total Communities</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalCommunities')}</p>
                     <p className="text-3xl font-black text-purple-600">{platformStats.totalCommunities}</p>
                   </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Total Members</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalMembers')}</p>
                     <p className="text-3xl font-black text-indigo-600">{stats.totalMembers}</p>
-                    <p className="text-xs text-slate-400 mt-1">of {PLAN_LIMITS.org.maxOrgMembers} max</p>
+                    <p className="text-xs text-slate-400 mt-1">{t('admin.ofMax', { max: PLAN_LIMITS.org.maxOrgMembers })}</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Communities</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.tabCommunities')}</p>
                     <p className="text-3xl font-black text-emerald-600">{stats.totalCommunities}</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Quest Activity</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.questActivity')}</p>
                     <p className="text-3xl font-black text-amber-600">{stats.totalQuests}</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Total XP</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalXp')}</p>
                     <p className="text-3xl font-black text-purple-600">{stats.totalXp}</p>
                   </div>
                 </div>
@@ -664,7 +666,7 @@ const AdminPage: React.FC = () => {
 
               {stats.memberActivity.length > 0 && (
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                  <h3 className="text-lg font-bold mb-4">Member Roles Distribution</h3>
+                  <h3 className="text-lg font-bold mb-4">{t('admin.rolesChart')}</h3>
                   <div className="h-48">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={stats.memberActivity}>
@@ -686,22 +688,22 @@ const AdminPage: React.FC = () => {
               {platformStats && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Posts</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.posts')}</p>
                     <p className="text-3xl font-black text-indigo-600">{platformStats.totalPosts}</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Comments</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.comments')}</p>
                     <p className="text-3xl font-black text-emerald-600">{platformStats.totalComments}</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">Likes</p>
+                    <p className="text-sm text-slate-500 mb-1">{t('admin.likes')}</p>
                     <p className="text-3xl font-black text-amber-600">{platformStats.totalLikes}</p>
                   </div>
                 </div>
               )}
 
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 className="text-lg font-bold mb-4">7-day Platform Activity</h3>
+                <h3 className="text-lg font-bold mb-4">{t('admin.activityChart')}</h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={trendData}>
@@ -724,11 +726,11 @@ const AdminPage: React.FC = () => {
             <div className="space-y-6">
               {!isPlatformAdmin && (
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                  <h3 className="font-bold mb-4">Invite New Member</h3>
+                  <h3 className="font-bold mb-4">{t('admin.inviteTitle')}</h3>
                   <div className="flex gap-3">
                     <input
                       type="email"
-                      placeholder="Enter email address..."
+                      placeholder={t('admin.invitePlaceholder')}
                       value={inviteEmail}
                       onChange={(e) => setInviteEmail(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
@@ -738,17 +740,17 @@ const AdminPage: React.FC = () => {
                       onClick={handleInvite}
                       className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all"
                     >
-                      Send Invite
+                      {t('admin.inviteBtn')}
                     </button>
                   </div>
                   <p className="text-xs text-slate-400 mt-2">
-                    Members will receive an email with a link to join your organization.
+                    {t('admin.inviteHint')}
                     {stats && (
                       <span className={`font-medium ${
                         remainingOrgSlots(stats.totalMembers) <= 5 ? 'text-amber-600' : ''
                       }`}>
-                        {' '}({stats.totalMembers}/{PLAN_LIMITS.org.maxOrgMembers} seats used
-                        {remainingOrgSlots(stats.totalMembers) <= 5 && ` — ${remainingOrgSlots(stats.totalMembers)} remaining`})
+                        {' '}{t('admin.seatsUsed', { used: stats.totalMembers, max: PLAN_LIMITS.org.maxOrgMembers })}
+                        {remainingOrgSlots(stats.totalMembers) <= 5 && ` ${t('admin.seatsRemaining', { count: remainingOrgSlots(stats.totalMembers) })}`}
                       </span>
                     )}
                   </p>
@@ -758,7 +760,7 @@ const AdminPage: React.FC = () => {
               {/* Member list */}
               <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-100">
-                  <h3 className="font-bold">All Members ({communities.reduce((s, c) => s + c.memberCount, 0)})</h3>
+                  <h3 className="font-bold">{t('admin.allMembers', { count: communities.reduce((s, c) => s + c.memberCount, 0) })}</h3>
                 </div>
                 <div className="divide-y divide-slate-100">
                   {communities.flatMap((c) =>
@@ -783,7 +785,7 @@ const AdminPage: React.FC = () => {
                             m.role === 'Seeker' ? 'bg-blue-100 text-blue-700' :
                             'bg-purple-100 text-purple-700'
                           }`}>{m.role}</span>
-                          <span className="text-xs text-slate-500">Level {m.level}</span>
+                          <span className="text-xs text-slate-500">{t('common.level')} {m.level}</span>
                           <span className="text-xs font-medium text-indigo-600">{m.xp} XP</span>
                         </div>
                       </div>
@@ -791,7 +793,7 @@ const AdminPage: React.FC = () => {
                   )}
                   {communities.length === 0 && (
                     <div className="p-10 text-center text-slate-400">
-                      <p>No members yet. Create a community and invite people!</p>
+                      <p>{t('admin.noMembers')}</p>
                     </div>
                   )}
                 </div>
@@ -808,42 +810,42 @@ const AdminPage: React.FC = () => {
                   onClick={() => setShowCreate(true)}
                   className="w-full py-4 border-2 border-dashed border-slate-300 text-slate-500 rounded-3xl font-bold hover:border-indigo-400 hover:text-indigo-600 transition-all"
                 >
-                  + Create Branded Community
+                  + {t('admin.createCommunityBtn')}
                 </button>
               ) : (
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-lg">New Branded Community</h3>
+                    <h3 className="font-bold text-lg">{t('admin.newCommunityTitle')}</h3>
                     <button onClick={() => setShowCreate(false)} className="text-slate-400 hover:text-slate-600 text-xl">×</button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-600">Name</label>
+                      <label className="text-sm font-bold text-slate-600">{t('admin.nameLabel')}</label>
                       <input
                         type="text"
                         value={newCommName}
                         onChange={(e) => setNewCommName(e.target.value)}
-                        placeholder="e.g. Acme Growth Team"
+                        placeholder={t('admin.namePlaceholder')}
                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-600">Category</label>
+                      <label className="text-sm font-bold text-slate-600">{t('admin.categoryLabel')}</label>
                       <select
                         value={newCommCategory}
                         onChange={(e) => setNewCommCategory(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                       >
-                        <option value="Growth">Growth</option>
-                        <option value="Mindfulness">Mindfulness</option>
-                        <option value="Fitness">Fitness</option>
-                        <option value="Learning">Learning</option>
-                        <option value="Career">Career</option>
-                        <option value="Custom">Custom</option>
+                        <option value="Growth">{t('admin.categoryGrowth')}</option>
+                        <option value="Mindfulness">{t('admin.categoryMindfulness')}</option>
+                        <option value="Fitness">{t('admin.categoryFitness')}</option>
+                        <option value="Learning">{t('admin.categoryLearning')}</option>
+                        <option value="Career">{t('admin.categoryCareer')}</option>
+                        <option value="Custom">{t('admin.categoryCustom')}</option>
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-600">Icon (emoji)</label>
+                      <label className="text-sm font-bold text-slate-600">{t('admin.iconLabel')}</label>
                       <input
                         type="text"
                         value={newCommIcon}
@@ -853,7 +855,7 @@ const AdminPage: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-600">Brand Color</label>
+                      <label className="text-sm font-bold text-slate-600">{t('admin.brandColorLabel')}</label>
                       <div className="flex items-center gap-3">
                         <input
                           type="color"
@@ -865,22 +867,22 @@ const AdminPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                      <label className="text-sm font-bold text-slate-600">Logo URL (optional)</label>
+                      <label className="text-sm font-bold text-slate-600">{t('admin.logoUrlLabel')}</label>
                       <input
                         type="url"
                         value={newCommLogoUrl}
                         onChange={(e) => setNewCommLogoUrl(e.target.value)}
-                        placeholder="https://..."
+                        placeholder={t('admin.logoPlaceholder')}
                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-600">Description</label>
+                    <label className="text-sm font-bold text-slate-600">{t('admin.descriptionLabel')}</label>
                     <textarea
                       value={newCommDesc}
                       onChange={(e) => setNewCommDesc(e.target.value)}
-                      placeholder="What is this community about?"
+                      placeholder={t('admin.descPlaceholder')}
                       rows={3}
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
                     />
@@ -890,14 +892,14 @@ const AdminPage: React.FC = () => {
                       onClick={() => setShowCreate(false)}
                       className="px-5 py-2 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50"
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                     <button
                       onClick={handleCreateCommunity}
                       disabled={!newCommName.trim() || creating}
                       className="px-6 py-2 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-all disabled:opacity-50"
                     >
-                      {creating ? 'Creating...' : '🏘️ Create Community'}
+                      {creating ? t('common.creating') : t('admin.createCommunitySubmit')}
                     </button>
                   </div>
                 </div>
@@ -926,16 +928,16 @@ const AdminPage: React.FC = () => {
                     </div>
                     <p className="text-sm text-slate-500 mb-3 line-clamp-2">{c.description}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-indigo-600">{c.memberCount} members</span>
-                      <span className="px-2 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-lg">Branded</span>
+                      <span className="text-sm font-medium text-indigo-600">{t('admin.membersCount', { count: c.memberCount })}</span>
+                      <span className="px-2 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-lg">{t('admin.branded')}</span>
                     </div>
                   </div>
                 ))}
                 {communities.length === 0 && (
                   <div className="col-span-3 text-center py-20 text-slate-400">
                     <p className="text-6xl mb-4">🏘️</p>
-                    <p className="font-bold text-xl mb-2">No branded communities</p>
-                    <p>Create a community from the Community Hub to manage it here.</p>
+                    <p className="font-bold text-xl mb-2">{t('admin.noBrandedCommunities')}</p>
+                    <p>{t('admin.noBrandedDesc')}</p>
                   </div>
                 )}
               </div>
@@ -945,9 +947,9 @@ const AdminPage: React.FC = () => {
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-lg flex items-center gap-2">
-                      <span>{selectedComm.icon}</span> {selectedComm.name} — Members
+                      <span>{selectedComm.icon}</span> {selectedComm.name} — {t('admin.membersLabel')}
                     </h3>
-                    <span className="text-sm text-slate-500">{selectedComm.memberCount} members</span>
+                    <span className="text-sm text-slate-500">{t('admin.membersCount', { count: selectedComm.memberCount })}</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {selectedComm.members.map((m) => (
@@ -971,20 +973,20 @@ const AdminPage: React.FC = () => {
           {activeTab === 'reports' && (
             <div className="space-y-6">
               <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 className="text-lg font-bold mb-6">{isPlatformAdmin ? 'Platform Moderation & Reports' : 'Organization Reports'}</h3>
+                <h3 className="text-lg font-bold mb-6">{isPlatformAdmin ? t('admin.reportsTab') : t('admin.orgReportsTab')}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-6 border border-slate-200 rounded-2xl hover:border-indigo-300 transition-all cursor-pointer" onClick={isPlatformAdmin ? handleExportPlatformReport : handleExportReport}>
                     <div className="flex items-center gap-3 mb-3">
                       <span className="text-2xl">📊</span>
-                      <h4 className="font-bold">{isPlatformAdmin ? 'Full Platform Report' : 'Full Organization Report'}</h4>
+                      <h4 className="font-bold">{isPlatformAdmin ? t('admin.fullPlatformReport') : t('admin.fullOrgReport')}</h4>
                     </div>
                     <p className="text-sm text-slate-500 mb-4">
                       {isPlatformAdmin
-                        ? 'Complete platform-level overview of users, communities, quests, and traffic indicators.'
-                        : 'Complete overview of members, communities, quests, and XP across your organization.'}
+                        ? t('admin.platformReportFullDesc')
+                        : t('admin.orgReportFullDesc')}
                     </p>
-                    <span className="text-indigo-600 text-sm font-bold">Download .txt →</span>
+                    <span className="text-indigo-600 text-sm font-bold">{t('admin.downloadTxt')}</span>
                   </div>
 
                   <div className="p-6 border border-slate-200 rounded-2xl hover:border-indigo-300 transition-all cursor-pointer" onClick={() => {
@@ -1002,14 +1004,14 @@ const AdminPage: React.FC = () => {
                     a.download = `rootwise-members-${new Date().toISOString().split('T')[0]}.csv`;
                     a.click();
                     URL.revokeObjectURL(url);
-                    showToast('success', 'Member report downloaded!');
+                    showToast('success', t('admin.memberReportDownloaded'));
                   }}>
                     <div className="flex items-center gap-3 mb-3">
                       <span className="text-2xl">👥</span>
-                      <h4 className="font-bold">Member Activity Report</h4>
+                      <h4 className="font-bold">{t('admin.memberActivityReport')}</h4>
                     </div>
-                    <p className="text-sm text-slate-500 mb-4">CSV export of all members with their roles, levels, and XP.</p>
-                    <span className="text-indigo-600 text-sm font-bold">Download .csv →</span>
+                    <p className="text-sm text-slate-500 mb-4">{t('admin.memberActivityDesc')}</p>
+                    <span className="text-indigo-600 text-sm font-bold">{t('admin.downloadCsv')}</span>
                   </div>
                 </div>
               </div>
@@ -1017,17 +1019,17 @@ const AdminPage: React.FC = () => {
               {isPlatformAdmin && (
                 <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
-                    <h3 className="text-lg font-bold">Incoming Reports</h3>
+                    <h3 className="text-lg font-bold">{t('admin.incomingReports')}</h3>
                     <select
                       value={reportStatusFilter}
                       onChange={(e) => setReportStatusFilter(e.target.value as UserReport['status'] | 'all')}
                       className="px-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
                     >
-                      <option value="all">All statuses</option>
-                      <option value="open">Open</option>
-                      <option value="in_review">In review</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="dismissed">Dismissed</option>
+                      <option value="all">{t('admin.filterAll')}</option>
+                      <option value="open">{t('admin.filterOpen')}</option>
+                      <option value="in_review">{t('admin.filterInReview')}</option>
+                      <option value="resolved">{t('admin.filterResolved')}</option>
+                      <option value="dismissed">{t('admin.filterDismissed')}</option>
                     </select>
                   </div>
 
@@ -1040,17 +1042,17 @@ const AdminPage: React.FC = () => {
                             <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 font-semibold">{report.report_type}</span>
                             <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 font-semibold">{report.status}</span>
                             <span className="text-xs px-2 py-1 rounded-full bg-amber-50 text-amber-700 font-semibold">{report.severity}</span>
-                            <span className="text-xs text-slate-400">by {report.reporterName}</span>
+                            <span className="text-xs text-slate-400">{t('admin.reportBy', { name: report.reporterName })}</span>
                             <span className="text-xs text-slate-400">{new Date(report.created_at).toLocaleString()}</span>
                           </div>
                           <p className="font-bold text-slate-800">{report.title}</p>
                           <p className="text-sm text-slate-600 mt-1">{report.description}</p>
                           <div className="mt-2 text-xs text-slate-500 space-x-4">
-                            <span>Target user: {report.target_user_id ?? '—'}</span>
-                            <span>Target post: {report.target_post_id ?? '—'}</span>
+                            <span>{t('admin.targetUser')} {report.target_user_id ?? '—'}</span>
+                            <span>{t('admin.targetPost')} {report.target_post_id ?? '—'}</span>
                           </div>
                           <div className="mt-3">
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">Admin note</label>
+                            <label className="text-xs font-semibold text-slate-600 block mb-1">{t('admin.adminNote')}</label>
                             <textarea
                               value={reportNoteDrafts[report.id] ?? ''}
                               onChange={(e) =>
@@ -1060,7 +1062,7 @@ const AdminPage: React.FC = () => {
                                 }))
                               }
                               rows={2}
-                              placeholder="Internal moderation note..."
+                              placeholder={t('admin.adminNotePlaceholder')}
                               className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
                             />
                             <div className="mt-2">
@@ -1068,7 +1070,7 @@ const AdminPage: React.FC = () => {
                                 onClick={() => handleSaveAdminNote(report.id)}
                                 className="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
                               >
-                                Save Note
+                                {t('admin.saveNote')}
                               </button>
                             </div>
                           </div>
@@ -1077,26 +1079,26 @@ const AdminPage: React.FC = () => {
                               onClick={() => handleModerationStatus(report.id, 'in_review')}
                               className="px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
                             >
-                              Mark In Review
+                              {t('admin.markInReview')}
                             </button>
                             <button
                               onClick={() => handleModerationStatus(report.id, 'resolved')}
                               className="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
                             >
-                              Resolve
+                              {t('admin.resolve')}
                             </button>
                             <button
                               onClick={() => handleModerationStatus(report.id, 'dismissed')}
                               className="px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white hover:bg-rose-700"
                             >
-                              Dismiss
+                              {t('admin.dismiss')}
                             </button>
                           </div>
                         </div>
                       ))}
 
                     {moderationReports.filter((r) => reportStatusFilter === 'all' || r.status === reportStatusFilter).length === 0 && (
-                      <p className="text-sm text-slate-500">No reports in this filter.</p>
+                      <p className="text-sm text-slate-500">{t('admin.noReports')}</p>
                     )}
                   </div>
                 </div>
@@ -1105,23 +1107,23 @@ const AdminPage: React.FC = () => {
               {/* Summary stats for report */}
               {!isPlatformAdmin && stats && (
                 <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                  <h3 className="text-lg font-bold mb-4">Quick Stats Summary</h3>
+                  <h3 className="text-lg font-bold mb-4">{t('admin.quickStats')}</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div>
                       <p className="text-2xl font-black text-slate-800">{stats.totalMembers}</p>
-                      <p className="text-sm text-slate-500">Members</p>
+                      <p className="text-sm text-slate-500">{t('admin.membersLabel')}</p>
                     </div>
                     <div>
                       <p className="text-2xl font-black text-slate-800">{stats.totalCommunities}</p>
-                      <p className="text-sm text-slate-500">Communities</p>
+                      <p className="text-sm text-slate-500">{t('admin.tabCommunities')}</p>
                     </div>
                     <div>
                       <p className="text-2xl font-black text-slate-800">{stats.totalQuests}</p>
-                      <p className="text-sm text-slate-500">Quest Actions</p>
+                      <p className="text-sm text-slate-500">{t('admin.questActions')}</p>
                     </div>
                     <div>
                       <p className="text-2xl font-black text-slate-800">{stats.totalXp}</p>
-                      <p className="text-sm text-slate-500">Total XP</p>
+                      <p className="text-sm text-slate-500">{t('admin.totalXp')}</p>
                     </div>
                   </div>
                 </div>

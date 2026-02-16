@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
 import AiUsageBadge from '../components/AiUsageBadge';
 import UpgradeModal from '../components/UpgradeModal';
@@ -10,6 +11,7 @@ import { RootwiseAIService } from '../services/geminiService';
 import { isPro } from '../services/planService';
 
 const AiNexusPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { messages, addMessage, fetchMessages } = useChatMessages(profile?.id);
@@ -52,7 +54,7 @@ const AiNexusPage: React.FC = () => {
     history.push({ role: 'user', parts: [{ text: msgText }] });
 
     const response = await aiService.current.getAiMentorResponse(history);
-    await addMessage('ai', response || "I'm listening. Tell me more about your goals.");
+    await addMessage('ai', response || t('ai.fallback'));
 
     setIsAiLoading(false);
     // Refresh usage counters after sending
@@ -62,8 +64,8 @@ const AiNexusPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-6 pt-24 pb-32 min-h-screen flex flex-col">
       <SEOHead
-        title="Nexus AI Mentor - Rootwise"
-        description="Get personalized guidance from Rootwise's AI mentor. Find quests, learn skills, and connect with community partners."
+        title={`${t('ai.title')} - Rootwise`}
+        description={t('ai.subtitle')}
         path="/ai-nexus"
       />
 
@@ -72,8 +74,8 @@ const AiNexusPage: React.FC = () => {
           ✨
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold">Nexus AI Mentor</h2>
-          <p className="text-sm text-slate-500">Your intelligent bridge to community wisdom.</p>
+          <h2 className="text-2xl font-bold">{t('ai.title')}</h2>
+          <p className="text-sm text-slate-500">{t('ai.subtitle')}</p>
         </div>
         {/* AI Usage indicator for free users */}
         {!hasPro && (
@@ -81,20 +83,20 @@ const AiNexusPage: React.FC = () => {
             <AiUsageBadge
               used={aiUsage.messagesUsed}
               limit={aiUsage.messageLimit}
-              label="msgs left today"
+              label={t('ai.msgsLeft')}
               compact
             />
             <button
               onClick={() => setShowUpgrade(true)}
               className="text-xs text-indigo-600 font-bold hover:underline whitespace-nowrap"
             >
-              Go Unlimited →
+              {t('ai.goUnlimited')}
             </button>
           </div>
         )}
         {hasPro && (
           <div className="hidden md:flex items-center gap-2 bg-indigo-50 px-3 py-1.5 rounded-full">
-            <span className="text-xs text-indigo-600 font-bold">∞ Unlimited</span>
+            <span className="text-xs text-indigo-600 font-bold">{t('ai.unlimited')}</span>
           </div>
         )}
       </div>
@@ -105,13 +107,13 @@ const AiNexusPage: React.FC = () => {
           <AiUsageBadge
             used={aiUsage.messagesUsed}
             limit={aiUsage.messageLimit}
-            label="AI Messages Today"
+            label={t('ai.messagesTitle')}
           />
           {!aiUsage.canChat && (
             <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs text-red-500 font-medium">Daily limit reached</span>
+              <span className="text-xs text-red-500 font-medium">{t('ai.dailyLimit')}</span>
               <button onClick={() => setShowUpgrade(true)} className="text-xs text-indigo-600 font-bold hover:underline">
-                Upgrade to Pro →
+                {t('ai.upgradeToProBtn')}
               </button>
             </div>
           )}
@@ -125,22 +127,22 @@ const AiNexusPage: React.FC = () => {
               <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">
                 👋
               </div>
-              <h4 className="font-bold text-slate-800 mb-2 text-xl">How can I help you grow today?</h4>
+              <h4 className="font-bold text-slate-800 mb-2 text-xl">{t('ai.emptyTitle')}</h4>
               <p className="text-slate-500 max-w-sm mx-auto">
-                Ask for a new quest, help with a specific skill, or find a community partner.
+                {t('ai.emptySubtitle')}
               </p>
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-3 max-w-lg mx-auto">
                 <button
-                  onClick={() => setInputMessage('I want to learn gardening from a senior.')}
+                  onClick={() => setInputMessage(t('ai.suggestion1'))}
                   className="p-4 bg-slate-50 rounded-2xl text-sm hover:bg-indigo-50 transition-colors border border-slate-100 text-left"
                 >
-                  🌱 "Find me a gardening Sage"
+                  🌱 {t('ai.suggestion1')}
                 </button>
                 <button
-                  onClick={() => setInputMessage('How can I teach coding to teenagers?')}
+                  onClick={() => setInputMessage(t('ai.suggestion2'))}
                   className="p-4 bg-slate-50 rounded-2xl text-sm hover:bg-indigo-50 transition-colors border border-slate-100 text-left"
                 >
-                  💻 "Offer my coding skills"
+                  💻 {t('ai.suggestion2')}
                 </button>
               </div>
             </div>
@@ -184,7 +186,7 @@ const AiNexusPage: React.FC = () => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-              placeholder="Ask Nexus anything..."
+              placeholder={t('ai.inputPlaceholder')}
               className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-6 pr-14 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
             />
             <button
@@ -204,7 +206,7 @@ const AiNexusPage: React.FC = () => {
       <UpgradeModal
         isOpen={showUpgrade}
         onClose={() => setShowUpgrade(false)}
-        feature="Unlimited AI Mentor"
+        feature={t('ai.title')}
         requiredPlan="pro"
       />
     </div>

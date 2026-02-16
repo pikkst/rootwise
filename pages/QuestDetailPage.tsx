@@ -5,6 +5,7 @@ import QuestVideoCall from '../components/QuestVideoCall';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../services/supabase';
+import { useTranslation } from 'react-i18next';
 import { DbQuest, QuestMember, QuestMessage, QuestFile, QuestMilestone, Profile } from '../types';
 
 type Tab = 'overview' | 'chat' | 'files' | 'milestones' | 'members' | 'proof';
@@ -18,6 +19,7 @@ const QuestDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { showToast } = useToast();
+  const { t } = useTranslation();
 
   const [quest, setQuest] = useState<DbQuest | null>(null);
   const [members, setMembers] = useState<QuestMember[]>([]);
@@ -178,7 +180,7 @@ const QuestDetailPage: React.FC = () => {
       } catch { setMilestones([]); }
     } catch (err) {
       console.error('Error fetching quest details:', err);
-      showToast('error', 'Failed to load quest details');
+      showToast('error', t('questDetail.toastLoadFailed'));
     }
     setLoading(false);
   };
@@ -195,14 +197,14 @@ const QuestDetailPage: React.FC = () => {
       });
 
       if (error) {
-        showToast('error', 'Failed to send message');
+        showToast('error', t('questDetail.toastSendFailed'));
       } else {
         setMessageText('');
         await fetchQuestDetails();
-        showToast('success', 'Message sent!');
+        showToast('success', t('questDetail.chatMessageSent'));
       }
     } catch (err) {
-      showToast('error', 'An error occurred');
+      showToast('error', t('questDetail.toastError'));
     } finally {
       setSendingMessage(false);
     }
@@ -216,13 +218,13 @@ const QuestDetailPage: React.FC = () => {
         .eq('id', milestoneId);
 
       if (error) {
-        showToast('error', 'Failed to update milestone');
+        showToast('error', t('questDetail.toastMilestoneFailed'));
       } else {
         await fetchQuestDetails();
-        showToast('success', 'Milestone updated!');
+        showToast('success', t('questDetail.milestoneUpdated'));
       }
     } catch (err) {
-      showToast('error', 'An error occurred');
+      showToast('error', t('questDetail.toastError'));
     }
   };
 
@@ -242,13 +244,13 @@ const QuestDetailPage: React.FC = () => {
       });
 
       if (error) {
-        showToast('error', error.message || 'Failed to join quest');
+        showToast('error', error.message || t('questDetail.toastJoinFailed'));
       } else {
-        showToast('success', 'Successfully joined the quest!');
+        showToast('success', t('questDetail.toastJoined'));
         await fetchQuestDetails();
       }
     } catch (err) {
-      showToast('error', 'An error occurred while joining');
+      showToast('error', t('questDetail.toastJoinError'));
     } finally {
       setJoiningQuest(false);
     }
@@ -274,14 +276,14 @@ const QuestDetailPage: React.FC = () => {
         .eq('user_id', profile.id);
 
       if (error) {
-        showToast('error', 'Failed to submit proof');
+        showToast('error', t('questDetail.toastProofFailed'));
       } else {
         setProofText('');
         await fetchQuestDetails();
-        showToast('success', 'Proof submitted! Waiting for mentor verification.');
+        showToast('success', t('questDetail.toastProofSubmitted'));
       }
     } catch (err) {
-      showToast('error', 'An error occurred');
+      showToast('error', t('questDetail.toastError'));
     } finally {
       setSubmittingProof(false);
     }
@@ -293,7 +295,7 @@ const QuestDetailPage: React.FC = () => {
 
     // Validate file type
     if (!ALLOWED_TYPES[file.type]) {
-      showToast('error', `File type not supported. Allowed: images, PDF, MP4, text documents.`);
+      showToast('error', t('questDetail.toastFileTypeNotSupported'));
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -301,7 +303,7 @@ const QuestDetailPage: React.FC = () => {
     // Validate file size
     const maxSize = getMaxSize(file.type);
     if (file.size > maxSize) {
-      showToast('error', `File too large. Maximum size for this type: ${formatBytes(maxSize)}`);
+      showToast('error', t('questDetail.toastFileTooLarge', { maxSize: formatBytes(maxSize) }));
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -339,10 +341,10 @@ const QuestDetailPage: React.FC = () => {
       }
 
       await fetchQuestDetails();
-      showToast('success', `"${file.name}" uploaded successfully!`);
+      showToast('success', t('questDetail.toastFileUploaded'));
     } catch (err: any) {
       console.error('File upload error:', err);
-      showToast('error', err?.message || 'Failed to upload file');
+      showToast('error', err?.message || t('questDetail.toastUploadFailed'));
     } finally {
       setUploadingFile(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -354,11 +356,11 @@ const QuestDetailPage: React.FC = () => {
 
     // Only uploader can delete
     if (file.user_id !== profile.id) {
-      showToast('error', 'You can only delete your own files.');
+      showToast('error', t('questDetail.toastDeleteOwnOnly'));
       return;
     }
 
-    if (!window.confirm(`Delete "${file.file_name}"? This cannot be undone.`)) return;
+    if (!window.confirm(t('questDetail.confirmDeleteFile'))) return;
 
     setDeletingFileId(file.id);
     try {
@@ -373,10 +375,10 @@ const QuestDetailPage: React.FC = () => {
       if (error) throw error;
 
       await fetchQuestDetails();
-      showToast('success', 'File deleted.');
+      showToast('success', t('questDetail.toastFileDeleted'));
     } catch (err: any) {
       console.error('File delete error:', err);
-      showToast('error', err?.message || 'Failed to delete file');
+      showToast('error', err?.message || t('questDetail.toastDeleteFailed'));
     } finally {
       setDeletingFileId(null);
     }
@@ -394,12 +396,12 @@ const QuestDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <p className="text-slate-600 mb-4">Quest not found</p>
+          <p className="text-slate-600 mb-4">{t('questDetail.notFound')}</p>
           <button
             onClick={() => navigate('/quests')}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
           >
-            Back to Quests
+            {t('questDetail.backToQuests')}
           </button>
         </div>
       </div>
@@ -424,9 +426,9 @@ const QuestDetailPage: React.FC = () => {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(questUrl);
-      showToast('success', 'Link copied to clipboard!');
+      showToast('success', t('questDetail.toastLinkCopied'));
     } catch {
-      showToast('error', 'Failed to copy link');
+      showToast('error', t('questDetail.toastCopyFailed'));
     }
   };
 
@@ -475,7 +477,7 @@ const QuestDetailPage: React.FC = () => {
           onClick={() => navigate('/quests')}
           className="text-indigo-600 hover:text-indigo-700 text-sm font-semibold mb-4 inline-flex items-center gap-1"
         >
-          ← Back to Quests
+          ← {t('questDetail.backToQuests')}
         </button>
 
         {/* Quest image banner */}
@@ -502,7 +504,7 @@ const QuestDetailPage: React.FC = () => {
           </span>
           {quest.is_virtual && (
             <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full uppercase tracking-wide">
-              🌐 Virtual
+              🌐 {t('questDetail.virtual')}
             </span>
           )}
 
@@ -517,8 +519,8 @@ const QuestDetailPage: React.FC = () => {
               }`}
             >
               {activeCallUsers.length > 0
-                ? `🔴 Join Call (${activeCallUsers.length})`
-                : '📹 Video Call'}
+                ? `🔴 ${t('questDetail.videoCallJoinActive')} (${activeCallUsers.length})`
+                : `📹 ${t('questDetail.videoCallTitle')}`}
             </button>
           )}
 
@@ -528,12 +530,12 @@ const QuestDetailPage: React.FC = () => {
               onClick={handleNativeShare}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-full transition"
             >
-              📤 Share
+              📤 {t('questDetail.shareTitle')}
             </button>
 
             {showShareMenu && (
               <div className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg p-3 z-50 min-w-[200px]">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Share this quest</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{t('questDetail.shareTitle')}</p>
                 <div className="flex gap-2 mb-3">
                   <a href={shareLinks.facebook} target="_blank" rel="noopener noreferrer"
                     className="flex-1 flex items-center justify-center p-2.5 bg-[#1877F2] text-white rounded-lg hover:opacity-90 transition text-sm" title="Facebook">
@@ -556,7 +558,7 @@ const QuestDetailPage: React.FC = () => {
                   onClick={() => { handleCopyLink(); setShowShareMenu(false); }}
                   className="w-full px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition text-center"
                 >
-                  🔗 Copy link
+                  {t('questDetail.shareCopyLink')}
                 </button>
               </div>
             )}
@@ -571,9 +573,9 @@ const QuestDetailPage: React.FC = () => {
             <div className="flex items-center gap-3">
               <span className="w-3 h-3 bg-red-400 rounded-full animate-pulse flex-shrink-0" />
               <div>
-                <p className="font-bold text-sm sm:text-base">Video call in progress</p>
+                <p className="font-bold text-sm sm:text-base">{t('questDetail.videoCallInProgress')}</p>
                 <p className="text-indigo-200 text-xs sm:text-sm">
-                  {activeCallUsers.length} participant{activeCallUsers.length !== 1 ? 's' : ''} —{' '}
+                  {t('questDetail.videoCallCount', { n: activeCallUsers.length })} —{' '}
                   {(activeCallUsers as any[]).map((u: any) => u.userName).join(', ')}
                 </p>
               </div>
@@ -582,7 +584,7 @@ const QuestDetailPage: React.FC = () => {
               onClick={handleStartCall}
               className="px-5 py-2.5 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition text-sm shadow-sm"
             >
-              📹 Join Call
+              {t('questDetail.videoCallJoinActive')}
             </button>
           </div>
         </div>
@@ -605,7 +607,7 @@ const QuestDetailPage: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-800'
                     }`}
                   >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    {t(`questDetail.tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`)}
                   </button>
                 )
               )}
@@ -615,23 +617,23 @@ const QuestDetailPage: React.FC = () => {
               {/* Overview Tab */}
               {activeTab === 'overview' && (
                 <div>
-                  <h2 className="text-xl font-bold text-slate-800 mb-3">About This Quest</h2>
+                  <h2 className="text-xl font-bold text-slate-800 mb-3">{t('questDetail.aboutTitle')}</h2>
                   <p className="text-slate-600 leading-relaxed mb-6 text-[15px]">{quest.description}</p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-xl p-4 border border-indigo-100">
-                      <div className="text-xs font-medium text-indigo-500 uppercase tracking-wide mb-1">XP Reward</div>
+                      <div className="text-xs font-medium text-indigo-500 uppercase tracking-wide mb-1">{t('questDetail.xpReward')}</div>
                       <div className="text-2xl font-bold text-indigo-600">⭐ {quest.reward_xp}</div>
                     </div>
                     <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl p-4 border border-slate-200">
-                      <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Category</div>
+                      <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">{t('questDetail.category')}</div>
                       <div className="text-lg font-bold text-slate-800">{quest.category}</div>
                     </div>
                   </div>
 
                   {quest.skills_required && quest.skills_required.length > 0 && (
                     <div className="mb-6">
-                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-2">Required Skills</h3>
+                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-2">{t('questDetail.requiredSkills')}</h3>
                       <div className="flex flex-wrap gap-2">
                         {quest.skills_required.map((skill) => (
                           <span key={skill} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium border border-indigo-100">
@@ -644,7 +646,7 @@ const QuestDetailPage: React.FC = () => {
 
                   {quest.steps && quest.steps.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Steps to Complete</h3>
+                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">{t('questDetail.stepsTitle')}</h3>
                       <ol className="space-y-3">
                         {quest.steps.map((step: string, idx: number) => (
                           <li key={idx} className="flex gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100">
@@ -663,17 +665,17 @@ const QuestDetailPage: React.FC = () => {
               {/* Chat Tab */}
               {activeTab === 'chat' && (
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800 mb-4">Quest Chat</h2>
+                  <h2 className="text-2xl font-bold text-slate-800 mb-4">{t('questDetail.chatTitle')}</h2>
 
                   {!isMember ? (
                     <div className="bg-slate-50 rounded-lg p-6 text-center">
-                      <p className="text-slate-600">Join this quest to participate in the chat</p>
+                      <p className="text-slate-600">{t('questDetail.chatJoinFirst')}</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <div className="bg-slate-50 rounded-lg p-4 h-80 overflow-y-auto mb-4 space-y-3">
                         {messages.length === 0 ? (
-                          <p className="text-slate-500 text-center py-8">No messages yet. Be the first to chat!</p>
+                          <p className="text-slate-500 text-center py-8">{t('questDetail.chatEmpty')}</p>
                         ) : (
                           messages.map((msg) => (
                             <div
@@ -686,7 +688,7 @@ const QuestDetailPage: React.FC = () => {
                             >
                               <div className="flex justify-between items-start mb-1">
                                 <span className="font-semibold text-sm text-slate-800">
-                                  {msg.user_id === profile?.id ? 'You' : `User ${msg.user_id.slice(0, 8)}`}
+                                  {msg.user_id === profile?.id ? t('questDetail.chatYou') : `${t('questDetail.chatUser')} ${msg.user_id.slice(0, 8)}`}
                                 </span>
                                 <span className="text-xs text-slate-500">
                                   {new Date(msg.created_at ?? '').toLocaleTimeString()}
@@ -704,7 +706,7 @@ const QuestDetailPage: React.FC = () => {
                           value={messageText}
                           onChange={(e) => setMessageText(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                          placeholder="Type a message..."
+                          placeholder={t('questDetail.chatPlaceholder')}
                           disabled={sendingMessage}
                           className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
                         />
@@ -713,7 +715,7 @@ const QuestDetailPage: React.FC = () => {
                           disabled={sendingMessage || !messageText.trim()}
                           className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          {sendingMessage ? 'Sending...' : 'Send'}
+                          {sendingMessage ? t('questDetail.chatSending') : t('questDetail.chatSend')}
                         </button>
                       </div>
                     </div>
@@ -724,12 +726,12 @@ const QuestDetailPage: React.FC = () => {
               {/* Files Tab */}
               {activeTab === 'files' && (
                 <div>
-                  <h2 className="text-xl font-bold text-slate-800 mb-1">Files & Resources</h2>
-                  <p className="text-xs text-slate-400 mb-4">Images, PDFs, articles, videos (MP4)</p>
+                  <h2 className="text-xl font-bold text-slate-800 mb-1">{t('questDetail.filesTitle')}</h2>
+                  <p className="text-xs text-slate-400 mb-4">{t('questDetail.filesSubtitle')}</p>
 
                   {!isMember ? (
                     <div className="bg-slate-50 rounded-xl p-6 text-center">
-                      <p className="text-slate-600">Join this quest to view and upload files</p>
+                      <p className="text-slate-600">{t('questDetail.filesJoinFirst')}</p>
                     </div>
                   ) : (
                     <div>
@@ -755,14 +757,14 @@ const QuestDetailPage: React.FC = () => {
                           {uploadingFile ? (
                             <>
                               <div className="w-8 h-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-                              <span className="text-sm font-medium text-indigo-600">Uploading...</span>
+                              <span className="text-sm font-medium text-indigo-600">{t('questDetail.filesUploading')}</span>
                             </>
                           ) : (
                             <>
                               <span className="text-3xl">📎</span>
-                              <span className="text-sm font-medium text-indigo-600">Click to upload a file</span>
+                              <span className="text-sm font-medium text-indigo-600">{t('questDetail.filesUploadClick')}</span>
                               <span className="text-xs text-slate-400">
-                                Images (10 MB) · PDF (20 MB) · MP4 (100 MB) · Text (5 MB)
+                                {t('questDetail.filesMaxSize')}
                               </span>
                             </>
                           )}
@@ -771,7 +773,7 @@ const QuestDetailPage: React.FC = () => {
 
                       {/* File list */}
                       {files.length === 0 ? (
-                        <p className="text-slate-400 text-center py-6 text-sm">No files uploaded yet. Be the first!</p>
+                        <p className="text-slate-400 text-center py-6 text-sm">{t('questDetail.filesEmpty')}</p>
                       ) : (
                         <div className="space-y-2">
                           {files.map((file) => (
@@ -787,10 +789,10 @@ const QuestDetailPage: React.FC = () => {
                                 className="flex-1 min-w-0"
                               >
                                 <div className="font-semibold text-slate-800 truncate text-sm hover:text-indigo-600 transition">
-                                  {file.file_name || 'Unnamed file'}
+                                  {file.file_name || t('questDetail.filesUnnamed')}
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                                  <span>{ALLOWED_TYPES[file.file_type ?? ''] || 'File'}</span>
+                                  <span>{ALLOWED_TYPES[file.file_type ?? ''] || t('questDetail.filesFileLabel')}</span>
                                   {file.file_size && <span>· {formatBytes(file.file_size)}</span>}
                                   <span>· {new Date(file.created_at ?? file.uploaded_at ?? '').toLocaleDateString()}</span>
                                 </div>
@@ -801,7 +803,7 @@ const QuestDetailPage: React.FC = () => {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="p-2 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition text-xs font-medium"
-                                  title="Download"
+                                  title={t('questDetail.filesDownload')}
                                 >
                                   ⬇️
                                 </a>
@@ -810,7 +812,7 @@ const QuestDetailPage: React.FC = () => {
                                     onClick={() => handleDeleteFile(file)}
                                     disabled={deletingFileId === file.id}
                                     className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition text-xs opacity-0 group-hover:opacity-100 disabled:opacity-50"
-                                    title="Delete"
+                                    title={t('questDetail.filesDelete')}
                                   >
                                     {deletingFileId === file.id ? '⏳' : '🗑️'}
                                   </button>
@@ -828,16 +830,16 @@ const QuestDetailPage: React.FC = () => {
               {/* Milestones Tab */}
               {activeTab === 'milestones' && (
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800 mb-4">Milestones</h2>
+                  <h2 className="text-2xl font-bold text-slate-800 mb-4">{t('questDetail.milestonesTitle')}</h2>
 
                   {!isMember ? (
                     <div className="bg-slate-50 rounded-lg p-6 text-center">
-                      <p className="text-slate-600">Join this quest to track progress</p>
+                      <p className="text-slate-600">{t('questDetail.milestonesJoinFirst')}</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
                       {milestones.length === 0 ? (
-                        <p className="text-slate-500 text-center py-8">No milestones yet</p>
+                        <p className="text-slate-500 text-center py-8">{t('questDetail.milestonesEmpty')}</p>
                       ) : (
                         milestones.map((milestone) => (
                           <div
@@ -877,10 +879,10 @@ const QuestDetailPage: React.FC = () => {
               {/* Members Tab */}
               {activeTab === 'members' && (
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800 mb-4">Quest Members</h2>
+                  <h2 className="text-2xl font-bold text-slate-800 mb-4">{t('questDetail.membersTitle')}</h2>
                   <div className="space-y-2">
                     {members.length === 0 ? (
-                      <p className="text-slate-500 text-center py-8">No members yet</p>
+                      <p className="text-slate-500 text-center py-8">{t('questDetail.membersEmpty')}</p>
                     ) : (
                       members.map((member) => (
                         <div key={member.user_id} className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
@@ -905,19 +907,19 @@ const QuestDetailPage: React.FC = () => {
               {/* Proof Tab */}
               {activeTab === 'proof' && (
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800 mb-4">Proof & Verification</h2>
+                  <h2 className="text-2xl font-bold text-slate-800 mb-4">{t('questDetail.proofTitle')}</h2>
 
                   {!isLearner ? (
                     <div className="bg-slate-50 rounded-lg p-6 text-center">
-                      <p className="text-slate-600">Only learners can submit proof</p>
+                      <p className="text-slate-600">{t('questDetail.proofOnlyLearners')}</p>
                     </div>
                   ) : (
                     <div>
                       {currentMember?.proof_submitted ? (
                         <div className="bg-slate-50 rounded-lg p-6 mb-4">
-                          <h3 className="font-semibold text-slate-800 mb-2">Your Submitted Proof</h3>
+                          <h3 className="font-semibold text-slate-800 mb-2">{t('questDetail.proofYourSubmitted')}</h3>
                           <p className="text-slate-600 mb-3">
-                            Proof Type: {typeof currentMember.proof_submitted === 'object' && 'type' in currentMember.proof_submitted ? (currentMember.proof_submitted as any).type : 'Unknown'}
+                            {t('questDetail.proofType')} {typeof currentMember.proof_submitted === 'object' && 'type' in currentMember.proof_submitted ? (currentMember.proof_submitted as any).type : t('questDetail.proofUnknown')}
                           </p>
                           <div className={`p-4 rounded-lg ${
                             currentMember.proof_verified
@@ -925,17 +927,17 @@ const QuestDetailPage: React.FC = () => {
                               : 'bg-yellow-50 border border-yellow-200'
                           }`}>
                             <p className="font-semibold text-slate-800">
-                              {currentMember.proof_verified ? '✓ Verified' : '⏳ Pending Review'}
+                              {currentMember.proof_verified ? t('questDetail.proofVerified') : t('questDetail.proofPending')}
                             </p>
                           </div>
                         </div>
                       ) : (
                         <div className="bg-slate-50 rounded-lg p-6">
-                          <p className="text-slate-600 mb-4">Submit proof of completion for verification</p>
+                          <p className="text-slate-600 mb-4">{t('questDetail.proofSubmitHint')}</p>
                           <textarea
                             value={proofText}
                             onChange={(e) => setProofText(e.target.value)}
-                            placeholder="Describe your proof of completion (e.g., project link, certificate, description)..."
+                            placeholder={t('questDetail.proofPlaceholder')}
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
                             rows={4}
                           />
@@ -944,7 +946,7 @@ const QuestDetailPage: React.FC = () => {
                             disabled={submittingProof || !proofText.trim()}
                             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {submittingProof ? 'Submitting...' : 'Submit Proof'}
+                            {submittingProof ? t('questDetail.proofSubmitting') : t('questDetail.proofSubmitBtn')}
                           </button>
                         </div>
                       )}
@@ -959,7 +961,7 @@ const QuestDetailPage: React.FC = () => {
         {/* Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-24">
-            <h2 className="text-lg font-bold text-slate-800 mb-4">Quest Info</h2>
+            <h2 className="text-lg font-bold text-slate-800 mb-4">{t('questDetail.sidebarTitle')}</h2>
 
             {!isMember && (
               <button
@@ -967,29 +969,29 @@ const QuestDetailPage: React.FC = () => {
                 disabled={joiningQuest}
                 className="w-full px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-semibold mb-5 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-sm"
               >
-                {joiningQuest ? 'Joining...' : '🚀 Join Quest'}
+                {joiningQuest ? t('questDetail.sidebarJoining') : t('questDetail.sidebarJoin')}
               </button>
             )}
 
             {isMember && (
               <div className="mb-5 px-3 py-2 bg-green-50 border border-green-200 rounded-xl text-center">
-                <span className="text-green-700 font-semibold text-sm">✓ You're a {currentMember?.role}</span>
+                <span className="text-green-700 font-semibold text-sm">{t('questDetail.sidebarRole', { role: currentMember?.role })}</span>
               </div>
             )}
 
             <div className="space-y-4 divide-y divide-slate-100">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">Members</span>
+                <span className="text-sm text-slate-500">{t('questDetail.sidebarMembers')}</span>
                 <span className="text-lg font-bold text-slate-800">{members.length}</span>
               </div>
 
               <div className="flex items-center justify-between pt-3">
-                <span className="text-sm text-slate-500">XP Reward</span>
+                <span className="text-sm text-slate-500">{t('questDetail.xpReward')}</span>
                 <span className="text-lg font-bold text-indigo-600">⭐ {quest.reward_xp}</span>
               </div>
 
               <div className="flex items-center justify-between pt-3">
-                <span className="text-sm text-slate-500">Status</span>
+                <span className="text-sm text-slate-500">{t('questDetail.sidebarStatus')}</span>
                 <span className={`px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${
                   quest.status === 'published' ? 'bg-green-100 text-green-700' :
                   quest.status === 'completed' ? 'bg-slate-200 text-slate-600' :
@@ -1000,14 +1002,14 @@ const QuestDetailPage: React.FC = () => {
 
               {quest.category && (
                 <div className="flex items-center justify-between pt-3">
-                  <span className="text-sm text-slate-500">Category</span>
+                  <span className="text-sm text-slate-500">{t('questDetail.category')}</span>
                   <span className="text-sm font-semibold text-slate-700">{quest.category}</span>
                 </div>
               )}
 
               {!quest.is_virtual && quest.location && (
                 <div className="flex items-center justify-between pt-3">
-                  <span className="text-sm text-slate-500">📍 Location</span>
+                  <span className="text-sm text-slate-500">{t('questDetail.sidebarLocation')}</span>
                   <span className="text-sm text-slate-800">{quest.location}</span>
                 </div>
               )}
@@ -1016,20 +1018,20 @@ const QuestDetailPage: React.FC = () => {
             {/* Video Call section in sidebar */}
             {isMember && (
               <div className="mt-5 pt-4 border-t border-slate-100">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Video Call</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">{t('questDetail.videoCallTitle')}</p>
                 {activeCallUsers.length > 0 && !showVideoCall ? (
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                       <span className="text-xs text-slate-600 font-medium">
-                        {activeCallUsers.length} in call
+                        {t('questDetail.videoCallCount', { n: activeCallUsers.length })}
                       </span>
                     </div>
                     <button
                       onClick={handleStartCall}
                       className="w-full px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-semibold text-sm shadow-sm"
                     >
-                      📹 Join Active Call
+                      {t('questDetail.videoCallJoinActive')}
                     </button>
                   </div>
                 ) : !showVideoCall ? (
@@ -1041,18 +1043,18 @@ const QuestDetailPage: React.FC = () => {
                   </button>
                 ) : (
                   <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-xl text-center">
-                    <span className="text-red-700 font-semibold text-xs">🔴 You're in a call</span>
+                    <span className="text-red-700 font-semibold text-xs">{t('questDetail.videoCallInCall')}</span>
                   </div>
                 )}
                 <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                  Call other quest members to work together live. Steps can be tracked during the call.
+                  {t('questDetail.videoCallDesc')}
                 </p>
               </div>
             )}
 
             {/* Share buttons in sidebar */}
             <div className="mt-5 pt-4 border-t border-slate-100">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Share Quest</p>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">{t('questDetail.shareTitle')}</p>
               <div className="grid grid-cols-4 gap-2 mb-2">
                 <a href={shareLinks.facebook} target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center p-2.5 bg-[#1877F2] text-white rounded-lg hover:opacity-90 transition text-sm" title="Facebook">
@@ -1075,7 +1077,7 @@ const QuestDetailPage: React.FC = () => {
                 onClick={handleCopyLink}
                 className="w-full px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition text-center"
               >
-                🔗 Copy link
+                {t('questDetail.shareCopyLink')}
               </button>
             </div>
           </div>
@@ -1088,7 +1090,7 @@ const QuestDetailPage: React.FC = () => {
           questId={questId!}
           questTitle={quest.title}
           questSteps={quest.steps ?? []}
-          userName={profile.name || 'User'}
+          userName={profile.name || t('questDetail.defaultUser')}
           userAvatar={profile.avatar_url ?? undefined}
           onClose={handleLeaveCall}
         />

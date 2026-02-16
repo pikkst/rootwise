@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AiUsageBadgeProps {
   used: number;
@@ -8,6 +9,7 @@ interface AiUsageBadgeProps {
 }
 
 const AiUsageBadge: React.FC<AiUsageBadgeProps> = ({ used, limit, label, compact = false }) => {
+  const { t } = useTranslation();
   const isUnlimited = limit === Infinity || limit > 99999;
   const remaining = isUnlimited ? Infinity : Math.max(0, limit - used);
   const percentage = isUnlimited ? 100 : (used / limit) * 100;
@@ -28,7 +30,7 @@ const AiUsageBadge: React.FC<AiUsageBadgeProps> = ({ used, limit, label, compact
       <div className="flex justify-between items-center mb-1">
         <span className="text-xs font-medium text-slate-600">{label}</span>
         <span className={`text-xs font-bold ${isEmpty ? 'text-red-500' : isLow ? 'text-amber-500' : 'text-slate-500'}`}>
-          {isUnlimited ? 'Unlimited' : `${remaining} remaining`}
+          {isUnlimited ? t('common.unlimited') : t('common.remaining', { count: remaining })}
         </span>
       </div>
       <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
