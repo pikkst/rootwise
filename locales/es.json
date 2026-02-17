@@ -904,7 +904,12 @@
     "cameraTip": "💡 Consejo: Permita el acceso a la cámara y al micrófono cuando su navegador lo solicite.",
     "participant": "participante",
     "participants": "participantes",
-    "personalTracker": "Este es un rastreador personal: los demás ven su propio progreso."
+    "personalTracker": "Este es un rastreador personal: los demás ven su propio progreso.",
+    "noCameraNotice": "No se detectó cámara — se unió solo con audio. Active su cámara en los ajustes del dispositivo si está disponible.",
+    "noMicNotice": "No se detectó micrófono — los demás no podrán escucharlo. Revise los ajustes de su dispositivo.",
+    "noDevicesNotice": "No se detectó cámara ni micrófono — se unió como oyente. Conecte un dispositivo para participar.",
+    "connectingNoCamera": "📷 No se encontró cámara — conectando solo con audio...",
+    "connectingNoDevices": "⚠️ No se encontró cámara ni micrófono — conectando como oyente..."
   },
   "upgradeModal": {
     "titlePro": "Actualizar a Pro",

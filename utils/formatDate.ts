@@ -27,9 +27,16 @@ function getLocale(): string {
   return LOCALE_MAP[i18next.language] || i18next.language || 'en-GB';
 }
 
+/** Guard against invalid / missing dates — returns '' instead of throwing */
+function safeDate(date: string | Date): Date | null {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return isNaN(d.getTime()) ? null : d;
+}
+
 /** "14. veebr 2026" or "14 Feb 2026" */
 export function formatDateShort(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = safeDate(date);
+  if (!d) return '';
   return new Intl.DateTimeFormat(getLocale(), {
     day: 'numeric',
     month: 'short',
@@ -38,7 +45,8 @@ export function formatDateShort(date: string | Date): string {
 
 /** "14. veebruar 2026" or "14 February 2026" */
 export function formatDateLong(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = safeDate(date);
+  if (!d) return '';
   return new Intl.DateTimeFormat(getLocale(), {
     day: 'numeric',
     month: 'long',
@@ -48,7 +56,8 @@ export function formatDateLong(date: string | Date): string {
 
 /** "14.02.2026" or "14/02/2026" — locale-appropriate numeric date */
 export function formatDateNumeric(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = safeDate(date);
+  if (!d) return '';
   return new Intl.DateTimeFormat(getLocale(), {
     day: 'numeric',
     month: 'numeric',
@@ -58,7 +67,8 @@ export function formatDateNumeric(date: string | Date): string {
 
 /** "14.02.2026, 15:30" — date + time */
 export function formatDateTime(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = safeDate(date);
+  if (!d) return '';
   return new Intl.DateTimeFormat(getLocale(), {
     day: 'numeric',
     month: 'numeric',
@@ -70,7 +80,8 @@ export function formatDateTime(date: string | Date): string {
 
 /** "15:30" — time only */
 export function formatTime(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = safeDate(date);
+  if (!d) return '';
   return new Intl.DateTimeFormat(getLocale(), {
     hour: '2-digit',
     minute: '2-digit',
@@ -79,8 +90,10 @@ export function formatTime(date: string | Date): string {
 
 /** "Jan 14" or "14. jaan" — for chart axis labels */
 export function formatChartDate(date: Date): string {
+  const d = safeDate(date);
+  if (!d) return '';
   return new Intl.DateTimeFormat(getLocale(), {
     month: 'short',
     day: 'numeric',
-  }).format(date);
+  }).format(d);
 }

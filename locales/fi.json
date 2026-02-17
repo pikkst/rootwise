@@ -904,7 +904,12 @@
     "cameraTip": "💡 Vinkki: Salli kameran ja mikrofonin käyttö, kun selaimesi kysyy.",
     "participant": "osallistuja",
     "participants": "osallistujat",
-    "personalTracker": "Tämä on henkilökohtainen seuranta – muut näkevät oman edistymisensä."
+    "personalTracker": "Tämä on henkilökohtainen seuranta – muut näkevät oman edistymisensä.",
+    "noCameraNotice": "Kameraa ei havaittu — liityit vain äänellä. Ota kamera käyttöön laiteasetuksissa, jos se on saatavilla.",
+    "noMicNotice": "Mikrofonia ei havaittu — muut eivät kuule sinua. Tarkista laiteasetuksesi.",
+    "noDevicesNotice": "Kameraa tai mikrofonia ei havaittu — liityit kuuntelijana. Yhdistä laite osallistuaksesi.",
+    "connectingNoCamera": "📷 Kameraa ei löytynyt — yhdistetään vain äänellä...",
+    "connectingNoDevices": "⚠️ Kameraa tai mikrofonia ei löytynyt — yhdistetään kuuntelijana..."
   },
   "upgradeModal": {
     "titlePro": "Päivitä Pro-versioon",

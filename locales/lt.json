@@ -904,7 +904,12 @@
     "cameraTip": "💡 Patarimas: kai naršyklė paprašys, leiskite prieigą prie kameros ir mikrofono.",
     "participant": "dalyvis",
     "participants": "dalyviai",
-    "personalTracker": "Tai asmeninis sekiklis – kiti mato savo pažangą."
+    "personalTracker": "Tai asmeninis sekiklis – kiti mato savo pažangą.",
+    "noCameraNotice": "Kamera nerasta — prisijungėte tik su garsu. Įjunkite kamerą įrenginio nustatymuose, jei ji yra.",
+    "noMicNotice": "Mikrofonas nerastas — kiti jūsų negirdės. Patikrinkite savo įrenginio nustatymus.",
+    "noDevicesNotice": "Kamera ir mikrofonas nerasti — prisijungėte kaip klausytojas. Prijunkite įrenginį, kad galėtumėte dalyvauti.",
+    "connectingNoCamera": "📷 Kamera nerasta — jungiamasi tik su garsu...",
+    "connectingNoDevices": "⚠️ Kamera ir mikrofonas nerasti — jungiamasi kaip klausytojas..."
   },
   "upgradeModal": {
     "titlePro": "Atnaujinti į Pro",

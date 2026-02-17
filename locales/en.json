@@ -924,7 +924,12 @@
     "settingUp": "Setting up your video call",
     "cameraTip": "💡 Tip: Allow camera and microphone access when your browser asks.",
     "participant": "participant",
-    "participants": "participants"
+    "participants": "participants",
+    "noCameraNotice": "No camera detected — you've joined with audio only. Enable your camera in device settings if available.",
+    "noMicNotice": "No microphone detected — others won't hear you. Check your device settings.",
+    "noDevicesNotice": "No camera or microphone detected — you've joined as a listener. Connect a device to participate.",
+    "connectingNoCamera": "📷 No camera found — connecting with audio only...",
+    "connectingNoDevices": "⚠️ No camera or mic found — connecting as listener..."
   },
 
   "upgradeModal": {

@@ -195,10 +195,10 @@ const QuestDiscoveryPage: React.FC = () => {
         quest_id: questId,
         user_id: profile.id,
         role: 'learner',
-        status: 'active',
-        joined_at: new Date().toISOString(),
+        status: 'accepted',
         proof_submitted: null,
         proof_verified: false,
+        xp_awarded: false,
       });
 
       if (error) {

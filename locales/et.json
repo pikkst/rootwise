@@ -904,7 +904,12 @@
     "cameraTip": "💡 Vihje: lubage kaamera ja mikrofoni kasutamine, kui teie brauser seda küsib.",
     "participant": "osaleja",
     "participants": "osalejad",
-    "personalTracker": "See on isiklik jälgija – teised näevad oma edusamme."
+    "personalTracker": "See on isiklik jälgija – teised näevad oma edusamme.",
+    "noCameraNotice": "Kaamerat ei tuvastatud — liitusite ainult heliga. Lubage kaamera seadme seadetes, kui see on saadaval.",
+    "noMicNotice": "Mikrofoni ei tuvastatud — teised ei kuule teid. Kontrollige oma seadme seadeid.",
+    "noDevicesNotice": "Kaamerat ega mikrofoni ei tuvastatud — liitusite kuulajana. Ühendage seade, et osaleda.",
+    "connectingNoCamera": "📷 Kaamerat ei leitud — ühendumine ainult heliga...",
+    "connectingNoDevices": "⚠️ Kaamerat ega mikrofoni ei leitud — ühendumine kuulajana..."
   },
   "upgradeModal": {
     "titlePro": "Pro versioonile üleminek",

@@ -904,7 +904,12 @@
     "cameraTip": "💡 Tipp: Erlauben Sie den Zugriff auf Kamera und Mikrofon, wenn Ihr Browser Sie fragt.",
     "participant": "Teilnehmer",
     "participants": "Teilnehmer",
-    "personalTracker": "Dies ist ein persönlicher Tracker – andere sehen ihren eigenen Fortschritt."
+    "personalTracker": "Dies ist ein persönlicher Tracker – andere sehen ihren eigenen Fortschritt.",
+    "noCameraNotice": "Keine Kamera erkannt — Sie nehmen nur mit Audio teil. Aktivieren Sie Ihre Kamera in den Geräteeinstellungen, falls verfügbar.",
+    "noMicNotice": "Kein Mikrofon erkannt — andere können Sie nicht hören. Überprüfen Sie Ihre Geräteeinstellungen.",
+    "noDevicesNotice": "Keine Kamera oder Mikrofon erkannt — Sie nehmen als Zuhörer teil. Schließen Sie ein Gerät an, um teilzunehmen.",
+    "connectingNoCamera": "📷 Keine Kamera gefunden — Verbindung nur mit Audio...",
+    "connectingNoDevices": "⚠️ Keine Kamera oder Mikrofon gefunden — Verbindung als Zuhörer..."
   },
   "upgradeModal": {
     "titlePro": "Upgrade auf Pro",

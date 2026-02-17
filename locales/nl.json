@@ -904,7 +904,12 @@
     "cameraTip": "💡 Tip: Sta camera- en microfoontoegang toe wanneer uw browser dit vraagt.",
     "participant": "deelnemer",
     "participants": "deelnemers",
-    "personalTracker": "Dit is een persoonlijke tracker — anderen zien hun eigen voortgang."
+    "personalTracker": "Dit is een persoonlijke tracker — anderen zien hun eigen voortgang.",
+    "noCameraNotice": "Geen camera gedetecteerd — u bent alleen met audio verbonden. Schakel uw camera in via de apparaatinstellingen indien beschikbaar.",
+    "noMicNotice": "Geen microfoon gedetecteerd — anderen kunnen u niet horen. Controleer uw apparaatinstellingen.",
+    "noDevicesNotice": "Geen camera of microfoon gedetecteerd — u bent als luisteraar verbonden. Sluit een apparaat aan om deel te nemen.",
+    "connectingNoCamera": "📷 Geen camera gevonden — verbinding maken met alleen audio...",
+    "connectingNoDevices": "⚠️ Geen camera of microfoon gevonden — verbinding maken als luisteraar..."
   },
   "upgradeModal": {
     "titlePro": "Upgrade naar Pro",

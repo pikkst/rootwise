@@ -904,7 +904,12 @@
     "cameraTip": "💡 Padoms: Atļaujiet piekļuvi kamerai un mikrofonam, kad to pieprasa jūsu pārlūkprogramma.",
     "participant": "dalībnieks",
     "participants": "dalībnieki",
-    "personalTracker": "Šis ir personīgais izsekotājs — citi redz savu progresu."
+    "personalTracker": "Šis ir personīgais izsekotājs — citi redz savu progresu.",
+    "noCameraNotice": "Kamera nav atrasta — jūs pievienojāties tikai ar audio. Iespējojiet kameru ierīces iestatījumos, ja tā ir pieejama.",
+    "noMicNotice": "Mikrofons nav atrasts — citi jūs nedzirdēs. Pārbaudiet savas ierīces iestatījumus.",
+    "noDevicesNotice": "Kamera vai mikrofons nav atrasts — jūs pievienojāties kā klausītājs. Pievienojiet ierīci, lai piedalītos.",
+    "connectingNoCamera": "📷 Kamera nav atrasta — savienojums tikai ar audio...",
+    "connectingNoDevices": "⚠️ Kamera vai mikrofons nav atrasts — savienojums kā klausītājs..."
   },
   "upgradeModal": {
     "titlePro": "Jauniniet uz Pro",

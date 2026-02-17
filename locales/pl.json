@@ -904,7 +904,12 @@
     "cameraTip": "💡 Wskazówka: Zezwól na dostęp do kamery i mikrofonu, gdy przeglądarka o to zapyta.",
     "participant": "uczestnik",
     "participants": "uczestnicy",
-    "personalTracker": "To jest osobisty tracker – inni widzą swoje postępy."
+    "personalTracker": "To jest osobisty tracker – inni widzą swoje postępy.",
+    "noCameraNotice": "Nie wykryto kamery — dołączono tylko z dźwiękiem. Włącz kamerę w ustawieniach urządzenia, jeśli jest dostępna.",
+    "noMicNotice": "Nie wykryto mikrofonu — inni nie będą cię słyszeć. Sprawdź ustawienia urządzenia.",
+    "noDevicesNotice": "Nie wykryto kamery ani mikrofonu — dołączono jako słuchacz. Podłącz urządzenie, aby uczestniczyć.",
+    "connectingNoCamera": "📷 Nie znaleziono kamery — łączenie tylko z dźwiękiem...",
+    "connectingNoDevices": "⚠️ Nie znaleziono kamery ani mikrofonu — łączenie jako słuchacz..."
   },
   "upgradeModal": {
     "titlePro": "Uaktualnij do Pro",

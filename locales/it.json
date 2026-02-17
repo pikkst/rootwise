@@ -904,7 +904,12 @@
     "cameraTip": "💡 Suggerimento: consenti l'accesso alla fotocamera e al microfono quando il browser lo richiede.",
     "participant": "partecipante",
     "participants": "partecipanti",
-    "personalTracker": "Questo è un tracker personale: gli altri vedono i propri progressi."
+    "personalTracker": "Questo è un tracker personale: gli altri vedono i propri progressi.",
+    "noCameraNotice": "Nessuna fotocamera rilevata — ti sei unito solo con l'audio. Abilita la fotocamera nelle impostazioni del dispositivo, se disponibile.",
+    "noMicNotice": "Nessun microfono rilevato — gli altri non ti sentiranno. Controlla le impostazioni del dispositivo.",
+    "noDevicesNotice": "Nessuna fotocamera o microfono rilevati — ti sei unito come ascoltatore. Collega un dispositivo per partecipare.",
+    "connectingNoCamera": "📷 Nessuna fotocamera trovata — connessione solo audio...",
+    "connectingNoDevices": "⚠️ Nessuna fotocamera o microfono trovati — connessione come ascoltatore..."
   },
   "upgradeModal": {
     "titlePro": "Passa a Pro",

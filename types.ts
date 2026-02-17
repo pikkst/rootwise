@@ -224,8 +224,10 @@ export interface QuestMember {
   quest_id: string;
   user_id: string;
   role: 'creator' | 'mentor' | 'learner';
-  status: 'invited' | 'accepted' | 'declined' | 'in_progress' | 'completed';
+  status: 'invited' | 'accepted' | 'active' | 'declined' | 'in_progress' | 'completed';
   proof_submitted: { type: 'photo' | 'video' | 'text'; content: string } | null;
+  proof_submitted_at: string | null;
+  proof_verified: boolean;
   proof_verified_by: string | null;
   proof_verified_at: string | null;
   xp_awarded: boolean;
@@ -262,6 +264,7 @@ export interface QuestMilestone {
   quest_id: string;
   title: string;
   description: string | null;
+  completed: boolean;
   status: 'pending' | 'completed';
   completed_by: string | null;
   completed_at: string | null;

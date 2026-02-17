@@ -904,7 +904,12 @@
     "cameraTip": "💡 Astuce : Autorisez l'accès à la caméra et au microphone lorsque votre navigateur vous le demande.",
     "participant": "participant",
     "participants": "participants",
-    "personalTracker": "Ceci est un suivi personnel — les autres voient leur propre progression."
+    "personalTracker": "Ceci est un suivi personnel — les autres voient leur propre progression.",
+    "noCameraNotice": "Aucune caméra détectée — vous avez rejoint en audio uniquement. Activez votre caméra dans les paramètres de l'appareil si disponible.",
+    "noMicNotice": "Aucun microphone détecté — les autres ne vous entendront pas. Vérifiez les paramètres de votre appareil.",
+    "noDevicesNotice": "Aucune caméra ni microphone détectés — vous avez rejoint en tant qu'auditeur. Connectez un appareil pour participer.",
+    "connectingNoCamera": "📷 Aucune caméra trouvée — connexion en audio uniquement...",
+    "connectingNoDevices": "⚠️ Aucune caméra ni micro trouvés — connexion en tant qu'auditeur..."
   },
   "upgradeModal": {
     "titlePro": "Passer à Pro",

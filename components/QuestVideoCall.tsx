@@ -37,6 +37,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
   const [showPanel, setShowPanel] = useState(true);
   const [mobileView, setMobileView] = useState<'video' | 'steps'>('video');
+  const [cameraWarning, setCameraWarning] = useState<'none' | 'no-camera' | 'no-mic' | 'no-devices'>('none');
 
   // Deterministic room name from quest ID
   const roomName = `Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`;
@@ -62,6 +63,27 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
 
     const initJitsi = async () => {
       try {
+        // Detect available media devices before starting
+        let hasCamera = false;
+        let hasMic = false;
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          hasCamera = devices.some((d) => d.kind === 'videoinput');
+          hasMic = devices.some((d) => d.kind === 'audioinput');
+        } catch {
+          // enumerateDevices not supported — assume both present, Jitsi will handle
+          hasCamera = true;
+          hasMic = true;
+        }
+
+        if (!hasCamera && !hasMic) {
+          if (mounted) setCameraWarning('no-devices');
+        } else if (!hasCamera) {
+          if (mounted) setCameraWarning('no-camera');
+        } else if (!hasMic) {
+          if (mounted) setCameraWarning('no-mic');
+        }
+
         await loadScript();
         if (!mounted || !containerRef.current) return;
 
@@ -73,8 +95,8 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           configOverrides: {
             subject: questTitle,
             prejoinPageEnabled: true,
-            startWithAudioMuted: false,
-            startWithVideoMuted: false,
+            startWithAudioMuted: !hasMic,
+            startWithVideoMuted: !hasCamera,
             disableDeepLinking: true,
             enableClosePage: false,
             disableInviteFunctions: true,
@@ -258,6 +280,28 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
             mobileView === 'steps' ? 'hidden sm:block' : ''
           }`}
         >
+          {/* Camera / Mic warning banner */}
+          {cameraWarning !== 'none' && !loading && (
+            <div className="absolute top-0 left-0 right-0 z-20 px-3 py-2.5 bg-amber-500/95 text-white text-sm flex items-center justify-between gap-2 shadow-lg backdrop-blur-sm">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-lg flex-shrink-0">
+                  {cameraWarning === 'no-camera' ? '📷' : cameraWarning === 'no-mic' ? '🎤' : '⚠️'}
+                </span>
+                <span className="font-medium leading-snug">
+                  {cameraWarning === 'no-camera' && t('videoCall.noCameraNotice')}
+                  {cameraWarning === 'no-mic' && t('videoCall.noMicNotice')}
+                  {cameraWarning === 'no-devices' && t('videoCall.noDevicesNotice')}
+                </span>
+              </div>
+              <button
+                onClick={() => setCameraWarning('none')}
+                className="flex-shrink-0 px-2 py-1 text-xs font-bold bg-white/20 hover:bg-white/30 rounded-lg transition"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
               <div className="text-center px-6">
@@ -265,7 +309,11 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
                 <p className="text-white text-lg font-semibold mb-1">{t('videoCall.connecting')}</p>
                 <p className="text-slate-400 text-sm">{t('videoCall.settingUp')}</p>
                 <p className="text-slate-500 text-xs mt-4 max-w-xs mx-auto leading-relaxed">
-                  {t('videoCall.cameraTip')}
+                  {cameraWarning === 'no-camera'
+                    ? t('videoCall.connectingNoCamera')
+                    : cameraWarning === 'no-devices'
+                    ? t('videoCall.connectingNoDevices')
+                    : t('videoCall.cameraTip')}
                 </p>
               </div>
             </div>
