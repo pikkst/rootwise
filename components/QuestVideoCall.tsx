@@ -94,7 +94,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           height: '100%',
           configOverrides: {
             subject: questTitle,
-            prejoinPageEnabled: true,
+            prejoinPageEnabled: false,
             startWithAudioMuted: !hasMic,
             startWithVideoMuted: !hasCamera,
             disableDeepLinking: true,
