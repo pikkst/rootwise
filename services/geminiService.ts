@@ -16,6 +16,23 @@ export interface UserQuestContext {
   xp?: number;
 }
 
+export interface AiMatchSuggestion {
+  id: string;
+  name: string;
+  ageRange: string;
+  role: string | null;
+  skills: string[] | null;
+  interests: string[] | null;
+  generalLocation: string | null;
+  profileUrl: string;
+}
+
+export interface AiChatReply {
+  text: string;
+  matches?: AiMatchSuggestion[];
+  createdQuest?: { id: string; title: string } | null;
+}
+
 /** Context about a community for group quest generation */
 export interface CommunityQuestContext {
   communityName: string;
@@ -122,7 +139,7 @@ export class RootwiseAIService {
   async getAiMentorResponse(
     history: { role: string; parts: { text: string }[] }[],
     userProfile?: ChatUserProfile
-  ): Promise<string> {
+  ): Promise<AiChatReply> {
     try {
       // Check rate limit
       const { data: usage } = await supabase.rpc('check_ai_usage', {
@@ -130,7 +147,7 @@ export class RootwiseAIService {
         p_type: 'chat',
       });
       if (usage && !usage.allowed) {
-        return i18next.t('ai.rateLimitChat', { limit: usage.limit });
+        return { text: i18next.t('ai.rateLimitChat', { limit: usage.limit }) };
       }
 
       const contents = history.map((h) => ({
@@ -147,15 +164,42 @@ export class RootwiseAIService {
         userProfile: userProfile || null,
       });
       const baseText = result.text ?? i18next.t('ai.troubleNow');
+      const createdQuest = result.createdQuest ?? null;
+      const questSuffix = createdQuest?.id
+        ? `\n\n${i18next.t('ai.questCreated', { title: createdQuest.title, id: createdQuest.id })}`
+        : '';
 
-      if (result.createdQuest?.id) {
-        return `${baseText}\n\n${i18next.t('ai.questCreated', { title: result.createdQuest.title, id: result.createdQuest.id })}`;
-      }
-
-      return baseText;
+      return {
+        text: `${baseText}${questSuffix}`,
+        matches: Array.isArray(result.matches) ? result.matches : [],
+        createdQuest,
+      };
     } catch (error) {
       console.error("AI Mentor Error:", error);
-      return i18next.t('ai.troubleConnecting');
+      return { text: i18next.t('ai.troubleConnecting') };
+    }
+  }
+
+  async requestAiIntroduction(targetUserId: string, requestText: string): Promise<{ ok: boolean; introPreview?: string; error?: string }> {
+    try {
+      const locale = i18next.language || 'en';
+      const result = await this.callProxy('startConnection', {
+        targetUserId,
+        requestText,
+        locale,
+      });
+
+      if (!result?.ok) {
+        return { ok: false, error: result?.error || i18next.t('common.error') };
+      }
+
+      return {
+        ok: true,
+        introPreview: result?.introPreview || '',
+      };
+    } catch (error) {
+      console.error('AI intro request error:', error);
+      return { ok: false, error: i18next.t('common.error') };
     }
   }
 

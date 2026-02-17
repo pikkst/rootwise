@@ -5,10 +5,12 @@ import SEOHead from '../components/SEOHead';
 import AiUsageBadge from '../components/AiUsageBadge';
 import UpgradeModal from '../components/UpgradeModal';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useChatMessages } from '../hooks/useChatMessages';
 import { useAiUsage } from '../hooks/useAiUsage';
 import { RootwiseAIService } from '../services/geminiService';
 import type { ChatUserProfile } from '../services/geminiService';
+import type { AiMatchSuggestion } from '../services/geminiService';
 import { supabase } from '../services/supabase';
 import { formatTime } from '../utils/formatDate';
 import { isPro } from '../services/planService';
@@ -18,11 +20,14 @@ const AiNexusPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { showToast } = useToast();
   const { messages, addMessage, fetchMessages } = useChatMessages(profile?.id);
   const aiUsage = useAiUsage();
   const [inputMessage, setInputMessage] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [matchSuggestions, setMatchSuggestions] = useState<AiMatchSuggestion[]>([]);
+  const [pendingIntroUserId, setPendingIntroUserId] = useState<string | null>(null);
   const aiService = useRef(new RootwiseAIService());
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -123,11 +128,38 @@ const AiNexusPage: React.FC = () => {
     history.push({ role: 'user', parts: [{ text: msgText }] });
 
     const response = await aiService.current.getAiMentorResponse(history, userProfileRef.current || undefined);
-    await addMessage('ai', response || t('ai.fallback'));
+    await addMessage('ai', response?.text || t('ai.fallback'));
+    setMatchSuggestions(response?.matches ?? []);
 
     setIsAiLoading(false);
     // Refresh usage counters after sending
     aiUsage.refresh();
+  };
+
+  const handleAiStartIntro = async (match: AiMatchSuggestion) => {
+    if (!match?.id) return;
+    setPendingIntroUserId(match.id);
+
+    void trackEvent('ai_intro_requested', {
+      targetUserId: match.id,
+      source: 'ai_nexus_match_card',
+    });
+
+    const summary = inputMessage.trim() || t('ai.suggestion1');
+    const result = await aiService.current.requestAiIntroduction(match.id, summary);
+
+    if (!result.ok) {
+      showToast('error', result.error || t('common.error'));
+      setPendingIntroUserId(null);
+      return;
+    }
+
+    if (result.introPreview) {
+      await addMessage('ai', result.introPreview);
+    }
+
+    showToast('success', t('common.success'));
+    setPendingIntroUserId(null);
   };
 
   return (
@@ -260,6 +292,43 @@ const AiNexusPage: React.FC = () => {
               </div>
             </div>
           )}
+
+          {matchSuggestions.length > 0 && (
+            <div className="mt-2 space-y-3">
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Suggested people to connect with</p>
+              {matchSuggestions.map((match) => (
+                <div key={match.id} className="border border-slate-200 rounded-2xl p-4 bg-slate-50">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                      <p className="font-bold text-slate-800">{match.name}</p>
+                      <p className="text-xs text-slate-500">
+                        {match.role || 'Member'} • {match.ageRange}{match.generalLocation ? ` • ${match.generalLocation}` : ''}
+                      </p>
+                      {match.skills && match.skills.length > 0 && (
+                        <p className="text-xs text-slate-600 mt-1">Skills: {match.skills.slice(0, 4).join(', ')}</p>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => navigate(match.profileUrl)}
+                        className="px-3 py-2 text-xs rounded-xl border border-slate-300 text-slate-700 hover:bg-white"
+                      >
+                        View profile
+                      </button>
+                      <button
+                        onClick={() => handleAiStartIntro(match)}
+                        disabled={pendingIntroUserId === match.id}
+                        className="px-3 py-2 text-xs rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60"
+                      >
+                        {pendingIntroUserId === match.id ? 'Starting…' : 'AI start contact'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div ref={chatEndRef} />
         </div>
 

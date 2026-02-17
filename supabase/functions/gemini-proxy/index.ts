@@ -435,12 +435,14 @@ Deno.serve(async (req: Request) => {
 
       // ── 4. Privacy-safe candidate profiles (strip sensitive data) ──
       const privacySafeCandidates = ranked.slice(0, 3).map((c) => ({
+        id: c.id,
         name: c.name,
         ageRange: c.age ? (c.age < 25 ? '18-25' : c.age < 40 ? '25-40' : c.age < 60 ? '40-60' : '60+') : 'unknown',
         role: c.role,
         skills: c.skills,
         interests: c.interests,
         generalLocation: c.locations.length > 0 ? c.locations[0].split(',').slice(-2).join(',').trim() : null,
+        profileUrl: `/users/${c.id}`,
       }));
 
       // Keep full context for response metadata (but AI only sees privacy-safe version)
@@ -536,6 +538,9 @@ languageHint: ${JSON.stringify(languageHint)}
 skillHints: ${JSON.stringify(skillHints)}
 targetAge: ${JSON.stringify(targetAge)}
 
+If candidateContext contains suitable matches, briefly mention 1-2 by name naturally in your answer.
+Do not reveal private details; the UI will show clickable profile cards separately.
+
 Always answer in the same language the user used.
 `.trim();
 
@@ -592,6 +597,125 @@ Always answer in the same language the user used.
       }
 
       return new Response(JSON.stringify({ text, matches: privacySafeCandidates, createdQuest }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (action === 'startConnection') {
+      const { targetUserId, requestText, locale } = payload as {
+        targetUserId: string;
+        requestText?: string;
+        locale?: string;
+      };
+
+      if (!targetUserId || targetUserId === user.id) {
+        return new Response(JSON.stringify({ ok: false, error: 'Invalid target user' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: requesterProfile } = await supabase
+        .from('profiles')
+        .select('name, role, preferred_language')
+        .eq('id', user.id)
+        .single();
+
+      const { data: targetProfile } = await supabase
+        .from('profiles')
+        .select('id, name, preferred_language')
+        .eq('id', targetUserId)
+        .single();
+
+      if (!targetProfile?.id) {
+        return new Response(JSON.stringify({ ok: false, error: 'Target not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const requesterName = requesterProfile?.name || 'A Rootwise member';
+      const requesterRole = requesterProfile?.role || 'Member';
+      const trimmedTopic = (requestText || '').trim().slice(0, 160);
+
+      const existing = await supabase
+        .from('connections')
+        .select('id')
+        .or(`and(user_id.eq.${user.id},partner_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},partner_id.eq.${user.id})`)
+        .in('status', ['scheduled'])
+        .limit(1)
+        .maybeSingle();
+
+      if (!existing.data?.id) {
+        await supabase.from('connections').insert({
+          user_id: user.id,
+          partner_id: targetUserId,
+          topic: trimmedTopic || 'AI-assisted introduction',
+          scheduled_at: null,
+          status: 'scheduled',
+        });
+      }
+
+      const sourceLocale = (locale || requesterProfile?.preferred_language || 'en').toLowerCase();
+      const isEstonian = sourceLocale.startsWith('et');
+
+      const introPreview = isEstonian
+        ? `AI alustas sinu nimel kontakti kasutajaga ${targetProfile.name}. Soovituslik avasõnum: "Tere ${targetProfile.name}! Mina olen ${requesterName}. Otsin abi teemal: ${trimmedTopic || 'arvutiga seotud küsimus'}. Kas oleksid avatud lühikeseks vestluseks Rootwise'is?"`
+        : `AI started contact on your behalf with ${targetProfile.name}. Suggested opener: "Hi ${targetProfile.name}! I'm ${requesterName}. I'm looking for help with: ${trimmedTopic || 'a computer-related topic'}. Would you be open to a short chat on Rootwise?"`;
+
+      const targetTitle = isEstonian
+        ? 'Uus AI-vahendatud ühenduse soov'
+        : 'New AI-assisted connection request';
+
+      const targetBody = isEstonian
+        ? `${requesterName} (${requesterRole}) soovib sinuga ühendust võtta. Teema: ${trimmedTopic || 'arvutiabi / teadmiste jagamine'}.`
+        : `${requesterName} (${requesterRole}) would like to connect with you. Topic: ${trimmedTopic || 'computer help / knowledge sharing'}.`;
+
+      const targetPreferredLocale = (targetProfile?.preferred_language || '').toLowerCase();
+      let localizedTargetBody = targetBody;
+
+      if (targetPreferredLocale && targetPreferredLocale !== sourceLocale) {
+        try {
+          const translateRes = await fetch(GEMINI_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                role: 'user',
+                parts: [{
+                  text: `Translate this short notification to language code "${targetPreferredLocale}". Keep names and product name Rootwise unchanged. Return plain text only.\n\n${targetBody}`,
+                }],
+              }],
+            }),
+          });
+          const translateData = await translateRes.json();
+          const translated = translateData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+          if (translated) localizedTargetBody = translated;
+        } catch (translateError) {
+          console.error('Failed to auto-translate intro notification:', translateError);
+        }
+      }
+
+      await supabase.from('notifications').insert([
+        {
+          user_id: targetUserId,
+          type: 'ai_intro_request',
+          title: targetTitle,
+          body: localizedTargetBody,
+          link: `/users/${user.id}`,
+        },
+        {
+          user_id: user.id,
+          type: 'ai_intro_sent',
+          title: isEstonian ? 'AI saatis ühenduse algatuse' : 'AI sent your intro request',
+          body: isEstonian
+            ? `Saatsime ühenduse algatuse kasutajale ${targetProfile.name}.`
+            : `We sent an intro request to ${targetProfile.name}.`,
+          link: `/users/${targetUserId}`,
+        },
+      ]);
+
+      return new Response(JSON.stringify({ ok: true, introPreview }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

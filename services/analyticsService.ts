@@ -33,7 +33,8 @@ export type EventName =
   | 'proof_submitted'        // User submitted proof
   | 'ai_limit_reached'       // Free AI message quota hit
   | 'quest_gen_limit_reached' // Free quest gen quota hit
-  | 'quest_generated_ai';     // AI-generated quest successfully created
+  | 'quest_generated_ai'      // AI-generated quest successfully created
+  | 'ai_intro_requested';     // User asked AI to initiate contact with a match
 
 export interface EventProperties {
   [key: string]: string | number | boolean | null | undefined;
