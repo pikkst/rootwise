@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../services/supabase';
 import { RootwiseAIService } from '../services/geminiService';
+import type { CommunityQuestContext, UserQuestContext } from '../services/geminiService';
 import { Community, CommunityMember, DbQuest, Profile } from '../types';
 import { formatDateNumeric, formatTime } from '../utils/formatDate';
 
@@ -289,8 +290,63 @@ const CommunityDetailPage: React.FC = () => {
 
     setGeneratingCommunityQuest(true);
     try {
-      const topic = `${community.name} ${community.category} community collaboration`;
-      const generated = await aiService.current.generateQuest(topic, profile.role);
+      // ── Build rich community context from member data ──
+      const memberProfiles = members
+        .map((m) => m.profile)
+        .filter((p): p is Profile => !!p);
+
+      const ages = memberProfiles.map((p) => p.age).filter((a): a is number => !!a);
+      const memberAgeRange = ages.length >= 2
+        ? { min: Math.min(...ages), max: Math.max(...ages) }
+        : null;
+
+      // Aggregate skills and interests across members, count frequency
+      const skillCounts = new Map<string, number>();
+      const interestCounts = new Map<string, number>();
+      for (const p of memberProfiles) {
+        for (const s of p.skills ?? []) skillCounts.set(s, (skillCounts.get(s) || 0) + 1);
+        for (const i of p.interests ?? []) interestCounts.set(i, (interestCounts.get(i) || 0) + 1);
+      }
+      const topSkills = [...skillCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([s]) => s);
+      const topInterests = [...interestCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([s]) => s);
+
+      // Existing community quests (to avoid duplicates)
+      const existingQuestTitles = quests.map((q) => q.title);
+
+      const communityContext: CommunityQuestContext = {
+        communityName: community.name,
+        communityDescription: community.description,
+        communityCategory: community.category,
+        memberCount: members.length,
+        memberAgeRange,
+        memberSkills: topSkills,
+        memberInterests: topInterests,
+        existingQuestTitles,
+      };
+
+      // Basic creator context
+      let creatorLocation: string | null = null;
+      try {
+        const { data: locData } = await supabase
+          .from('profile_locations')
+          .select('locations(country, county, city, locality)')
+          .eq('profile_id', profile.id)
+          .eq('is_primary', true)
+          .limit(1)
+          .single();
+        const loc = (locData as any)?.locations;
+        if (loc) {
+          creatorLocation = [loc.locality, loc.city, loc.county, loc.country].filter(Boolean).join(', ');
+        }
+      } catch { /* no location */ }
+
+      const userContext: UserQuestContext = {
+        age: profile.age,
+        role: profile.role,
+        location: creatorLocation,
+      };
+
+      const generated = await aiService.current.generateGroupQuest(profile.role, communityContext, userContext);
 
       if (!generated || generated.error) {
         showToast('error', generated?.error || t('communityDetail.couldNotGenerate'));

@@ -10,6 +10,7 @@ import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
 import { useAiUsage } from '../hooks/useAiUsage';
 import { RootwiseAIService } from '../services/geminiService';
+import type { UserQuestContext } from '../services/geminiService';
 import { supabase } from '../services/supabase';
 import { PLAN_LIMITS, isPro, getEffectivePlan } from '../services/planService';
 
@@ -60,6 +61,56 @@ const QuestsPage: React.FC = () => {
     setCompletingQuestId(null);
   };
 
+  /** Gather full user context for personalized AI quest generation */
+  const buildUserContext = async (): Promise<UserQuestContext> => {
+    const ctx: UserQuestContext = {
+      age: profile?.age ?? null,
+      role: profile?.role ?? 'Seeker',
+      skills: profile?.skills ?? [],
+      interests: profile?.interests ?? [],
+      bio: profile?.bio ?? null,
+      spokenLanguages: profile?.spoken_languages ?? [],
+      level: profile?.level ?? 1,
+      xp: profile?.xp ?? 0,
+    };
+
+    // Fetch user's primary location
+    try {
+      const { data: locData } = await supabase
+        .from('profile_locations')
+        .select('locations(country, county, city, locality)')
+        .eq('profile_id', profile!.id)
+        .eq('is_primary', true)
+        .limit(1)
+        .single();
+      const loc = (locData as any)?.locations;
+      if (loc) {
+        ctx.location = [loc.locality, loc.city, loc.county, loc.country].filter(Boolean).join(', ');
+      }
+    } catch { /* no location set */ }
+
+    // Fetch titles of user's existing quests (to avoid repeats)
+    try {
+      const { data: memberRows } = await supabase
+        .from('quest_members')
+        .select('quest_id')
+        .eq('user_id', profile!.id)
+        .limit(30);
+      if (memberRows?.length) {
+        const ids = memberRows.map((r: any) => r.quest_id);
+        const { data: existingQuests } = await supabase
+          .from('quests')
+          .select('title')
+          .in('id', ids);
+        if (existingQuests?.length) {
+          ctx.existingQuestTitles = existingQuests.map((q: any) => q.title);
+        }
+      }
+    } catch { /* ok */ }
+
+    return ctx;
+  };
+
   const handleGenerateQuest = async () => {
     if (!profile) {
       navigate('/auth');
@@ -73,7 +124,16 @@ const QuestsPage: React.FC = () => {
     }
     setIsAiLoading(true);
     try {
-      const data = await aiService.current.generateQuest('Creative Growth', profile.role);
+      // Build personalized context from user profile
+      const userContext = await buildUserContext();
+
+      // Choose a dynamic topic based on user interests instead of hardcoded 'Creative Growth'
+      const interests = profile.interests ?? [];
+      const skills = profile.skills ?? [];
+      const topicPool = [...interests, ...skills, 'Creative Growth', 'Personal Development', 'Community Connection'];
+      const topic = topicPool[Math.floor(Math.random() * topicPool.length)];
+
+      const data = await aiService.current.generateQuest(topic, profile.role, userContext);
       if (data?.error) {
         showToast('info', data.error);
         setIsAiLoading(false);

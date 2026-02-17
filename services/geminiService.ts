@@ -2,6 +2,32 @@
 import { supabase } from './supabase';
 import i18next from 'i18next';
 
+/** Context about the user requesting a personal quest */
+export interface UserQuestContext {
+  age?: number | null;
+  role?: string;
+  skills?: string[];
+  interests?: string[];
+  bio?: string | null;
+  location?: string | null;
+  spokenLanguages?: string[];
+  existingQuestTitles?: string[];
+  level?: number;
+  xp?: number;
+}
+
+/** Context about a community for group quest generation */
+export interface CommunityQuestContext {
+  communityName: string;
+  communityDescription?: string | null;
+  communityCategory: string;
+  memberCount: number;
+  memberAgeRange?: { min: number; max: number } | null;
+  memberSkills?: string[];
+  memberInterests?: string[];
+  existingQuestTitles?: string[];
+}
+
 export class RootwiseAIService {
   private async callProxy(action: string, payload: Record<string, unknown>) {
     const { data: { session } } = await supabase.auth.getSession();
@@ -16,7 +42,12 @@ export class RootwiseAIService {
     return res.data;
   }
 
-  async generateQuest(topic: string, userLevel: string) {
+  /**
+   * Generate a personalized solo quest based on user profile context.
+   * Sends age, location, skills, interests, bio, level, and existing quest
+   * titles to the AI so it can produce unique, personally relevant quests.
+   */
+  async generateQuest(topic: string, userLevel: string, userContext?: UserQuestContext) {
     try {
       // Check rate limit first
       const { data: usage } = await supabase.rpc('check_ai_usage', {
@@ -28,10 +59,44 @@ export class RootwiseAIService {
       }
 
       const locale = i18next.language || 'en';
-      const result = await this.callProxy('generateQuest', { topic, userLevel, locale });
+      const result = await this.callProxy('generateQuest', {
+        topic,
+        userLevel,
+        locale,
+        userContext: userContext || null,
+      });
       return result.quest || null;
     } catch (error) {
       console.error("Quest generation error:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Generate a group quest tailored to the community's members and purpose.
+   * Considers community category, aggregate member profiles, and existing
+   * community quests to avoid duplicates.
+   */
+  async generateGroupQuest(userLevel: string, communityContext: CommunityQuestContext, userContext?: UserQuestContext) {
+    try {
+      const { data: usage } = await supabase.rpc('check_ai_usage', {
+        p_user_id: (await supabase.auth.getUser()).data.user?.id,
+        p_type: 'quest_gen',
+      });
+      if (usage && !usage.allowed) {
+        return { error: i18next.t('ai.rateLimitQuest', { limit: usage.limit }) };
+      }
+
+      const locale = i18next.language || 'en';
+      const result = await this.callProxy('generateGroupQuest', {
+        userLevel,
+        locale,
+        communityContext,
+        userContext: userContext || null,
+      });
+      return result.quest || null;
+    } catch (error) {
+      console.error("Group quest generation error:", error);
       return null;
     }
   }

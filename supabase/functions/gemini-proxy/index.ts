@@ -398,21 +398,176 @@ targetAge: ${JSON.stringify(targetAge)}
     }
 
     if (action === 'generateQuest') {
-      // Quest generation with structured output
-      const { topic, userLevel, locale } = payload;
+      // ── Personalized Solo Quest Generation ──
+      const { topic, userLevel, locale, userContext } = payload as {
+        topic: string;
+        userLevel: string;
+        locale?: string;
+        userContext?: {
+          age?: number | null;
+          role?: string;
+          skills?: string[];
+          interests?: string[];
+          bio?: string | null;
+          location?: string | null;
+          spokenLanguages?: string[];
+          existingQuestTitles?: string[];
+          level?: number;
+          xp?: number;
+        } | null;
+      };
+
       const langInstruction = locale && locale !== 'en'
         ? `IMPORTANT: Generate ALL text (title, description, steps) in the language with code "${locale}". Do NOT use English.`
         : '';
+
+      // Build personalization context
+      const personalization: string[] = [];
+      if (userContext) {
+        if (userContext.age) personalization.push(`User age: ${userContext.age}. Tailor complexity and references to be age-appropriate.`);
+        if (userContext.role) personalization.push(`User archetype: ${userContext.role} (Sage = experienced mentor, Seeker = eager learner, Hybrid = both).`);
+        if (userContext.skills?.length) personalization.push(`User's skills/expertise: ${userContext.skills.join(', ')}. Build on these strengths or create cross-skill challenges.`);
+        if (userContext.interests?.length) personalization.push(`User's interests: ${userContext.interests.join(', ')}. Weave these into the quest theme.`);
+        if (userContext.bio) personalization.push(`User bio: "${userContext.bio}". Use personality clues for tone and theme.`);
+        if (userContext.location) personalization.push(`User location: ${userContext.location}. When possible, suggest local activities, landmarks, or nature spots.`);
+        if (userContext.spokenLanguages?.length) personalization.push(`User speaks: ${userContext.spokenLanguages.join(', ')}.`);
+        if (userContext.level) personalization.push(`User platform level: ${userContext.level} (XP: ${userContext.xp ?? 0}). Higher-level users should get more ambitious quests.`);
+        if (userContext.existingQuestTitles?.length) {
+          personalization.push(`User's existing quests (DO NOT repeat similar themes): ${userContext.existingQuestTitles.slice(0, 15).join(' | ')}`);
+        }
+      }
+
+      const personalBlock = personalization.length > 0
+        ? `\n\n── USER PROFILE (use this to personalize) ──\n${personalization.join('\n')}\n── END PROFILE ──\n`
+        : '';
+
+      const promptText = `You are Rootwise Quest Generator — an AI that creates meaningful, action-oriented quests for an intergenerational wisdom-sharing platform.
+
+QUEST DESIGN PRINCIPLES:
+1. Quests must ENCOURAGE REAL ACTION — going outside, meeting people, creating something, learning a new skill, teaching someone.
+2. Quests should be ACHIEVABLE within 1-7 days, with clear measurable steps.
+3. Prefer INTERGENERATIONAL connection — activities that naturally bring different age groups together.
+4. Each quest should feel like a MINI-ADVENTURE — exciting, slightly challenging, growth-oriented.
+5. NEVER create passive quests (e.g., "read an article"). Always include doing, creating, or connecting.
+6. Steps should be SPECIFIC and CONCRETE, not vague ("Interview 2 neighbors about their childhood games" not "Talk to people").
+7. Vary quest types: exploration, creation, teaching, learning, community service, nature, culture, technology.
+${personalBlock}
+Create a productive quest for the topic: ${topic}.
+The quest should be achievable for a ${userLevel} user.
+${langInstruction}
+
+Return JSON with: title (catchy, action-oriented), description (compelling 2-3 sentences that inspire action), exactly 3 actionable steps (specific and measurable), and a category (one of: Technology, Environment, Finance, Arts, Lifestyle, Education, History).`;
+
       const body = {
-        contents: [
-          {
-            parts: [
-              {
-                text: `Create a productive multi-generational 'Quest' for the topic: ${topic}. The quest should be achievable for a ${userLevel} user. ${langInstruction} Return JSON with: title, description (compelling), 3 actionable steps, and a category (one of: Technology, Environment, Finance, Arts, Lifestyle, Education, History).`,
-              },
-            ],
+        contents: [{ parts: [{ text: promptText }] }],
+        generationConfig: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING' },
+              description: { type: 'STRING' },
+              steps: { type: 'ARRAY', items: { type: 'STRING' } },
+              category: { type: 'STRING' },
+            },
+            required: ['title', 'description', 'steps', 'category'],
           },
-        ],
+        },
+      };
+
+      const res = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        return new Response(JSON.stringify({ error: 'No response from AI' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      return new Response(JSON.stringify({ quest: JSON.parse(text) }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // ── Personalized Group/Community Quest Generation ──
+    if (action === 'generateGroupQuest') {
+      const { userLevel, locale, communityContext, userContext } = payload as {
+        userLevel: string;
+        locale?: string;
+        communityContext: {
+          communityName: string;
+          communityDescription?: string | null;
+          communityCategory: string;
+          memberCount: number;
+          memberAgeRange?: { min: number; max: number } | null;
+          memberSkills?: string[];
+          memberInterests?: string[];
+          existingQuestTitles?: string[];
+        };
+        userContext?: {
+          age?: number | null;
+          role?: string;
+          location?: string | null;
+        } | null;
+      };
+
+      const langInstruction = locale && locale !== 'en'
+        ? `IMPORTANT: Generate ALL text (title, description, steps) in the language with code "${locale}". Do NOT use English.`
+        : '';
+
+      // Build community context block
+      const communityLines: string[] = [];
+      communityLines.push(`Community name: "${communityContext.communityName}"`);
+      communityLines.push(`Category: ${communityContext.communityCategory}`);
+      if (communityContext.communityDescription) communityLines.push(`Description: "${communityContext.communityDescription}"`);
+      communityLines.push(`Member count: ${communityContext.memberCount}`);
+      if (communityContext.memberAgeRange) {
+        communityLines.push(`Member age range: ${communityContext.memberAgeRange.min}–${communityContext.memberAgeRange.max} years old. Design the quest so ALL ages can participate meaningfully.`);
+      }
+      if (communityContext.memberSkills?.length) {
+        communityLines.push(`Collective skills in group: ${communityContext.memberSkills.join(', ')}. Leverage these for collaborative tasks.`);
+      }
+      if (communityContext.memberInterests?.length) {
+        communityLines.push(`Common interests: ${communityContext.memberInterests.join(', ')}. Align the quest with shared passions.`);
+      }
+      if (communityContext.existingQuestTitles?.length) {
+        communityLines.push(`Existing community quests (DO NOT repeat similar themes): ${communityContext.existingQuestTitles.slice(0, 10).join(' | ')}`);
+      }
+
+      const creatorLine = userContext?.location
+        ? `Quest creator location: ${userContext.location}. Prefer activities possible in this area.`
+        : '';
+
+      const groupPrompt = `You are Rootwise Quest Generator — creating collaborative group quests for an intergenerational wisdom-sharing community.
+
+GROUP QUEST DESIGN PRINCIPLES:
+1. Quests must require TEAMWORK — tasks that are better done together, not independently.
+2. Design for DIVERSE age groups — ensure younger AND older members can contribute unique value.
+3. Include ROLE DISTRIBUTION — different steps should suit different skill levels and abilities.
+4. Quests should create SHARED EXPERIENCES — building, exploring, teaching each other, creating together.
+5. SCALE to group size — ${communityContext.memberCount} members. If large group, include sub-team tasks.
+6. Steps should be COLLABORATIVE and SPECIFIC (e.g., "Pair up: one person teaches, the other documents with photos").
+7. Create a sense of SHARED ACHIEVEMENT — the result should be something the whole group can be proud of.
+
+── COMMUNITY PROFILE ──
+${communityLines.join('\n')}
+${creatorLine}
+── END COMMUNITY PROFILE ──
+
+Create a collaborative team quest for this community.
+The quest should be achievable for a ${userLevel}-led group.
+${langInstruction}
+
+Return JSON with: title (catchy, team-oriented), description (compelling 2-3 sentences that inspire group action), exactly 3-4 actionable collaborative steps (with clear roles), and a category (one of: Technology, Environment, Finance, Arts, Lifestyle, Education, History).`;
+
+      const body = {
+        contents: [{ parts: [{ text: groupPrompt }] }],
         generationConfig: {
           responseMimeType: 'application/json',
           responseSchema: {
