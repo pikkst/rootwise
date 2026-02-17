@@ -70,8 +70,11 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   const [showSummary, setShowSummary] = useState(false);
   const [finalDuration, setFinalDuration] = useState(0);
 
-  // Deterministic room name from quest ID
-  const roomName = `Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`;
+  // JaaS (Jitsi as a Service) app ID — removes the 5-min limit
+  const JAAS_APP_ID = 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028';
+
+  // Deterministic room name from quest ID (JaaS requires appId/roomName format)
+  const roomName = `${JAAS_APP_ID}/Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`;
 
   // Load Jitsi Meet External API and initialize
   useEffect(() => {
@@ -84,7 +87,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           return;
         }
         const script = document.createElement('script');
-        script.src = 'https://meet.jit.si/external_api.js';
+        script.src = 'https://8x8.vc/external_api.js';
         script.async = true;
         script.onload = () => resolve();
         script.onerror = () => reject(new Error(t('videoCall.serviceError')));
@@ -118,7 +121,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         await loadScript();
         if (!mounted || !containerRef.current) return;
 
-        const api = new window.JitsiMeetExternalAPI('meet.jit.si', {
+        const api = new window.JitsiMeetExternalAPI('8x8.vc', {
           roomName,
           parentNode: containerRef.current,
           width: '100%',
