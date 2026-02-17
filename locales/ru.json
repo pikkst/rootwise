@@ -288,6 +288,13 @@
     "proofSubmitHint": "Отправьте подтверждение завершения для проверки",
     "proofPlaceholder": "Опишите ваше подтверждение завершения (например, ссылку на проект, сертификат, описание)...",
     "proofSubmitBtn": "Отправить подтверждение",
+    "proofReviewTitle": "Отправленные доказательства",
+    "proofNoSubmissions": "Доказательств пока нет",
+    "proofApprove": "Одобрить",
+    "proofReject": "Отклонить",
+    "toastProofApproved": "Доказательство одобрено и XP начислены!",
+    "toastProofRejected": "Доказательство отклонено — ученик может отправить снова",
+    "toastVerifyFailed": "Не удалось проверить доказательство",
     "sidebarTitle": "Информация о квесте",
     "sidebarJoin": "🚀 Присоединиться к квесту",
     "sidebarRole": "✓ Вы {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Категория",
     "defaultRole": "Участник",
     "unknown": "Неизвестно",
-    "sendMessage": "Отправить сообщение"
+    "sendMessage": "Отправить сообщение",
+    "activeQuests": "Активные квесты",
+    "completedQuests": "Завершённые квесты",
+    "statusActive": "Активный",
+    "statusInProgress": "В процессе",
+    "statusCompleted": "Завершён"
   },
   "ai": {
     "title": "Nexus AI Mentor",

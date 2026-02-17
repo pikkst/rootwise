@@ -288,6 +288,13 @@
     "proofSubmitHint": "Prześlij dowód ukończenia do weryfikacji",
     "proofPlaceholder": "Opisz swój dowód ukończenia (np. link do projektu, certyfikat, opis)...",
     "proofSubmitBtn": "Prześlij dowód",
+    "proofReviewTitle": "Przesłane dowody",
+    "proofNoSubmissions": "Brak przesłanych dowodów",
+    "proofApprove": "Zatwierdź",
+    "proofReject": "Odrzuć",
+    "toastProofApproved": "Dowód zatwierdzony i XP przyznane!",
+    "toastProofRejected": "Dowód odrzucony — uczeń może przesłać ponownie",
+    "toastVerifyFailed": "Nie udało się zweryfikować dowodu",
     "sidebarTitle": "Informacje o zadaniu",
     "sidebarJoin": "🚀 Dołącz do zadania",
     "sidebarRole": "✓ Jesteś {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Kategoria",
     "defaultRole": "Członek",
     "unknown": "Nieznany",
-    "sendMessage": "Wyślij wiadomość"
+    "sendMessage": "Wyślij wiadomość",
+    "activeQuests": "Aktywne zadania",
+    "completedQuests": "Ukończone zadania",
+    "statusActive": "Aktywne",
+    "statusInProgress": "W trakcie",
+    "statusCompleted": "Ukończone"
   },
   "ai": {
     "title": "Mentor Nexus AI",

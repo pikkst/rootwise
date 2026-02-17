@@ -188,6 +188,11 @@ export function useQuests() {
 
   // Create quest (creator workflow)
   const createQuest = async (questData: Omit<DbQuest, 'id' | 'created_at' | 'updated_at'>) => {
+    // Solo quests auto-publish; group/community quests remain draft for review
+    const resolvedStatus = questData.quest_type === 'solo'
+      ? 'published'
+      : (questData.status ?? 'draft');
+
     const { data, error } = await supabase
       .from('quests')
       .insert({
@@ -207,7 +212,7 @@ export function useQuests() {
         image_url: questData.image_url ?? null,
         steps: questData.steps ?? [],
         created_by: questData.created_by ?? null,
-        status: questData.status ?? 'draft',
+        status: resolvedStatus,
       })
       .select()
       .single();
@@ -285,7 +290,27 @@ export function useQuests() {
     if (submitResult.error) return submitResult;
 
     // Auto-verify and award XP
-    return await verifyProof(questId, userId, true);
+    const verifyResult = await verifyProof(questId, userId, true);
+    if (verifyResult.error) return verifyResult;
+
+    // Check if all members have completed – if so, mark quest row as completed
+    const { data: allMembers } = await supabase
+      .from('quest_members')
+      .select('status')
+      .eq('quest_id', questId);
+
+    const allDone = allMembers && allMembers.length > 0 &&
+      allMembers.every((m: { status: string }) => m.status === 'completed');
+
+    if (allDone) {
+      await supabase
+        .from('quests')
+        .update({ status: 'completed' })
+        .eq('id', questId);
+    }
+
+    await fetchQuests();
+    return { error: null };
   };
 
   return {

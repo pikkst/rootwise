@@ -288,6 +288,13 @@
     "proofSubmitHint": "Lähetä todiste suorituksesta vahvistusta varten",
     "proofPlaceholder": "Kuvaile suoritustodisteesi (esim. projektilinkki, todistus, kuvaus)...",
     "proofSubmitBtn": "Lähetä todiste",
+    "proofReviewTitle": "Lähetetyt todisteet",
+    "proofNoSubmissions": "Ei todistuksia vielä",
+    "proofApprove": "Hyväksy",
+    "proofReject": "Hylkää",
+    "toastProofApproved": "Todistus hyväksytty ja XP myönnetty!",
+    "toastProofRejected": "Todistus hylätty — oppija voi lähettää uudelleen",
+    "toastVerifyFailed": "Todistuksen vahvistus epäonnistui",
     "sidebarTitle": "Tehtävän tiedot",
     "sidebarJoin": "🚀 Liity tehtävään",
     "sidebarRole": "✓ Olet {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Kategoria",
     "defaultRole": "Jäsen",
     "unknown": "Tuntematon",
-    "sendMessage": "Lähetä viesti"
+    "sendMessage": "Lähetä viesti",
+    "activeQuests": "Aktiiviset tehtävät",
+    "completedQuests": "Suoritetut tehtävät",
+    "statusActive": "Aktiivinen",
+    "statusInProgress": "Käynnissä",
+    "statusCompleted": "Suoritettu"
   },
   "ai": {
     "title": "Nexus AI -mentori",

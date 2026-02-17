@@ -288,6 +288,13 @@
     "proofSubmitHint": "Skicka in bevis på slutförande för verifiering",
     "proofPlaceholder": "Beskriv ditt bevis på slutförande (t.ex. projektlänk, certifikat, beskrivning)...",
     "proofSubmitBtn": "Skicka in bevis",
+    "proofReviewTitle": "Inskickade bevis",
+    "proofNoSubmissions": "Inga bevis inskickade ännu",
+    "proofApprove": "Godkänn",
+    "proofReject": "Avvisa",
+    "toastProofApproved": "Bevis godkänt och XP tilldelat!",
+    "toastProofRejected": "Bevis avvisat — eleven kan skicka in igen",
+    "toastVerifyFailed": "Misslyckades att verifiera bevis",
     "sidebarTitle": "Quest-info",
     "sidebarJoin": "🚀 Gå med i Quest",
     "sidebarRole": "✓ Du är en {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Kategori",
     "defaultRole": "Medlem",
     "unknown": "Okänd",
-    "sendMessage": "Skicka meddelande"
+    "sendMessage": "Skicka meddelande",
+    "activeQuests": "Aktiva uppdrag",
+    "completedQuests": "Avslutade uppdrag",
+    "statusActive": "Aktiv",
+    "statusInProgress": "Pågående",
+    "statusCompleted": "Avslutad"
   },
   "ai": {
     "title": "Nexus AI Mentor",

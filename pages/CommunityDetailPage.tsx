@@ -859,31 +859,87 @@ const CommunityDetailPage: React.FC = () => {
                   )}
                 </div>
               ) : (
-                quests.map((quest) => (
-                  <div
-                    key={quest.id}
-                    onClick={() => navigate(`/quests/${quest.id}`)}
-                    className="bg-white rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex gap-4">
-                      {quest.image_url && (
-                        <img
-                          src={quest.image_url}
-                          alt={quest.title}
-                          className="w-24 h-24 rounded-lg object-cover"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <h3 className="font-bold text-lg">{quest.title}</h3>
-                        <p className="text-sm text-gray-600">{quest.description}</p>
-                        <div className="flex gap-3 mt-2 text-sm">
-                          <span className="text-indigo-600">⭐ {quest.reward_xp} XP</span>
-                          <span className="text-gray-600">{quest.category}</span>
+                <>
+                  {/* Active Quests */}
+                  {quests.filter((q) => q.status !== 'completed').length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        {t('communityDetail.activeQuests')}
+                      </h3>
+                      {quests.filter((q) => q.status !== 'completed').map((quest) => (
+                        <div
+                          key={quest.id}
+                          onClick={() => navigate(`/quests/${quest.id}`)}
+                          className="bg-white rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow mb-3"
+                        >
+                          <div className="flex gap-4">
+                            {quest.image_url && (
+                              <img
+                                src={quest.image_url}
+                                alt={quest.title}
+                                className="w-24 h-24 rounded-lg object-cover"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-bold text-lg">{quest.title}</h3>
+                                <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-50 text-emerald-600">
+                                  {quest.status === 'in_progress' ? t('communityDetail.statusInProgress') : t('communityDetail.statusActive')}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">{quest.description}</p>
+                              <div className="flex gap-3 mt-2 text-sm">
+                                <span className="text-indigo-600">⭐ {quest.reward_xp} XP</span>
+                                <span className="text-gray-600">{quest.category}</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  </div>
-                ))
+                  )}
+
+                  {/* Completed Quests (Archive) */}
+                  {quests.filter((q) => q.status === 'completed').length > 0 && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                        {t('communityDetail.completedQuests')}
+                      </h3>
+                      {quests.filter((q) => q.status === 'completed').map((quest) => (
+                        <div
+                          key={quest.id}
+                          onClick={() => navigate(`/quests/${quest.id}`)}
+                          className="bg-white rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow mb-3 opacity-75"
+                        >
+                          <div className="flex gap-4">
+                            {quest.image_url && (
+                              <img
+                                src={quest.image_url}
+                                alt={quest.title}
+                                className="w-24 h-24 rounded-lg object-cover grayscale-[0.3]"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-bold text-lg">{quest.title}</h3>
+                                <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-slate-100 text-slate-500">
+                                  {t('communityDetail.statusCompleted')}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">{quest.description}</p>
+                              <div className="flex gap-3 mt-2 text-sm">
+                                <span className="text-indigo-600">⭐ {quest.reward_xp} XP</span>
+                                <span className="text-gray-600">{quest.category}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

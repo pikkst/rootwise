@@ -288,6 +288,13 @@
     "proofSubmitHint": "Dien een bewijs van voltooiing in voor verificatie",
     "proofPlaceholder": "Beschrijf uw bewijs van voltooiing (bijv. projectlink, certificaat, beschrijving)...",
     "proofSubmitBtn": "Bewijs indienen",
+    "proofReviewTitle": "Ingediende bewijzen",
+    "proofNoSubmissions": "Nog geen bewijzen ingediend",
+    "proofApprove": "Goedkeuren",
+    "proofReject": "Afwijzen",
+    "toastProofApproved": "Bewijs goedgekeurd en XP toegekend!",
+    "toastProofRejected": "Bewijs afgewezen — leerling kan opnieuw indienen",
+    "toastVerifyFailed": "Verificatie van bewijs mislukt",
     "sidebarTitle": "Quest Info",
     "sidebarJoin": "🚀 Doe mee met Quest",
     "sidebarRole": "✓ U bent een {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Categorie",
     "defaultRole": "Lid",
     "unknown": "Onbekend",
-    "sendMessage": "Bericht verzenden"
+    "sendMessage": "Bericht verzenden",
+    "activeQuests": "Actieve quests",
+    "completedQuests": "Voltooide quests",
+    "statusActive": "Actief",
+    "statusInProgress": "Bezig",
+    "statusCompleted": "Voltooid"
   },
   "ai": {
     "title": "Nexus AI Mentor",

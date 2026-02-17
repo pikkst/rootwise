@@ -288,6 +288,13 @@
     "proofSubmitHint": "Soumettez une preuve d'achèvement pour vérification",
     "proofPlaceholder": "Décrivez votre preuve d'achèvement (par exemple, lien du projet, certificat, description)...",
     "proofSubmitBtn": "Soumettre la preuve",
+    "proofReviewTitle": "Preuves soumises",
+    "proofNoSubmissions": "Aucune preuve soumise",
+    "proofApprove": "Approuver",
+    "proofReject": "Rejeter",
+    "toastProofApproved": "Preuve approuvée et XP accordés !",
+    "toastProofRejected": "Preuve rejetée — l'apprenant peut resoumettre",
+    "toastVerifyFailed": "Échec de la vérification de la preuve",
     "sidebarTitle": "Infos sur la quête",
     "sidebarJoin": "🚀 Rejoindre la quête",
     "sidebarRole": "✓ Vous êtes un(e) {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Catégorie",
     "defaultRole": "Membre",
     "unknown": "Inconnu",
-    "sendMessage": "Envoyer un message"
+    "sendMessage": "Envoyer un message",
+    "activeQuests": "Quêtes actives",
+    "completedQuests": "Quêtes terminées",
+    "statusActive": "Active",
+    "statusInProgress": "En cours",
+    "statusCompleted": "Terminée"
   },
   "ai": {
     "title": "Mentor Nexus AI",

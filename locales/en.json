@@ -296,6 +296,13 @@
     "proofSubmitHint": "Submit proof of completion for verification",
     "proofPlaceholder": "Describe your proof of completion (e.g., project link, certificate, description)...",
     "proofSubmitBtn": "Submit Proof",
+    "proofReviewTitle": "Submitted Proofs",
+    "proofNoSubmissions": "No proofs submitted yet",
+    "proofApprove": "Approve",
+    "proofReject": "Reject",
+    "toastProofApproved": "Proof approved and XP awarded!",
+    "toastProofRejected": "Proof rejected — learner can resubmit",
+    "toastVerifyFailed": "Failed to verify proof",
     "sidebarTitle": "Quest Info",
     "sidebarJoin": "🚀 Join Quest",
     "sidebarRole": "✓ You're a {{role}}",
@@ -464,7 +471,12 @@
     "statsCategory": "Category",
     "defaultRole": "Member",
     "unknown": "Unknown",
-    "sendMessage": "Send message"
+    "sendMessage": "Send message",
+    "activeQuests": "Active Quests",
+    "completedQuests": "Completed Quests",
+    "statusActive": "Active",
+    "statusInProgress": "In Progress",
+    "statusCompleted": "Completed"
   },
 
   "ai": {

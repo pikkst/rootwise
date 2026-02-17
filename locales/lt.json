@@ -288,6 +288,13 @@
     "proofSubmitHint": "Pateikite užbaigimo įrodymą patvirtinimui",
     "proofPlaceholder": "Apibūdinkite savo užbaigimo įrodymą (pvz., projekto nuorodą, sertifikatą, aprašymą)...",
     "proofSubmitBtn": "Pateikti įrodymą",
+    "proofReviewTitle": "Pateikti įrodymai",
+    "proofNoSubmissions": "Dar nėra pateiktų įrodymų",
+    "proofApprove": "Patvirtinti",
+    "proofReject": "Atmesti",
+    "toastProofApproved": "Įrodymas patvirtintas ir XP paskirti!",
+    "toastProofRejected": "Įrodymas atmestas — mokinys gali pateikti iš naujo",
+    "toastVerifyFailed": "Nepavyko patikrinti įrodymo",
     "sidebarTitle": "Užduoties informacija",
     "sidebarJoin": "🚀 Prisijungti prie užduoties",
     "sidebarRole": "✓ Jūs esate {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Kategorija",
     "defaultRole": "Narys",
     "unknown": "Nežinoma",
-    "sendMessage": "Siųsti žinutę"
+    "sendMessage": "Siųsti žinutę",
+    "activeQuests": "Aktyvios užduotys",
+    "completedQuests": "Atliktos užduotys",
+    "statusActive": "Aktyvi",
+    "statusInProgress": "Vykdoma",
+    "statusCompleted": "Atlikta"
   },
   "ai": {
     "title": "Nexus AI Mentorius",

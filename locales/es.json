@@ -288,6 +288,13 @@
     "proofSubmitHint": "Envíe una prueba de finalización para su verificación",
     "proofPlaceholder": "Describa su prueba de finalización (p. ej., enlace del proyecto, certificado, descripción)...",
     "proofSubmitBtn": "Enviar Prueba",
+    "proofReviewTitle": "Pruebas enviadas",
+    "proofNoSubmissions": "Aún no se han enviado pruebas",
+    "proofApprove": "Aprobar",
+    "proofReject": "Rechazar",
+    "toastProofApproved": "¡Prueba aprobada y XP otorgados!",
+    "toastProofRejected": "Prueba rechazada — el estudiante puede volver a enviar",
+    "toastVerifyFailed": "No se pudo verificar la prueba",
     "sidebarTitle": "Información de la Misión",
     "sidebarJoin": "🚀 Unirse a la Misión",
     "sidebarRole": "✓ Usted es un {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Categoría",
     "defaultRole": "Miembro",
     "unknown": "Desconocido",
-    "sendMessage": "Enviar mensaje"
+    "sendMessage": "Enviar mensaje",
+    "activeQuests": "Misiones activas",
+    "completedQuests": "Misiones completadas",
+    "statusActive": "Activa",
+    "statusInProgress": "En progreso",
+    "statusCompleted": "Completada"
   },
   "ai": {
     "title": "Nexus AI Mentor",

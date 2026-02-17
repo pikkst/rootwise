@@ -40,6 +40,7 @@ const QuestDetailPage: React.FC = () => {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [showVideoCall, setShowVideoCall] = useState(false);
   const [activeCallUsers, setActiveCallUsers] = useState<any[]>([]);
+  const [memberProfiles, setMemberProfiles] = useState<Record<string, Profile>>({});
   const callChannelRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -149,6 +150,20 @@ const QuestDetailPage: React.FC = () => {
       // Set current member info
       const myMembership = (membersData as QuestMember[])?.find((m) => m.user_id === profile.id);
       setCurrentMember(myMembership ?? null);
+
+      // Fetch profile names for all members
+      const memberUserIds = (membersData as QuestMember[])?.map((m) => m.user_id) ?? [];
+      if (memberUserIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, display_name, avatar_url')
+          .in('id', memberUserIds);
+        if (profilesData) {
+          const profileMap: Record<string, Profile> = {};
+          profilesData.forEach((p: any) => { profileMap[p.id] = p as Profile; });
+          setMemberProfiles(profileMap);
+        }
+      }
 
       // Fetch messages
       try {
@@ -287,6 +302,37 @@ const QuestDetailPage: React.FC = () => {
       showToast('error', t('questDetail.toastError'));
     } finally {
       setSubmittingProof(false);
+    }
+  };
+
+  const handleVerifyProof = async (userId: string, approved: boolean) => {
+    if (!questId || !profile?.id) return;
+    try {
+      if (approved) {
+        // Award XP via RPC
+        await supabase.rpc('increment_xp', { p_user_id: userId, p_amount: quest?.reward_xp ?? 0 });
+      }
+
+      const { error } = await supabase
+        .from('quest_members')
+        .update({
+          proof_verified: approved,
+          proof_verified_by: approved ? profile.id : null,
+          proof_verified_at: approved ? new Date().toISOString() : null,
+          xp_awarded: approved,
+          status: approved ? 'completed' : 'accepted',
+        })
+        .eq('quest_id', questId)
+        .eq('user_id', userId);
+
+      if (error) {
+        showToast('error', t('questDetail.toastVerifyFailed'));
+      } else {
+        await fetchQuestDetails();
+        showToast('success', approved ? t('questDetail.toastProofApproved') : t('questDetail.toastProofRejected'));
+      }
+    } catch {
+      showToast('error', t('questDetail.toastError'));
     }
   };
 
@@ -690,7 +736,9 @@ const QuestDetailPage: React.FC = () => {
                             >
                               <div className="flex justify-between items-start mb-1">
                                 <span className="font-semibold text-sm text-slate-800">
-                                  {msg.user_id === profile?.id ? t('questDetail.chatYou') : `${t('questDetail.chatUser')} ${msg.user_id.slice(0, 8)}`}
+                                  {msg.user_id === profile?.id
+                                    ? t('questDetail.chatYou')
+                                    : memberProfiles[msg.user_id]?.display_name || `${t('questDetail.chatUser')} ${msg.user_id.slice(0, 8)}`}
                                 </span>
                                 <span className="text-xs text-slate-500">
                                   {formatTime(msg.created_at ?? '')}
@@ -888,9 +936,21 @@ const QuestDetailPage: React.FC = () => {
                     ) : (
                       members.map((member) => (
                         <div key={member.user_id} className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
-                          <div>
-                            <div className="font-semibold text-slate-800 capitalize">{member.role}</div>
-                            <div className="text-xs text-slate-500">{member.status}</div>
+                          <div className="flex items-center gap-3">
+                            {memberProfiles[member.user_id]?.avatar_url ? (
+                              <img src={memberProfiles[member.user_id].avatar_url!} alt="" className="w-8 h-8 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                {(memberProfiles[member.user_id]?.display_name || '?')[0].toUpperCase()}
+                              </div>
+                            )}
+                            <div>
+                              <div className="font-semibold text-slate-800">
+                                {memberProfiles[member.user_id]?.display_name || member.user_id.slice(0, 8)}
+                                {member.user_id === profile?.id && ` (${t('questDetail.chatYou')})`}
+                              </div>
+                              <div className="text-xs text-slate-500 capitalize">{member.status}</div>
+                            </div>
                           </div>
                           <span className={`px-2 py-1 text-xs font-semibold rounded ${
                             member.role === 'creator' ? 'bg-purple-100 text-purple-700' :
@@ -911,18 +971,20 @@ const QuestDetailPage: React.FC = () => {
                 <div>
                   <h2 className="text-2xl font-bold text-slate-800 mb-4">{t('questDetail.proofTitle')}</h2>
 
-                  {!isLearner ? (
-                    <div className="bg-slate-50 rounded-lg p-6 text-center">
-                      <p className="text-slate-600">{t('questDetail.proofOnlyLearners')}</p>
-                    </div>
-                  ) : (
-                    <div>
+                  {/* Learner: submit or view own proof */}
+                  {isLearner && (
+                    <div className="mb-6">
                       {currentMember?.proof_submitted ? (
                         <div className="bg-slate-50 rounded-lg p-6 mb-4">
                           <h3 className="font-semibold text-slate-800 mb-2">{t('questDetail.proofYourSubmitted')}</h3>
                           <p className="text-slate-600 mb-3">
                             {t('questDetail.proofType')} {typeof currentMember.proof_submitted === 'object' && 'type' in currentMember.proof_submitted ? (currentMember.proof_submitted as any).type : t('questDetail.proofUnknown')}
                           </p>
+                          {typeof currentMember.proof_submitted === 'object' && 'content' in currentMember.proof_submitted && (
+                            <p className="text-slate-700 bg-white p-3 rounded border border-slate-200 mb-3 italic">
+                              "{(currentMember.proof_submitted as any).content}"
+                            </p>
+                          )}
                           <div className={`p-4 rounded-lg ${
                             currentMember.proof_verified
                               ? 'bg-green-50 border border-green-200'
@@ -952,6 +1014,83 @@ const QuestDetailPage: React.FC = () => {
                           </button>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Creator/Mentor: review submitted proofs */}
+                  {(isCreator || isMentor) && (
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800 mb-3">{t('questDetail.proofReviewTitle')}</h3>
+                      {members.filter((m) => m.role === 'learner' && m.proof_submitted).length === 0 ? (
+                        <div className="bg-slate-50 rounded-lg p-6 text-center">
+                          <p className="text-slate-500">{t('questDetail.proofNoSubmissions')}</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {members
+                            .filter((m) => m.role === 'learner' && m.proof_submitted)
+                            .map((m) => (
+                              <div key={m.user_id} className="bg-white border border-slate-200 rounded-xl p-5">
+                                <div className="flex items-center gap-3 mb-3">
+                                  {memberProfiles[m.user_id]?.avatar_url ? (
+                                    <img src={memberProfiles[m.user_id].avatar_url!} alt="" className="w-8 h-8 rounded-full object-cover" />
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                      {(memberProfiles[m.user_id]?.display_name || '?')[0].toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div>
+                                    <p className="font-semibold text-slate-800">
+                                      {memberProfiles[m.user_id]?.display_name || m.user_id.slice(0, 8)}
+                                    </p>
+                                    <p className="text-xs text-slate-500">
+                                      {m.proof_submitted_at ? formatDateNumeric(m.proof_submitted_at) : ''}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Show proof content */}
+                                {typeof m.proof_submitted === 'object' && 'content' in m.proof_submitted && (
+                                  <div className="bg-slate-50 p-4 rounded-lg mb-4">
+                                    <p className="text-xs text-slate-500 mb-1 uppercase font-semibold">
+                                      {(m.proof_submitted as any).type}
+                                    </p>
+                                    <p className="text-slate-700">{(m.proof_submitted as any).content}</p>
+                                  </div>
+                                )}
+
+                                {/* Status / Actions */}
+                                {m.proof_verified ? (
+                                  <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                                    <p className="text-green-700 font-semibold text-sm">✅ {t('questDetail.proofVerified')}</p>
+                                  </div>
+                                ) : (
+                                  <div className="flex gap-3">
+                                    <button
+                                      onClick={() => handleVerifyProof(m.user_id, true)}
+                                      className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-semibold text-sm"
+                                    >
+                                      ✅ {t('questDetail.proofApprove')}
+                                    </button>
+                                    <button
+                                      onClick={() => handleVerifyProof(m.user_id, false)}
+                                      className="flex-1 px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition font-semibold text-sm"
+                                    >
+                                      ❌ {t('questDetail.proofReject')}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Not a member at all */}
+                  {!isMember && (
+                    <div className="bg-slate-50 rounded-lg p-6 text-center">
+                      <p className="text-slate-600">{t('questDetail.proofOnlyLearners')}</p>
                     </div>
                   )}
                 </div>

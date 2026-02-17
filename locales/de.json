@@ -288,6 +288,13 @@
     "proofSubmitHint": "Reichen Sie einen Nachweis für den Abschluss zur Verifizierung ein",
     "proofPlaceholder": "Beschreiben Sie Ihren Nachweis für den Abschluss (z. B. Projektlink, Zertifikat, Beschreibung)...",
     "proofSubmitBtn": "Nachweis einreichen",
+    "proofReviewTitle": "Eingereichte Nachweise",
+    "proofNoSubmissions": "Noch keine Nachweise eingereicht",
+    "proofApprove": "Genehmigen",
+    "proofReject": "Ablehnen",
+    "toastProofApproved": "Nachweis genehmigt und XP vergeben!",
+    "toastProofRejected": "Nachweis abgelehnt — Lernender kann erneut einreichen",
+    "toastVerifyFailed": "Nachweis konnte nicht verifiziert werden",
     "sidebarTitle": "Quest-Info",
     "sidebarJoin": "🚀 Quest beitreten",
     "sidebarRole": "✓ Sie sind ein/e {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Kategorie",
     "defaultRole": "Mitglied",
     "unknown": "Unbekannt",
-    "sendMessage": "Nachricht senden"
+    "sendMessage": "Nachricht senden",
+    "activeQuests": "Aktive Quests",
+    "completedQuests": "Abgeschlossene Quests",
+    "statusActive": "Aktiv",
+    "statusInProgress": "In Bearbeitung",
+    "statusCompleted": "Abgeschlossen"
   },
   "ai": {
     "title": "Nexus AI Mentor",

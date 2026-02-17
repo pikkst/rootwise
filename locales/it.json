@@ -288,6 +288,13 @@
     "proofSubmitHint": "Invia una prova del completamento per la verifica",
     "proofPlaceholder": "Descrivi la tua prova di completamento (ad es. link del progetto, certificato, descrizione)...",
     "proofSubmitBtn": "Invia prova",
+    "proofReviewTitle": "Prove inviate",
+    "proofNoSubmissions": "Nessuna prova inviata ancora",
+    "proofApprove": "Approva",
+    "proofReject": "Rifiuta",
+    "toastProofApproved": "Prova approvata e XP assegnati!",
+    "toastProofRejected": "Prova rifiutata — lo studente può reinviare",
+    "toastVerifyFailed": "Verifica della prova fallita",
     "sidebarTitle": "Info sulla quest",
     "sidebarJoin": "🚀 Partecipa alla quest",
     "sidebarRole": "✓ Sei un {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Categoria",
     "defaultRole": "Membro",
     "unknown": "Sconosciuto",
-    "sendMessage": "Invia messaggio"
+    "sendMessage": "Invia messaggio",
+    "activeQuests": "Quest attive",
+    "completedQuests": "Quest completate",
+    "statusActive": "Attiva",
+    "statusInProgress": "In corso",
+    "statusCompleted": "Completata"
   },
   "ai": {
     "title": "Nexus AI Mentor",

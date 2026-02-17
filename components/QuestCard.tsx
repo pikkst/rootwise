@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Quest } from '../types';
 
@@ -36,12 +37,19 @@ interface QuestCardProps {
 
 const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onComplete }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const isCompleted = quest.status === 'completed';
   const emoji = categoryEmoji[quest.category] || '⚡';
   const gradient = categoryGradient[quest.category] || categoryGradient.General;
 
   return (
-    <div className={`bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-all ${isCompleted ? 'opacity-75 grayscale-[0.5]' : ''}`}>
+    <div
+      onClick={() => navigate(`/quests/${quest.id}`)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/quests/${quest.id}`); }}
+      className={`bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-all cursor-pointer ${isCompleted ? 'opacity-75 grayscale-[0.5]' : ''}`}
+    >
       <div className="h-40 relative">
         {quest.imageUrl ? (
           <img
@@ -94,14 +102,14 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onC
             <span className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-bold">{t('questCard.done')}</span>
           ) : isParticipant ? (
             <button 
-              onClick={() => onComplete?.(quest.id)}
+              onClick={(e) => { e.stopPropagation(); onComplete?.(quest.id); }}
               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-emerald-600/20"
             >
               {t('questCard.markComplete')}
             </button>
           ) : (
             <button 
-              onClick={() => onJoin?.(quest.id)}
+              onClick={(e) => { e.stopPropagation(); onJoin?.(quest.id); }}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition-colors"
             >
               {t('questCard.joinQuest')}

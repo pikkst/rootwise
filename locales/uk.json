@@ -288,6 +288,13 @@
     "proofSubmitHint": "Подайте підтвердження про завершення для верифікації",
     "proofPlaceholder": "Опишіть своє підтвердження про завершення (наприклад, посилання на проєкт, сертифікат, опис)...",
     "proofSubmitBtn": "Подати підтвердження",
+    "proofReviewTitle": "Подані докази",
+    "proofNoSubmissions": "Доказів ще не подано",
+    "proofApprove": "Схвалити",
+    "proofReject": "Відхилити",
+    "toastProofApproved": "Доказ схвалено і XP нараховано!",
+    "toastProofRejected": "Доказ відхилено — учень може подати повторно",
+    "toastVerifyFailed": "Не вдалося перевірити доказ",
     "sidebarTitle": "Інформація про квест",
     "sidebarJoin": "🚀 Приєднатися до квесту",
     "sidebarRole": "✓ Ви - {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Категорія",
     "defaultRole": "Учасник",
     "unknown": "Невідомо",
-    "sendMessage": "Відправити повідомлення"
+    "sendMessage": "Відправити повідомлення",
+    "activeQuests": "Активні квести",
+    "completedQuests": "Завершені квести",
+    "statusActive": "Активний",
+    "statusInProgress": "В процесі",
+    "statusCompleted": "Завершений"
   },
   "ai": {
     "title": "Nexus AI Mentor",

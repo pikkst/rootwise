@@ -288,6 +288,13 @@
     "proofSubmitHint": "Iesniedziet pabeigšanas pierādījumu verifikācijai",
     "proofPlaceholder": "Aprakstiet savu pabeigšanas pierādījumu (piemēram, projekta saiti, sertifikātu, aprakstu)...",
     "proofSubmitBtn": "Iesniegt pierādījumu",
+    "proofReviewTitle": "Iesniegtie pierādījumi",
+    "proofNoSubmissions": "Vēl nav iesniegti pierādījumi",
+    "proofApprove": "Apstiprināt",
+    "proofReject": "Noraidīt",
+    "toastProofApproved": "Pierādījums apstiprināts un XP piešķirti!",
+    "toastProofRejected": "Pierādījums noraidīts — skolēns var iesniegt atkārtoti",
+    "toastVerifyFailed": "Neizdevās verificēt pierādījumu",
     "sidebarTitle": "Informācija par uzdevumu",
     "sidebarJoin": "🚀 Pievienoties uzdevumam",
     "sidebarRole": "✓ Jūs esat {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Kategorija",
     "defaultRole": "Dalībnieks",
     "unknown": "Nezināms",
-    "sendMessage": "Sūtīt ziņu"
+    "sendMessage": "Sūtīt ziņu",
+    "activeQuests": "Aktīvie uzdevumi",
+    "completedQuests": "Pabeigtie uzdevumi",
+    "statusActive": "Aktīvs",
+    "statusInProgress": "Procesā",
+    "statusCompleted": "Pabeigts"
   },
   "ai": {
     "title": "Nexus AI Mentors",

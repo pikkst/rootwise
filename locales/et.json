@@ -288,6 +288,13 @@
     "proofSubmitHint": "Esita kinnitamiseks tõestus lõpetamise kohta",
     "proofPlaceholder": "Kirjelda oma lõpetamise tõestust (nt projekti link, sertifikaat, kirjeldus)...",
     "proofSubmitBtn": "Esita tõestus",
+    "proofReviewTitle": "Esitatud tõendid",
+    "proofNoSubmissions": "Tõendeid pole veel esitatud",
+    "proofApprove": "Kinnita",
+    "proofReject": "Lükka tagasi",
+    "toastProofApproved": "Tõend kinnitatud ja XP lisatud!",
+    "toastProofRejected": "Tõend tagasi lükatud — õppija saab uuesti esitada",
+    "toastVerifyFailed": "Tõendi kinnitamine ebaõnnestus",
     "sidebarTitle": "Questi info",
     "sidebarJoin": "🚀 Liitu questiga",
     "sidebarRole": "✓ Sa oled {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Kategooria",
     "defaultRole": "Liige",
     "unknown": "Tundmatu",
-    "sendMessage": "Saada sõnum"
+    "sendMessage": "Saada sõnum",
+    "activeQuests": "Aktiivsed ülesanded",
+    "completedQuests": "Sooritatud ülesanded",
+    "statusActive": "Aktiivne",
+    "statusInProgress": "Käimas",
+    "statusCompleted": "Sooritatud"
   },
   "ai": {
     "title": "Nexus AI Mentor",

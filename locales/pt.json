@@ -288,6 +288,13 @@
     "proofSubmitHint": "Envie a prova de conclusão para verificação",
     "proofPlaceholder": "Descreva sua prova de conclusão (por exemplo, link do projeto, certificado, descrição)...",
     "proofSubmitBtn": "Enviar Prova",
+    "proofReviewTitle": "Provas enviadas",
+    "proofNoSubmissions": "Nenhuma prova enviada ainda",
+    "proofApprove": "Aprovar",
+    "proofReject": "Rejeitar",
+    "toastProofApproved": "Prova aprovada e XP concedidos!",
+    "toastProofRejected": "Prova rejeitada — o aluno pode reenviar",
+    "toastVerifyFailed": "Falha ao verificar prova",
     "sidebarTitle": "Informações da Quest",
     "sidebarJoin": "🚀 Participar da Quest",
     "sidebarRole": "✓ Você é um(a) {{role}}",
@@ -453,7 +460,12 @@
     "statsCategory": "Categoria",
     "defaultRole": "Membro",
     "unknown": "Desconhecido",
-    "sendMessage": "Enviar mensagem"
+    "sendMessage": "Enviar mensagem",
+    "activeQuests": "Missões ativas",
+    "completedQuests": "Missões concluídas",
+    "statusActive": "Ativa",
+    "statusInProgress": "Em progresso",
+    "statusCompleted": "Concluída"
   },
   "ai": {
     "title": "Mentor Nexus AI",
