@@ -53,6 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       stripe_customer_id: data?.stripe_customer_id ?? null,
       created_at: data?.created_at ?? now,
       updated_at: data?.updated_at ?? now,
+      last_seen_at: data?.last_seen_at ?? null,
     } as Profile;
   };
 
@@ -125,6 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Avoid UI hanging on refresh while profile fetch runs
         setProfile(normalizeProfile(null, session.user));
         void fetchProfile(session.user);
+        // Update last_seen_at for activeUsers7d metric — fire and forget
+        void supabase.rpc('update_last_seen');
       } else {
         setProfile(null);
       }

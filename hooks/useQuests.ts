@@ -169,11 +169,21 @@ export function useQuests() {
       }
     }
 
+    // Set proof_verified through SECURITY DEFINER RPC — enforces creator/mentor check at DB level
+    const { error: rpcError } = await supabase.rpc('verify_quest_member_proof', {
+      p_quest_id: questId,
+      p_member_user_id: userId,
+      p_verified: verified,
+    });
+
+    if (rpcError) {
+      return { error: rpcError.message };
+    }
+
+    // Update status fields separately (proof_verified_by/at handled by RPC)
     const { error } = await supabase
       .from('quest_members')
       .update({
-        proof_verified_by: verified ? (verifierId ?? userId) : null,
-        proof_verified_at: verified ? new Date().toISOString() : null,
         xp_awarded: verified,
         status: verified ? 'completed' : 'in_progress',
       })

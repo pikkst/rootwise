@@ -144,6 +144,7 @@ export interface Profile {
   stripe_customer_id: string | null;
   created_at: string;
   updated_at: string;
+  last_seen_at: string | null;
 }
 
 /** Legacy compat alias used in components */

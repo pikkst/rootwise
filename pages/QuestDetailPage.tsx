@@ -372,12 +372,22 @@ const QuestDetailPage: React.FC = () => {
         await supabase.rpc('increment_xp', { p_user_id: userId, p_amount: quest?.reward_xp ?? 0 });
       }
 
+      // Use SECURITY DEFINER RPC for proof_verified — enforces creator/mentor role at DB level
+      const { error: rpcError } = await supabase.rpc('verify_quest_member_proof', {
+        p_quest_id: questId,
+        p_member_user_id: userId,
+        p_verified: approved,
+      });
+
+      if (rpcError) {
+        showToast('error', t('questDetail.toastVerifyFailed'));
+        return;
+      }
+
+      // Update remaining status fields (not proof_verified — handled above)
       const { error } = await supabase
         .from('quest_members')
         .update({
-          proof_verified: approved,
-          proof_verified_by: approved ? profile.id : null,
-          proof_verified_at: approved ? new Date().toISOString() : null,
           xp_awarded: approved,
           status: approved ? 'completed' : 'accepted',
           ...((!approved && feedback) ? { proof_submitted: null } : {}),
