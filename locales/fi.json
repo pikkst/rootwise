@@ -1,4 +1,4 @@
-{
+﻿{
   "common": {
     "loading": "Ladataan...",
     "save": "Tallenna",
@@ -948,8 +948,10 @@
     "upgradeForUnlimited": "Päivitä Pro-tilaukseen rajattomiin videopuheluihin ilman aikarajaa.",
     "toast60s": "1 minuutti jäljellä maksuttomassa puhelussa!",
     "toast10s": "10 sekuntia! Puhelu päättyy nyt.",
-    "timesUpTitle": "Aika loppui!",
-    "timesUpDesc": "Maksuton 5 minuutin puhelusi on päättynyt. Jatka Pro-tilauksella rajattomia puheluita ilman aikarajaa.",
+    "timesUpTitle": "Aika lensi! ",
+    "timesUpSubtitle": "Ikävää keskeyttää \"{{quest}}\"."
+        "timesUpDesc": "PRO:lla puhelut ovat rajoittamattomia  ei ajastimia, ei keskeytyksiä. Pidä vauhti yllä."
+        "timesUpCta": "Jatka keskustelua (Päivitä Pro:hon)",
     "timesUpViewSummary": "Näytä puhelun yhteenveto"
   },
   "upgradeModal": {

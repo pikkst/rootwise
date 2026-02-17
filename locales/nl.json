@@ -948,8 +948,10 @@
     "upgradeForUnlimited": "Upgrade naar Pro voor onbeperkte videogesprekken zonder tijdslimiet.",
     "toast60s": "Nog 1 minuut over in je gratis gesprek!",
     "toast10s": "10 seconden! Het gesprek eindigt nu.",
-    "timesUpTitle": "Tijd is om!",
-    "timesUpDesc": "Je gratis gesprek van 5 minuten is afgelopen. Ga verder met Pro voor onbeperkte gesprekken zonder tijdslimiet.",
+    "timesUpTitle": "De tijd vloog voorbij! 🚀",
+    "timesUpSubtitle": "Jammer om \"{{quest}}\" te onderbreken.",
+    "timesUpDesc": "Met PRO zijn gesprekken onbeperkt \u2014 geen timers, geen onderbrekingen. Ga verder waar je gebleven was.",
+    "timesUpCta": "Zet het gesprek voort (Upgrade naar Pro)",
     "timesUpViewSummary": "Gespreksoverzicht bekijken"
   },
   "upgradeModal": {

@@ -1,4 +1,4 @@
-{
+﻿{
   "common": {
     "loading": "Chargement...",
     "save": "Enregistrer",
@@ -948,8 +948,10 @@
     "upgradeForUnlimited": "Passez à Pro pour des appels vidéo illimités sans limite de temps.",
     "toast60s": "1 minute restante sur votre appel gratuit !",
     "toast10s": "10 secondes ! L'appel se termine maintenant.",
-    "timesUpTitle": "Temps écoulé !",
-    "timesUpDesc": "Votre appel gratuit de 5 minutes est terminé. Continuez avec Pro pour des appels illimités sans limite de temps.",
+    "timesUpTitle": "Le temps a volé ! ",
+    "timesUpSubtitle": "Dommage d'interrompre \"{{quest}}\"."
+        "timesUpDesc": "Avec PRO, les appels sont illimités  sans minuterie, sans interruptions. Gardez l'élan."
+        "timesUpCta": "Continuer la conversation (Passer à Pro)",
     "timesUpViewSummary": "Voir le résumé de l'appel"
   },
   "upgradeModal": {

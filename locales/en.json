@@ -948,8 +948,10 @@
     "upgradeForUnlimited": "Upgrade to Pro for unlimited video calls with no time limit.",
     "toast60s": "1 minute left on your free call!",
     "toast10s": "10 seconds! Call is ending now.",
-    "timesUpTitle": "Time's Up!",
-    "timesUpDesc": "Your free 5-minute call has ended. Continue with Pro for unlimited calls — no time limits, ever.",
+    "timesUpTitle": "Time flew by! 🚀",
+    "timesUpSubtitle": "Shame to cut short \"{{quest}}\".",
+    "timesUpDesc": "With PRO, calls are unlimited — no timers, no interruptions. Keep the momentum going.",
+    "timesUpCta": "Continue the conversation (Upgrade to Pro)",
     "timesUpViewSummary": "View call summary"
   },
   "upgradeModal": {

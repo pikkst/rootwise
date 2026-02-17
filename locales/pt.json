@@ -948,8 +948,10 @@
     "upgradeForUnlimited": "Atualize para Pro para videochamadas ilimitadas sem limite de tempo.",
     "toast60s": "1 minuto restante na sua chamada gratuita!",
     "toast10s": "10 segundos! A chamada termina agora.",
-    "timesUpTitle": "O tempo acabou!",
-    "timesUpDesc": "Sua chamada gratuita de 5 minutos terminou. Continue com o Pro para chamadas ilimitadas sem limite de tempo.",
+    "timesUpTitle": "O tempo voou! 🚀",
+    "timesUpSubtitle": "Pena interromper \"{{quest}}\".",
+    "timesUpDesc": "Com o PRO, as chamadas s\u00e3o ilimitadas \u2014 sem cronometros nem interrup\u00e7\u00f5es. Continue de onde parou.",
+    "timesUpCta": "Continuar a conversa (Atualizar para Pro)",
     "timesUpViewSummary": "Ver resumo da chamada"
   },
   "upgradeModal": {

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../services/supabase';
 import { useToast } from '../context/ToastContext';
+import { trackEvent } from '../services/analyticsService';
 
 interface QuestVideoCallProps {
   questId: string;
@@ -254,6 +255,11 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
 
               if (remaining <= 0) {
                 if (freeTimerRef.current) clearInterval(freeTimerRef.current);
+                // Track for hot-lead detection — user hit the paywall
+                void trackEvent('video_limit_reached', {
+                  questId,
+                  questTitle,
+                });
                 // Dispose Jitsi, then show Time's Up modal (not raw summary)
                 if (apiRef.current) {
                   apiRef.current.dispose();
@@ -395,27 +401,37 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   // Time's Up modal — shown when free 5-min limit expires
   if (showTimesUp) {
     return (
-      <div className="fixed inset-0 z-[60] bg-slate-900/95 flex items-center justify-center p-6">
+      <div className="fixed inset-0 z-[60] bg-gradient-to-b from-slate-900 to-indigo-950 flex items-center justify-center p-6">
         <div className="bg-white rounded-3xl p-8 sm:p-10 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 rounded-full blur-3xl -translate-y-24 translate-x-24" />
-          <div className="absolute bottom-0 left-0 w-36 h-36 bg-amber-500/10 rounded-full blur-2xl translate-y-18 -translate-x-18" />
+          {/* Decorative blobs */}
+          <div className="absolute top-0 right-0 w-56 h-56 bg-indigo-400/10 rounded-full blur-3xl -translate-y-28 translate-x-28" />
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-amber-400/10 rounded-full blur-2xl translate-y-20 -translate-x-20" />
+
           <div className="relative z-10">
-            <div className="text-6xl mb-4">⏰</div>
-            <h2 className="text-2xl font-black text-slate-800 mb-3">
+            <div className="text-6xl mb-3">🚀</div>
+
+            <h2 className="text-2xl font-black text-slate-800 mb-2">
               {t('videoCall.timesUpTitle')}
             </h2>
+            <p className="text-indigo-600 font-semibold text-sm mb-4">
+              {t('videoCall.timesUpSubtitle', { quest: questTitle })}
+            </p>
             <p className="text-slate-500 text-sm mb-8 leading-relaxed">
               {t('videoCall.timesUpDesc')}
             </p>
+
+            {/* Primary CTA — psychologically strongest moment to convert */}
             <a
               href="/pricing"
-              className="block w-full px-6 py-4 mb-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition text-base shadow-xl shadow-indigo-600/20"
+              onClick={() => void trackEvent('upgrade_cta_clicked', { source: 'times_up_modal', questId })}
+              className="block w-full px-6 py-4 mb-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-2xl hover:opacity-90 transition text-base shadow-xl shadow-indigo-500/30"
             >
-              ⭐ {t('videoCall.upgradePro')}
+              ⭐ {t('videoCall.timesUpCta')}
             </a>
+
             <button
               onClick={() => { setShowTimesUp(false); setShowSummary(true); }}
-              className="w-full px-6 py-3 text-slate-600 font-semibold rounded-2xl border border-slate-200 hover:bg-slate-50 transition text-sm"
+              className="w-full px-6 py-3 text-slate-500 font-medium rounded-2xl border border-slate-200 hover:bg-slate-50 transition text-sm"
             >
               {t('videoCall.timesUpViewSummary')}
             </button>

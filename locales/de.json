@@ -1,4 +1,4 @@
-{
+﻿{
   "common": {
     "loading": "Wird geladen...",
     "save": "Speichern",
@@ -948,8 +948,10 @@
     "upgradeForUnlimited": "Upgrade auf Pro für unbegrenzte Videoanrufe ohne Zeitlimit.",
     "toast60s": "Noch 1 Minute im kostenlosen Gespräch!",
     "toast10s": "10 Sekunden! Das Gespräch wird jetzt beendet.",
-    "timesUpTitle": "Zeit abgelaufen!",
-    "timesUpDesc": "Dein kostenloses 5-minütiges Gespräch ist beendet. Mit Pro erhältst du unbegrenzte Anrufe ohne Zeitlimit.",
+    "timesUpTitle": "Die Zeit verflog! ",
+    "timesUpSubtitle": "Schade, \"{{quest}}\" abzubrechen."
+        "timesUpDesc": "Mit PRO sind Anrufe unbegrenzt  keine Timer, keine Unterbrechungen. Behalte den Schwung."
+        "timesUpCta": "Gespräch fortsetzen (Upgrade auf Pro)",
     "timesUpViewSummary": "Gesprächszusammenfassung ansehen"
   },
   "upgradeModal": {
