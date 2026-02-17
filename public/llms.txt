@@ -1,0 +1,59 @@
+# Rootwise
+
+> Rootwise is an intergenerational platform that connects parents, grandparents and grandchildren through collaborative Quests, AI mentoring, video calls and community groups. Its primary goal is to combat loneliness in elderly people, facilitate wisdom transfer across generations and create meaningful shared activities for families.
+
+## What is Rootwise?
+
+Rootwise is a web-based social platform for intergenerational connection. Users create or join "Quests" — structured shared missions designed for people of different generations to complete together. A Quest can be anything from cooking a family recipe together, reading the same book, learning a skill, recording family history, or completing an outdoor challenge. The platform uses gamification (XP, levels, achievements) to keep families engaged.
+
+## Who is Rootwise for?
+
+- Adults who want to stay connected with their elderly parents or grandparents
+- Grandparents who want meaningful activities with grandchildren
+- Families separated by distance looking for shared digital experiences
+- Seniors experiencing social isolation or loneliness
+- Anyone who wants to learn from or pass on lifelong wisdom across generations
+
+## Core Features
+
+- **Quests**: Structured collaborative activities for intergenerational pairs or groups. Each Quest has steps, video call support, and a shared progress tracker.
+- **AI Nexus (AI Mentor)**: A personalised AI assistant that builds memory of the user's background and goals, helps navigate Quests, answers questions and provides guidance.
+- **Community Groups**: Topic-based communities where users across generations can connect, share stories and find Quest partners.
+- **Quest Matching**: Smart matching system to pair users by interest, age group and location.
+- **Video Calls**: Built-in video calling within Quests so family members can complete activities face-to-face.
+- **Multilingual**: Full support for 15 languages — English, Estonian, German, French, Spanish, Italian, Russian, Finnish, Swedish, Latvian, Lithuanian, Polish, Portuguese, Dutch, Ukrainian.
+- **Gamification**: XP points, levels and badges reward engagement and consistency.
+
+## Key Use Cases
+
+- "What can I do with my grandparents?" → Join or create a Quest on Rootwise
+- "How can I keep my elderly parent from being lonely?" → Rootwise Quests and community groups
+- "Fun activities for grandparents and grandchildren" → Quest Discovery page
+- "How to share family stories across generations" → Storytelling Quests and AI-assisted family history recording
+- "Connecting with elderly parents who live far away" → Video call Quests and AI Nexus
+
+## Pricing
+
+- **Free**: Core experience — Quests, community, basic AI mentoring, matching
+- **Pro**: Unlimited AI messages, advanced analytics, priority support
+- **Organisation**: For schools, care homes or NGOs running intergenerational programmes
+
+## Mission
+
+Rootwise believes that wisdom is the world's most underutilised resource. By connecting generations through purposeful shared activities, Rootwise reduces elderly isolation, passes on lived experience to younger generations and strengthens family bonds regardless of physical distance.
+
+## Website
+
+https://rootwise.site
+
+## Key Pages
+
+- Homepage: https://rootwise.site/
+- Quest Discovery: https://rootwise.site/quests
+- Community: https://rootwise.site/community
+- Pricing: https://rootwise.site/pricing
+- Sign up: https://rootwise.site/auth
+
+## Contact
+
+villu@mail.eventnexus.eu

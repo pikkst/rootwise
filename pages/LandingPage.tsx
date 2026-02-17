@@ -27,6 +27,21 @@ const LandingPage: React.FC = () => {
         title={t('landing.seoTitle')}
         description={t('landing.seoDescription')}
         path="/"
+        keywords="activities with grandparents, things to do with parents, intergenerational activities, family bonding platform, connecting generations, grandparent grandchild activities, combat loneliness elderly, senior social platform, lifelong learning, wisdom sharing, family quest app"
+        structuredData={[
+          {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": t('landing.seoTitle'),
+            "description": t('landing.seoDescription'),
+            "url": "https://rootwise.site/",
+            "mainEntity": {
+              "@type": "Organization",
+              "name": "Rootwise",
+              "url": "https://rootwise.site"
+            }
+          }
+        ]}
       />
 
       {/* Top Navigation */}

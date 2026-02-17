@@ -1,3 +1,6 @@
+# Rootwise — https://rootwise.site
+
+# General crawlers
 User-agent: *
 Allow: /
 Disallow: /auth
@@ -7,4 +10,54 @@ Disallow: /ai-nexus
 Disallow: /analytics
 Disallow: /matching
 Disallow: /admin
+
+# Explicitly allow AI language model crawlers
+User-agent: GPTBot
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Extended
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
 Sitemap: https://rootwise.site/sitemap.xml
+
+# AI-readable site description
+# https://rootwise.site/llms.txt

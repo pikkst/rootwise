@@ -236,6 +236,7 @@ const QuestDiscoveryPage: React.FC = () => {
         title={t('questDiscovery.seoTitle')}
         description={t('questDiscovery.seoDescription')}
         path="/quest-discovery"
+        keywords="intergenerational activities, family quest finder, things to do with grandparents, activities across generations, grandparent grandchild quests, family bonding activities, shared missions, cross-generational challenges"
       />
 
       <header className="mb-10">
