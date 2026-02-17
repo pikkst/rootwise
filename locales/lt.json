@@ -937,7 +937,12 @@
     "summaryDuration": "Trukmė",
     "summarySteps": "Žingsniai",
     "summaryAllComplete": "Visi užduoties žingsniai atlikti pokalbio metu!",
-    "summaryClose": "Grįžti į užduotį"
+    "summaryClose": "Grįžti į užduotį",
+    "freeTimeRemaining": "Nemokamas planas: liko {{time}}",
+    "freeTimeUp": "Nemokamo skambučio laikas baigėsi!",
+    "upgradePro": "Atnaujinti į Pro",
+    "freeCallEnded": "Nemokamo skambučio limitas pasiektas",
+    "upgradeForUnlimited": "Atnaujinkite į Pro neribotiems vaizdo skambučiams be laiko limito."
   },
   "upgradeModal": {
     "titlePro": "Atnaujinti į Pro",

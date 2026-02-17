@@ -937,7 +937,12 @@
     "summaryDuration": "Ilgums",
     "summarySteps": "Soļi",
     "summaryAllComplete": "Visi uzdevuma soļi izpildīti zvana laikā!",
-    "summaryClose": "Atpakaļ pie uzdevuma"
+    "summaryClose": "Atpakaļ pie uzdevuma",
+    "freeTimeRemaining": "Bezmaksas plāns: atlikušas {{time}}",
+    "freeTimeUp": "Bezmaksas zvana laiks ir beidzies!",
+    "upgradePro": "Jaunināt uz Pro",
+    "freeCallEnded": "Bezmaksas zvanu limits sasniegts",
+    "upgradeForUnlimited": "Jauniniet uz Pro neierobežotiem videozvaniem bez laika ierobežojuma."
   },
   "upgradeModal": {
     "titlePro": "Jauniniet uz Pro",

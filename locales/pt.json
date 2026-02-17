@@ -937,7 +937,12 @@
     "summaryDuration": "Duração",
     "summarySteps": "Passos",
     "summaryAllComplete": "Todos os passos concluídos durante a chamada!",
-    "summaryClose": "Voltar à missão"
+    "summaryClose": "Voltar à missão",
+    "freeTimeRemaining": "Plano gratuito: {{time}} restante",
+    "freeTimeUp": "O tempo de chamada gratuita acabou!",
+    "upgradePro": "Atualizar para Pro",
+    "freeCallEnded": "Limite de chamada gratuita atingido",
+    "upgradeForUnlimited": "Atualize para Pro para videochamadas ilimitadas sem limite de tempo."
   },
   "upgradeModal": {
     "titlePro": "Atualizar para Pro",

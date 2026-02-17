@@ -10,6 +10,7 @@ interface QuestVideoCallProps {
   userAvatar?: string;
   rewardXP: number;
   isModerator?: boolean;
+  userPlan?: string;
   onClose: () => void;
 }
 
@@ -53,6 +54,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   userAvatar,
   rewardXP,
   isModerator = false,
+  userPlan = 'free',
   onClose,
 }) => {
   const { t } = useTranslation();
@@ -72,13 +74,25 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   const [cameraWarning, setCameraWarning] = useState<'none' | 'no-camera' | 'no-mic' | 'no-devices'>('none');
   const [showSummary, setShowSummary] = useState(false);
   const [finalDuration, setFinalDuration] = useState(0);
+  const [freeTimeLeft, setFreeTimeLeft] = useState<number | null>(null);
+  const freeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // JaaS (Jitsi as a Service) app ID — removes the 5-min limit
+  // Free users get 5 minutes, Pro/Org/Admin get unlimited
+  const isPro = userPlan === 'pro' || userPlan === 'org' || userPlan === 'admin';
+  const FREE_CALL_LIMIT = 5 * 60; // 5 minutes in seconds
+
+  // JaaS (Jitsi as a Service) app ID — only used for Pro users
   const JAAS_APP_ID = 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028';
 
-  // Deterministic room name from quest ID (JaaS requires appId/roomName format)
+  // Room name differs by plan:
+  // Pro: JaaS room with appId prefix
+  // Free: simple room name on public Jitsi
   const roomSuffix = `Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`;
-  const roomName = `${JAAS_APP_ID}/${roomSuffix}`;
+  const roomName = isPro ? `${JAAS_APP_ID}/${roomSuffix}` : roomSuffix;
+  const jitsiDomain = isPro ? '8x8.vc' : 'meet.jit.si';
+  const scriptUrl = isPro
+    ? 'https://8x8.vc/external_api.js'
+    : 'https://meet.jit.si/external_api.js';
 
   // Load Jitsi Meet External API and initialize
   useEffect(() => {
@@ -91,7 +105,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           return;
         }
         const script = document.createElement('script');
-        script.src = 'https://8x8.vc/external_api.js';
+        script.src = scriptUrl;
         script.async = true;
         script.onload = () => resolve();
         script.onerror = () => reject(new Error(t('videoCall.serviceError')));
@@ -125,31 +139,33 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         await loadScript();
         if (!mounted || !containerRef.current) return;
 
-        // Fetch JaaS JWT token for authenticated video calls
+        // Only fetch JaaS JWT for Pro users (free users use public meet.jit.si)
         let jwt: string | undefined;
-        try {
-          const { data, error: fnError } = await supabase.functions.invoke('jaas-token', {
-            body: {
-              roomName: roomSuffix,
-              userName,
-              userAvatar: userAvatar || '',
-              isModerator,
-            },
-          });
-          if (fnError) {
-            console.warn('JaaS token fetch failed, proceeding without JWT:', fnError);
-          } else {
-            jwt = data?.token;
+        if (isPro) {
+          try {
+            const { data, error: fnError } = await supabase.functions.invoke('jaas-token', {
+              body: {
+                roomName: roomSuffix,
+                userName,
+                userAvatar: userAvatar || '',
+                isModerator,
+              },
+            });
+            if (fnError) {
+              console.warn('JaaS token fetch failed, proceeding without JWT:', fnError);
+            } else {
+              jwt = data?.token;
+            }
+          } catch (tokenErr) {
+            console.warn('JaaS token fetch error, proceeding without JWT:', tokenErr);
           }
-        } catch (tokenErr) {
-          console.warn('JaaS token fetch error, proceeding without JWT:', tokenErr);
         }
 
         if (!mounted || !containerRef.current) return;
 
-        const api = new window.JitsiMeetExternalAPI('8x8.vc', {
+        const api = new window.JitsiMeetExternalAPI(jitsiDomain, {
           roomName,
-          jwt,
+          ...(jwt ? { jwt } : {}),
           parentNode: containerRef.current,
           width: '100%',
           height: '100%',
@@ -208,6 +224,27 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           setLoading(false);
           startTimeRef.current = Date.now();
           if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+
+          // Start 5-minute countdown for free users
+          if (!isPro) {
+            setFreeTimeLeft(FREE_CALL_LIMIT);
+            freeTimerRef.current = setInterval(() => {
+              if (!mounted) return;
+              const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+              const remaining = Math.max(0, FREE_CALL_LIMIT - elapsed);
+              setFreeTimeLeft(remaining);
+              if (remaining <= 0) {
+                // Auto-disconnect free user
+                if (freeTimerRef.current) clearInterval(freeTimerRef.current);
+                if (apiRef.current) {
+                  apiRef.current.dispose();
+                  apiRef.current = null;
+                }
+                setFinalDuration(FREE_CALL_LIMIT);
+                setShowSummary(true);
+              }
+            }, 1000);
+          }
         });
 
         // Fallback: if videoConferenceJoined never fires (e.g. Jitsi shows its own
@@ -267,6 +304,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
     return () => {
       mounted = false;
       if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+      if (freeTimerRef.current) clearInterval(freeTimerRef.current);
       if (apiRef.current) {
         apiRef.current.dispose();
         apiRef.current = null;
@@ -387,6 +425,21 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
               </div>
             )}
 
+            {!isPro && (
+              <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 mb-6">
+                <p className="text-indigo-700 font-bold text-sm mb-1">
+                  ⭐ {t('videoCall.freeCallEnded')}
+                </p>
+                <p className="text-indigo-600 text-xs mb-3">{t('videoCall.upgradeForUnlimited')}</p>
+                <a
+                  href="/pricing"
+                  className="inline-block px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition"
+                >
+                  {t('videoCall.upgradePro')}
+                </a>
+              </div>
+            )}
+
             <button
               onClick={onClose}
               className="w-full px-6 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition text-base shadow-xl shadow-indigo-600/20"
@@ -468,6 +521,34 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
               >
                 ✕
               </button>
+            </div>
+          )}
+
+          {/* Free user time limit banner */}
+          {!isPro && freeTimeLeft !== null && !loading && (
+            <div className={`absolute ${cameraWarning !== 'none' ? 'top-12' : 'top-0'} left-0 right-0 z-20 px-3 py-2.5 ${
+              freeTimeLeft <= 60
+                ? 'bg-red-600/95 animate-pulse'
+                : freeTimeLeft <= 120
+                ? 'bg-amber-600/95'
+                : 'bg-indigo-600/90'
+            } text-white text-sm flex items-center justify-between gap-2 shadow-lg backdrop-blur-sm`}>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-lg flex-shrink-0">⏱️</span>
+                <span className="font-medium leading-snug">
+                  {freeTimeLeft <= 0
+                    ? t('videoCall.freeTimeUp')
+                    : t('videoCall.freeTimeRemaining', { time: formatDuration(freeTimeLeft) })}
+                </span>
+              </div>
+              <a
+                href="/pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 px-3 py-1 text-xs font-bold bg-white/20 hover:bg-white/30 rounded-lg transition"
+              >
+                ⭐ {t('videoCall.upgradePro')}
+              </a>
             </div>
           )}
 

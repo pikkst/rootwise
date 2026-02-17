@@ -957,7 +957,12 @@
     "summaryDuration": "Duration",
     "summarySteps": "Steps",
     "summaryAllComplete": "All quest steps completed during the call!",
-    "summaryClose": "Back to Quest"
+    "summaryClose": "Back to Quest",
+    "freeTimeRemaining": "Free plan: {{time}} remaining",
+    "freeTimeUp": "Free call time is up!",
+    "upgradePro": "Upgrade to Pro",
+    "freeCallEnded": "Free call limit reached",
+    "upgradeForUnlimited": "Upgrade to Pro for unlimited video calls with no time limit."
   },
 
   "upgradeModal": {

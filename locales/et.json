@@ -937,7 +937,12 @@
     "summaryDuration": "Kestvus",
     "summarySteps": "Sammud",
     "summaryAllComplete": "Kõik ülesande sammud sooritatud kõne ajal!",
-    "summaryClose": "Tagasi ülesandesse"
+    "summaryClose": "Tagasi ülesandesse",
+    "freeTimeRemaining": "Tasuta plaan: {{time}} jäänud",
+    "freeTimeUp": "Tasuta kõneaeg on läbi!",
+    "upgradePro": "Uuenda Pro-ks",
+    "freeCallEnded": "Tasuta kõne piir täis",
+    "upgradeForUnlimited": "Uuenda Pro plaanile piiramatute videokõnede jaoks."
   },
   "upgradeModal": {
     "titlePro": "Pro versioonile üleminek",

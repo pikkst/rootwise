@@ -1360,6 +1360,7 @@ const QuestDetailPage: React.FC = () => {
           userAvatar={profile.avatar_url ?? undefined}
           rewardXP={quest.reward_xp ?? 0}
           isModerator={isCreator}
+          userPlan={profile.plan || 'free'}
           onClose={handleLeaveCall}
         />
       )}

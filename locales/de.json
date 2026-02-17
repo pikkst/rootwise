@@ -937,7 +937,12 @@
     "summaryDuration": "Dauer",
     "summarySteps": "Schritte",
     "summaryAllComplete": "Alle Quest-Schritte während des Anrufs abgeschlossen!",
-    "summaryClose": "Zurück zur Quest"
+    "summaryClose": "Zurück zur Quest",
+    "freeTimeRemaining": "Kostenloser Plan: {{time}} verbleibend",
+    "freeTimeUp": "Kostenlose Anrufzeit ist abgelaufen!",
+    "upgradePro": "Auf Pro upgraden",
+    "freeCallEnded": "Kostenlose Anruflimit erreicht",
+    "upgradeForUnlimited": "Upgrade auf Pro für unbegrenzte Videoanrufe ohne Zeitlimit."
   },
   "upgradeModal": {
     "titlePro": "Upgrade auf Pro",

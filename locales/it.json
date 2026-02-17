@@ -937,7 +937,12 @@
     "summaryDuration": "Durata",
     "summarySteps": "Passi",
     "summaryAllComplete": "Tutti i passi completati durante la chiamata!",
-    "summaryClose": "Torna alla quest"
+    "summaryClose": "Torna alla quest",
+    "freeTimeRemaining": "Piano gratuito: {{time}} rimanente",
+    "freeTimeUp": "Il tempo della chiamata gratuita è scaduto!",
+    "upgradePro": "Passa a Pro",
+    "freeCallEnded": "Limite chiamata gratuita raggiunto",
+    "upgradeForUnlimited": "Passa a Pro per videochiamate illimitate senza limiti di tempo."
   },
   "upgradeModal": {
     "titlePro": "Passa a Pro",

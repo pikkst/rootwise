@@ -937,7 +937,12 @@
     "summaryDuration": "Czas trwania",
     "summarySteps": "Kroki",
     "summaryAllComplete": "Wszystkie kroki ukończone podczas rozmowy!",
-    "summaryClose": "Wróć do zadania"
+    "summaryClose": "Wróć do zadania",
+    "freeTimeRemaining": "Darmowy plan: pozostało {{time}}",
+    "freeTimeUp": "Czas darmowego połączenia się skończył!",
+    "upgradePro": "Ulepsz do Pro",
+    "freeCallEnded": "Limit darmowego połączenia osiągnięty",
+    "upgradeForUnlimited": "Ulepsz do Pro, aby korzystać z nieograniczonych rozmów wideo bez limitu czasu."
   },
   "upgradeModal": {
     "titlePro": "Uaktualnij do Pro",

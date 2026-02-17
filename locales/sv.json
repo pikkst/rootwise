@@ -937,7 +937,12 @@
     "summaryDuration": "Varaktighet",
     "summarySteps": "Steg",
     "summaryAllComplete": "Alla uppdragssteg slutförda under samtalet!",
-    "summaryClose": "Tillbaka till uppdraget"
+    "summaryClose": "Tillbaka till uppdraget",
+    "freeTimeRemaining": "Gratisplan: {{time}} kvar",
+    "freeTimeUp": "Gratis samtalstid är slut!",
+    "upgradePro": "Uppgradera till Pro",
+    "freeCallEnded": "Gratis samtalsgräns nådd",
+    "upgradeForUnlimited": "Uppgradera till Pro för obegränsade videosamtal utan tidsgräns."
   },
   "upgradeModal": {
     "titlePro": "Uppgradera till Pro",

@@ -937,7 +937,12 @@
     "summaryDuration": "Durée",
     "summarySteps": "Étapes",
     "summaryAllComplete": "Toutes les étapes complétées pendant l'appel !",
-    "summaryClose": "Retour à la quête"
+    "summaryClose": "Retour à la quête",
+    "freeTimeRemaining": "Plan gratuit : {{time}} restant",
+    "freeTimeUp": "Le temps d'appel gratuit est écoulé !",
+    "upgradePro": "Passer à Pro",
+    "freeCallEnded": "Limite d'appel gratuit atteinte",
+    "upgradeForUnlimited": "Passez à Pro pour des appels vidéo illimités sans limite de temps."
   },
   "upgradeModal": {
     "titlePro": "Passer à Pro",

@@ -937,7 +937,12 @@
     "summaryDuration": "Duur",
     "summarySteps": "Stappen",
     "summaryAllComplete": "Alle stappen voltooid tijdens het gesprek!",
-    "summaryClose": "Terug naar quest"
+    "summaryClose": "Terug naar quest",
+    "freeTimeRemaining": "Gratis plan: {{time}} resterend",
+    "freeTimeUp": "Gratis beltijd is op!",
+    "upgradePro": "Upgraden naar Pro",
+    "freeCallEnded": "Gratis bellimiet bereikt",
+    "upgradeForUnlimited": "Upgrade naar Pro voor onbeperkte videogesprekken zonder tijdslimiet."
   },
   "upgradeModal": {
     "titlePro": "Upgrade naar Pro",

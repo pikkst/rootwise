@@ -937,7 +937,12 @@
     "summaryDuration": "Тривалість",
     "summarySteps": "Кроки",
     "summaryAllComplete": "Усі кроки квесту виконано під час дзвінка!",
-    "summaryClose": "Назад до квесту"
+    "summaryClose": "Назад до квесту",
+    "freeTimeRemaining": "Безкоштовний план: залишилось {{time}}",
+    "freeTimeUp": "Безкоштовний час дзвінка вичерпано!",
+    "upgradePro": "Оновити до Pro",
+    "freeCallEnded": "Ліміт безкоштовного дзвінка досягнуто",
+    "upgradeForUnlimited": "Оновіть до Pro для необмежених відеодзвінків без обмеження часу."
   },
   "upgradeModal": {
     "titlePro": "Перейти на Pro",
