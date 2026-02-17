@@ -24,6 +24,7 @@ const Footer: React.FC = () => {
               <li><button onClick={() => navigate('/quests')} className="hover:text-indigo-600 transition-colors">{t('footer.browseQuests')}</button></li>
               <li><button onClick={() => navigate('/community')} className="hover:text-indigo-600 transition-colors">{t('footer.communities')}</button></li>
               <li><button onClick={() => navigate('/ai-nexus')} className="hover:text-indigo-600 transition-colors">{t('footer.aiMentor')}</button></li>
+              <li><button onClick={() => navigate('/pricing')} className="hover:text-indigo-600 transition-colors">{t('footer.pricing')}</button></li>
             </ul>
           </div>
           <div>
