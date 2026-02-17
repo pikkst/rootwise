@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import SEOHead from '../components/SEOHead';
+import { trackEvent } from '../services/analyticsService';
 
 const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -30,30 +31,57 @@ const AuthPage: React.FC = () => {
     setSuccess(null);
     setLoading(true);
 
+    void trackEvent('auth_submitted', {
+      mode: isLogin ? 'sign_in' : 'sign_up',
+    });
+
     try {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
+          void trackEvent('auth_failed', {
+            mode: 'sign_in',
+            reason: error,
+          });
           setError(error);
+        } else {
+          void trackEvent('auth_success', {
+            mode: 'sign_in',
+          });
         }
         // Don't navigate here — the useEffect above will handle it
         // once onAuthStateChange sets the user
       } else {
         if (!name.trim()) {
+          void trackEvent('auth_failed', {
+            mode: 'sign_up',
+            reason: 'missing_name',
+          });
           setError(t('auth.validationName'));
           setLoading(false);
           return;
         }
         const { error } = await signUp(email, password, name);
         if (error) {
+          void trackEvent('auth_failed', {
+            mode: 'sign_up',
+            reason: error,
+          });
           setError(error);
         } else {
+          void trackEvent('auth_success', {
+            mode: 'sign_up',
+          });
           setSuccess(t('auth.successCreated'));
           setIsLogin(true);
         }
       }
     } catch (err: unknown) {
       console.error('Auth error:', err);
+      void trackEvent('auth_failed', {
+        mode: isLogin ? 'sign_in' : 'sign_up',
+        reason: err instanceof Error ? err.message : 'unknown_error',
+      });
       setError(err instanceof Error ? err.message : t('common.error'));
     }
     setLoading(false);

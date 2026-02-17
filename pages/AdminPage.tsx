@@ -49,6 +49,36 @@ interface TrendPoint {
   posts: number;
 }
 
+interface PlatformEventRow {
+  name: string;
+  user_id: string | null;
+  created_at: string;
+  properties: Record<string, unknown> | null;
+  url: string | null;
+}
+
+interface FunnelStats {
+  pageViews: number;
+  landingCtas: number;
+  authSuccess: number;
+  checkoutStarted: number;
+  upgradeClicks: number;
+  questJoined: number;
+}
+
+interface CountStat {
+  key: string;
+  count: number;
+}
+
+interface HotLead {
+  userId: string;
+  name: string;
+  plan: string;
+  hits: number;
+  lastHit: string;
+}
+
 interface UserReportWithReporter extends UserReport {
   reporterName?: string;
 }
@@ -61,6 +91,10 @@ const AdminPage: React.FC = () => {
   const [stats, setStats] = useState<OrgStats | null>(null);
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
   const [trendData, setTrendData] = useState<TrendPoint[]>([]);
+  const [funnelStats, setFunnelStats] = useState<FunnelStats | null>(null);
+  const [topSources, setTopSources] = useState<CountStat[]>([]);
+  const [topEvents, setTopEvents] = useState<CountStat[]>([]);
+  const [hotLeads, setHotLeads] = useState<HotLead[]>([]);
   const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'traffic' | 'members' | 'communities' | 'reports'>('overview');
@@ -144,7 +178,9 @@ const AdminPage: React.FC = () => {
 
   const fetchPlatformData = async () => {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const iso = sevenDaysAgo.toISOString();
+    const iso30 = thirtyDaysAgo.toISOString();
 
     const [
       usersCount,
@@ -207,6 +243,97 @@ const AdminPage: React.FC = () => {
     });
 
     setTrendData(Object.values(dayMap));
+
+    const { data: eventsData } = await supabase
+      .from('platform_events')
+      .select('name, user_id, created_at, properties, url')
+      .gte('created_at', iso30)
+      .order('created_at', { ascending: false })
+      .limit(5000);
+
+    const events = (eventsData as PlatformEventRow[] | null) ?? [];
+    const byName: Record<string, number> = {};
+    const bySource: Record<string, number> = {};
+    const hotLeadMap: Record<string, { hits: number; lastHit: string }> = {};
+
+    events.forEach((event) => {
+      byName[event.name] = (byName[event.name] ?? 0) + 1;
+
+      const props = event.properties ?? {};
+      const src = (props.utm_source as string | undefined)
+        ?? (props.referrer_host as string | undefined)
+        ?? 'direct';
+      bySource[src] = (bySource[src] ?? 0) + 1;
+
+      if (
+        event.name === 'video_limit_reached'
+        && event.user_id
+        && new Date(event.created_at).getTime() >= sevenDaysAgo.getTime()
+      ) {
+        const prev = hotLeadMap[event.user_id] ?? { hits: 0, lastHit: event.created_at };
+        hotLeadMap[event.user_id] = {
+          hits: prev.hits + 1,
+          lastHit: prev.lastHit > event.created_at ? prev.lastHit : event.created_at,
+        };
+      }
+    });
+
+    setFunnelStats({
+      pageViews: byName.page_view ?? 0,
+      landingCtas: byName.landing_cta_clicked ?? 0,
+      authSuccess: byName.auth_success ?? 0,
+      checkoutStarted: byName.checkout_started ?? 0,
+      upgradeClicks: byName.upgrade_cta_clicked ?? 0,
+      questJoined: byName.quest_joined ?? 0,
+    });
+
+    setTopSources(
+      Object.entries(bySource)
+        .map(([key, count]) => ({ key, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 8)
+    );
+
+    setTopEvents(
+      Object.entries(byName)
+        .map(([key, count]) => ({ key, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 8)
+    );
+
+    const hotLeadUsers = Object.entries(hotLeadMap)
+      .filter(([, value]) => value.hits >= 2)
+      .sort((a, b) => b[1].hits - a[1].hits)
+      .slice(0, 20);
+
+    if (hotLeadUsers.length === 0) {
+      setHotLeads([]);
+      return;
+    }
+
+    const ids = hotLeadUsers.map(([userId]) => userId);
+    const { data: leadProfiles } = await supabase
+      .from('profiles')
+      .select('id, name, plan')
+      .in('id', ids);
+
+    const profileMap: Record<string, { name: string; plan: string }> = {};
+    (leadProfiles ?? []).forEach((profileRow: { id: string; name: string; plan: string }) => {
+      profileMap[profileRow.id] = {
+        name: profileRow.name,
+        plan: profileRow.plan,
+      };
+    });
+
+    setHotLeads(
+      hotLeadUsers.map(([userId, value]) => ({
+        userId,
+        name: profileMap[userId]?.name ?? userId,
+        plan: profileMap[userId]?.plan ?? 'free',
+        hits: value.hits,
+        lastHit: value.lastHit,
+      }))
+    );
   };
 
   const fetchAdminData = async () => {
@@ -553,7 +680,7 @@ const AdminPage: React.FC = () => {
           </p>
           <p className="text-slate-400 text-sm mb-8">{t('admin.authWallNote')}</p>
           <button
-            onClick={() => redirectToCheckout('org')}
+            onClick={() => redirectToCheckout('org', 'admin_paywall')}
             className="px-8 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/30"
           >
             {t('admin.authWallBtn')}
@@ -720,6 +847,119 @@ const AdminPage: React.FC = () => {
                   </ResponsiveContainer>
                 </div>
               </div>
+
+              {funnelStats && (
+                <>
+                  <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 className="text-lg font-bold mb-4">Conversion Funnel (30d)</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <p className="text-xs text-slate-500 mb-1">Page Views</p>
+                        <p className="text-2xl font-black text-slate-800">{funnelStats.pageViews}</p>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <p className="text-xs text-slate-500 mb-1">Landing CTA</p>
+                        <p className="text-2xl font-black text-indigo-600">{funnelStats.landingCtas}</p>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <p className="text-xs text-slate-500 mb-1">Auth Success</p>
+                        <p className="text-2xl font-black text-emerald-600">{funnelStats.authSuccess}</p>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <p className="text-xs text-slate-500 mb-1">Upgrade Clicks</p>
+                        <p className="text-2xl font-black text-amber-600">{funnelStats.upgradeClicks}</p>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <p className="text-xs text-slate-500 mb-1">Checkout Started</p>
+                        <p className="text-2xl font-black text-purple-600">{funnelStats.checkoutStarted}</p>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <p className="text-xs text-slate-500 mb-1">Quest Joined</p>
+                        <p className="text-2xl font-black text-cyan-600">{funnelStats.questJoined}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+                      <div className="p-4 rounded-2xl border border-slate-200">
+                        <p className="text-xs text-slate-500">Landing CTA → Checkout</p>
+                        <p className="text-lg font-bold text-slate-800 mt-1">
+                          {funnelStats.landingCtas > 0
+                            ? `${((funnelStats.checkoutStarted / funnelStats.landingCtas) * 100).toFixed(1)}%`
+                            : '0.0%'}
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-2xl border border-slate-200">
+                        <p className="text-xs text-slate-500">Auth Success → Checkout</p>
+                        <p className="text-lg font-bold text-slate-800 mt-1">
+                          {funnelStats.authSuccess > 0
+                            ? `${((funnelStats.checkoutStarted / funnelStats.authSuccess) * 100).toFixed(1)}%`
+                            : '0.0%'}
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-2xl border border-slate-200">
+                        <p className="text-xs text-slate-500">Upgrade Click → Checkout</p>
+                        <p className="text-lg font-bold text-slate-800 mt-1">
+                          {funnelStats.upgradeClicks > 0
+                            ? `${((funnelStats.checkoutStarted / funnelStats.upgradeClicks) * 100).toFixed(1)}%`
+                            : '0.0%'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                      <h3 className="text-lg font-bold mb-4">Top Traffic Sources (30d)</h3>
+                      <div className="space-y-2">
+                        {topSources.length === 0 ? (
+                          <p className="text-sm text-slate-500">No source data yet.</p>
+                        ) : topSources.map((source) => (
+                          <div key={source.key} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                            <span className="text-sm text-slate-700 break-all">{source.key}</span>
+                            <span className="text-sm font-bold text-slate-900">{source.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                      <h3 className="text-lg font-bold mb-4">Top Events (30d)</h3>
+                      <div className="space-y-2">
+                        {topEvents.length === 0 ? (
+                          <p className="text-sm text-slate-500">No events yet.</p>
+                        ) : topEvents.map((event) => (
+                          <div key={event.key} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                            <span className="text-sm text-slate-700">{event.key}</span>
+                            <span className="text-sm font-bold text-slate-900">{event.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 className="text-lg font-bold mb-4">Hot Leads (video limit hit ≥ 2 in 7d)</h3>
+                    {hotLeads.length === 0 ? (
+                      <p className="text-sm text-slate-500">No hot leads in the last 7 days.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {hotLeads.map((lead) => (
+                          <div key={lead.userId} className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                            <div>
+                              <p className="text-sm font-bold text-slate-800">{lead.name}</p>
+                              <p className="text-xs text-slate-500">Plan: {lead.plan}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-bold text-rose-600">{lead.hits} hits</p>
+                              <p className="text-xs text-slate-500">Last: {formatDateTime(lead.lastHit)}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
 

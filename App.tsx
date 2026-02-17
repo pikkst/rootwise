@@ -26,6 +26,7 @@ import PricingPage from './pages/PricingPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import ReportsPage from './pages/ReportsPage';
+import { trackEvent } from './services/analyticsService';
 
 const LANG_CODES = new Set(SUPPORTED_LANGUAGES.map(l => l.code));
 
@@ -108,6 +109,14 @@ const pageRoutes = (
 );
 
 const AppRoutes: React.FC = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    void trackEvent('page_view', {
+      path: location.pathname,
+    });
+  }, [location.pathname, location.search]);
+
   return (
     <Routes>
       {/* Bare routes (English / default) */}

@@ -14,6 +14,7 @@ import type { UserQuestContext } from '../services/geminiService';
 import { supabase } from '../services/supabase';
 import { PLAN_LIMITS, isPro, getEffectivePlan } from '../services/planService';
 import { batchGetCachedTranslations, type QuestTranslation } from '../hooks/useQuestTranslation';
+import { trackEvent } from '../services/analyticsService';
 
 const CATEGORY_KEYS = ['All', 'Technology', 'Environment', 'Finance', 'Arts', 'Lifestyle', 'Education', 'History'];
 
@@ -56,6 +57,10 @@ const QuestsPage: React.FC = () => {
     if (result.error) {
       showToast('error', result.error);
     } else {
+      void trackEvent('quest_joined', {
+        questId: id,
+        source: 'quests_page',
+      });
       showToast('success', t('quests.joinedToast'));
     }
   };
@@ -132,6 +137,11 @@ const QuestsPage: React.FC = () => {
     }
     // Check rate limit for free users
     if (!hasPro && !aiUsage.canGenerateQuest) {
+      void trackEvent('quest_gen_limit_reached', {
+        source: 'quests_page',
+        used: aiUsage.questGensUsed,
+        limit: aiUsage.questGenLimit,
+      });
       setUpgradeFeature(t('quests.aiQuestGeneration'));
       setShowUpgrade(true);
       return;
@@ -141,6 +151,12 @@ const QuestsPage: React.FC = () => {
       const activeCount = quests.filter(q => q.participants.includes(profile.id) && q.status !== 'completed').length;
       const max = PLAN_LIMITS.free.maxActiveQuests;
       if (activeCount >= max) {
+        void trackEvent('upgrade_modal_shown', {
+          source: 'quests_page_active_limit',
+          activeCount,
+          limit: max,
+          feature: 'active_quest_limit',
+        });
         setUpgradeFeature(t('quests.upgradeUnlimited'));
         setShowUpgrade(true);
         return;
@@ -212,6 +228,10 @@ const QuestsPage: React.FC = () => {
           is_virtual: true,
           image_url: imageUrl,
         });
+        void trackEvent('quest_generated_ai', {
+          source: 'quests_page',
+          category: data.category,
+        });
         showToast('success', t('quests.generatedToast'));
       }
     } catch (err) {
@@ -240,7 +260,7 @@ const QuestsPage: React.FC = () => {
             return (
               <div>
                 <p className="text-xs text-amber-600 mt-1 font-medium">
-                  {t('quests.activeCount', { n: activeCount, max })} — <button onClick={() => { setUpgradeFeature(t('quests.upgradeUnlimited')); setShowUpgrade(true); }} className="underline">{t('quests.upgradeUnlimited')}</button>
+                  {t('quests.activeCount', { n: activeCount, max })} — <button onClick={() => { void trackEvent('upgrade_cta_clicked', { source: 'quests_inline_limit', feature: 'active_quest_limit' }); setUpgradeFeature(t('quests.upgradeUnlimited')); setShowUpgrade(true); }} className="underline">{t('quests.upgradeUnlimited')}</button>
                 </p>
               </div>
             );

@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { trackEvent } from './analyticsService';
 
 export type Plan = 'free' | 'pro' | 'org' | 'admin';
 
@@ -46,7 +47,8 @@ export async function createCheckoutSession(plan: 'pro' | 'org'): Promise<string
   return data?.url || null;
 }
 
-export async function redirectToCheckout(plan: 'pro' | 'org') {
+export async function redirectToCheckout(plan: 'pro' | 'org', source?: string) {
+  void trackEvent('checkout_started', { plan, source: source ?? 'unknown' });
   const url = await createCheckoutSession(plan);
   if (url) {
     window.location.href = url;
@@ -54,6 +56,7 @@ export async function redirectToCheckout(plan: 'pro' | 'org') {
 }
 
 export async function openBillingPortal(): Promise<string | null> {
+  void trackEvent('billing_portal_opened');
   const { data, error } = await supabase.functions.invoke('stripe-portal', {});
 
   if (error) {

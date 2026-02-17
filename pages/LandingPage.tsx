@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
+import { trackEvent } from '../services/analyticsService';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -55,11 +56,35 @@ const LandingPage: React.FC = () => {
             <a href="#how-it-works" className="hover:text-indigo-600 transition-colors">{t('landing.navHowItWorks')}</a>
             <a href="#features" className="hover:text-indigo-600 transition-colors">{t('landing.navFeatures')}</a>
             <a href="#proof" className="hover:text-indigo-600 transition-colors">{t('landing.navCommunity')}</a>
-            <button onClick={() => navigate('/quests')} className="hover:text-indigo-600 transition-colors">{t('landing.navBrowseQuests')}</button>
+            <button
+              onClick={() => {
+                void trackEvent('landing_cta_clicked', { source: 'nav_browse_quests', variant: ctaVariant });
+                navigate('/quests');
+              }}
+              className="hover:text-indigo-600 transition-colors"
+            >
+              {t('landing.navBrowseQuests')}
+            </button>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/auth')} className="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">{t('common.signIn')}</button>
-            <button onClick={() => navigate('/auth')} className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors">{t('landing.navGetStarted')}</button>
+            <button
+              onClick={() => {
+                void trackEvent('landing_cta_clicked', { source: 'nav_sign_in', variant: ctaVariant });
+                navigate('/auth');
+              }}
+              className="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors"
+            >
+              {t('common.signIn')}
+            </button>
+            <button
+              onClick={() => {
+                void trackEvent('landing_cta_clicked', { source: 'nav_get_started', variant: ctaVariant });
+                navigate('/auth');
+              }}
+              className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors"
+            >
+              {t('landing.navGetStarted')}
+            </button>
           </div>
         </div>
       </nav>
@@ -85,7 +110,10 @@ const LandingPage: React.FC = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button 
-                  onClick={() => navigate('/auth')}
+                  onClick={() => {
+                    void trackEvent('landing_cta_clicked', { source: 'hero_primary', variant: ctaVariant });
+                    navigate('/auth');
+                  }}
                   className="px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black text-lg hover:scale-105 transition-all shadow-2xl hover:shadow-indigo-500/40"
                 >
                   {primaryCtaText}
@@ -250,13 +278,19 @@ const LandingPage: React.FC = () => {
               <p className="text-slate-500 text-lg mb-8">{t('landing.conversionDesc')}</p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={() => navigate('/auth')}
+                  onClick={() => {
+                    void trackEvent('landing_cta_clicked', { source: 'conversion_primary', variant: ctaVariant });
+                    navigate('/auth');
+                  }}
                   className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-lg"
                 >
                   {ctaVariant === 'start' ? t('landing.conversionRegister') : t('landing.conversionCreateAccount')}
                 </button>
                 <button
-                  onClick={() => navigate('/quests')}
+                  onClick={() => {
+                    void trackEvent('landing_cta_clicked', { source: 'conversion_browse', variant: ctaVariant });
+                    navigate('/quests');
+                  }}
                   className="px-8 py-4 bg-white border border-slate-200 text-slate-700 rounded-2xl font-bold text-lg hover:border-indigo-400 hover:text-indigo-600 transition-all"
                 >
                   {t('landing.conversionBrowse')}
@@ -342,13 +376,19 @@ const LandingPage: React.FC = () => {
           <p className="text-lg text-slate-400 mb-10 relative z-10 max-w-xl mx-auto">{t('landing.finalCtaDesc')}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
             <button 
-              onClick={() => navigate('/auth')}
+              onClick={() => {
+                void trackEvent('landing_cta_clicked', { source: 'final_cta_primary', variant: ctaVariant });
+                navigate('/auth');
+              }}
               className="px-6 sm:px-10 py-4 sm:py-5 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-black text-lg sm:text-xl transition-all hover:scale-105 shadow-xl"
             >
               {ctaVariant === 'start' ? t('landing.conversionRegister') : t('landing.conversionCreateAccount')}
             </button>
             <button 
-              onClick={() => navigate('/quests')}
+              onClick={() => {
+                void trackEvent('landing_cta_clicked', { source: 'final_cta_browse', variant: ctaVariant });
+                navigate('/quests');
+              }}
               className="px-6 sm:px-10 py-4 sm:py-5 bg-white/10 border border-white/20 hover:bg-white/20 rounded-2xl font-bold text-lg sm:text-xl transition-all"
             >
               {t('landing.finalCtaBrowse')}

@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { redirectToCheckout } from '../services/stripeService';
+import { trackEvent } from '../services/analyticsService';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -13,6 +14,15 @@ interface UpgradeModalProps {
 const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, requiredPlan = 'pro' }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    void trackEvent('upgrade_modal_shown', {
+      feature,
+      requiredPlan,
+      source: 'upgrade_modal',
+    });
+  }, [isOpen, feature, requiredPlan]);
 
   if (!isOpen) return null;
 
@@ -62,7 +72,14 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, r
 
         <div className="space-y-3">
           <button
-            onClick={() => redirectToCheckout(requiredPlan)}
+            onClick={() => {
+              void trackEvent('upgrade_cta_clicked', {
+                feature,
+                requiredPlan,
+                source: 'upgrade_modal_primary',
+              });
+              redirectToCheckout(requiredPlan, 'upgrade_modal');
+            }}
             className={`w-full py-4 font-bold rounded-2xl transition-all shadow-lg ${
               isPro
                 ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/30'
@@ -73,7 +90,15 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, r
           </button>
 
           <button
-            onClick={() => { onClose(); navigate('/pricing'); }}
+            onClick={() => {
+              void trackEvent('upgrade_cta_clicked', {
+                feature,
+                requiredPlan,
+                source: 'upgrade_modal_compare',
+              });
+              onClose();
+              navigate('/pricing');
+            }}
             className="w-full py-3 text-sm text-indigo-600 font-semibold hover:underline"
           >
             {t('upgradeModal.compareAll')}

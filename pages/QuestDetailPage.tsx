@@ -11,6 +11,7 @@ import { formatTime, formatDateNumeric } from '../utils/formatDate';
 import { useQuestTranslation } from '../hooks/useQuestTranslation';
 import { canJoinQuest } from '../services/planService';
 import { Plan } from '../services/stripeService';
+import { trackEvent } from '../services/analyticsService';
 
 /** Privacy name: "Malle K." format */
 const privacyName = (fullName?: string | null): string => {
@@ -292,6 +293,11 @@ const QuestDetailPage: React.FC = () => {
 
       const activeCount = activeMemberships?.length ?? 0;
       if (!canJoinQuest(profile.plan as Plan, activeCount)) {
+        void trackEvent('upgrade_modal_shown', {
+          source: 'quest_detail_join_limit',
+          questId,
+          activeCount,
+        });
         showToast('error', t('hooks.freeQuestLimit'));
         setJoiningQuest(false);
         return;
@@ -310,6 +316,10 @@ const QuestDetailPage: React.FC = () => {
       if (error) {
         showToast('error', error.message || t('questDetail.toastJoinFailed'));
       } else {
+        void trackEvent('quest_joined', {
+          source: 'quest_detail',
+          questId,
+        });
         showToast('success', t('questDetail.toastJoined'));
         await fetchQuestDetails();
       }
@@ -342,6 +352,10 @@ const QuestDetailPage: React.FC = () => {
       if (error) {
         showToast('error', t('questDetail.toastProofFailed'));
       } else {
+        void trackEvent('proof_submitted', {
+          source: 'quest_detail',
+          questId,
+        });
         // Notify quest creator/mentors about new proof
         const mentors = members.filter((m) => m.role === 'creator' || m.role === 'mentor');
         for (const mentor of mentors) {

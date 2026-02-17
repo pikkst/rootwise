@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../services/supabase';
 import { DbQuest } from '../types';
+import { trackEvent } from '../services/analyticsService';
 
 interface QuestMatch extends DbQuest {
   matchScore: number;
@@ -204,6 +205,10 @@ const QuestDiscoveryPage: React.FC = () => {
       if (error) {
         showToast('error', error.message || t('questDiscovery.failedToJoin'));
       } else {
+        void trackEvent('quest_joined', {
+          source: 'quest_discovery',
+          questId,
+        });
         showToast('success', t('questDiscovery.joinSuccess'));
         await fetchAndMatchQuests();
       }

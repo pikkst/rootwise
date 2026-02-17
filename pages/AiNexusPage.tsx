@@ -12,6 +12,7 @@ import type { ChatUserProfile } from '../services/geminiService';
 import { supabase } from '../services/supabase';
 import { formatTime } from '../utils/formatDate';
 import { isPro } from '../services/planService';
+import { trackEvent } from '../services/analyticsService';
 
 const AiNexusPage: React.FC = () => {
   const { t } = useTranslation();
@@ -101,6 +102,11 @@ const AiNexusPage: React.FC = () => {
 
     // Check if user can send (free plan rate limit)
     if (!hasPro && !aiUsage.canChat) {
+      void trackEvent('ai_limit_reached', {
+        source: 'ai_nexus_send',
+        used: aiUsage.messagesUsed,
+        limit: aiUsage.messageLimit,
+      });
       setShowUpgrade(true);
       return;
     }
@@ -150,7 +156,13 @@ const AiNexusPage: React.FC = () => {
               compact
             />
             <button
-              onClick={() => setShowUpgrade(true)}
+              onClick={() => {
+                void trackEvent('upgrade_cta_clicked', {
+                  source: 'ai_nexus_header_unlimited',
+                  feature: 'ai_unlimited',
+                });
+                setShowUpgrade(true);
+              }}
               className="text-xs text-indigo-600 font-bold hover:underline whitespace-nowrap"
             >
               {t('ai.goUnlimited')}
@@ -175,7 +187,16 @@ const AiNexusPage: React.FC = () => {
           {!aiUsage.canChat && (
             <div className="mt-2 flex items-center justify-between">
               <span className="text-xs text-red-500 font-medium">{t('ai.dailyLimit')}</span>
-              <button onClick={() => setShowUpgrade(true)} className="text-xs text-indigo-600 font-bold hover:underline">
+              <button
+                onClick={() => {
+                  void trackEvent('upgrade_cta_clicked', {
+                    source: 'ai_nexus_limit_row',
+                    feature: 'ai_daily_limit',
+                  });
+                  setShowUpgrade(true);
+                }}
+                className="text-xs text-indigo-600 font-bold hover:underline"
+              >
                 {t('ai.upgradeToProBtn')}
               </button>
             </div>

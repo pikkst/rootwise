@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { usePlan } from '../hooks/usePlan';
 import { redirectToCheckout, openBillingPortal } from '../services/stripeService';
 import { formatDateLong } from '../utils/formatDate';
+import { trackEvent } from '../services/analyticsService';
 
 const PricingPage: React.FC = () => {
   const { t } = useTranslation();
@@ -18,12 +19,25 @@ const PricingPage: React.FC = () => {
   const currentPlan = planInfo.plan;
   const isAuthenticated = !!user;
 
+  React.useEffect(() => {
+    void trackEvent('pricing_viewed', {
+      currentPlan,
+      isAuthenticated,
+    });
+  }, [currentPlan, isAuthenticated]);
+
   const handleSelectPlan = (plan: 'pro' | 'org') => {
+    void trackEvent('pricing_plan_selected', {
+      plan,
+      currentPlan,
+      isAuthenticated,
+      source: 'pricing_page',
+    });
     if (!isAuthenticated) {
       navigate('/auth');
       return;
     }
-    redirectToCheckout(plan);
+    redirectToCheckout(plan, 'pricing_page');
   };
 
   const handleManageBilling = async () => {
