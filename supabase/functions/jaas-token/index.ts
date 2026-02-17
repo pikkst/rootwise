@@ -41,6 +41,34 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Verify user has a Pro/Org plan (or is platform admin)
+    const { data: profileRow } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', user.id)
+      .single();
+
+    const userPlan = profileRow?.plan || 'free';
+    const hasPro = userPlan === 'pro' || userPlan === 'org';
+
+    // Check platform_admins table as fallback
+    let isPlatformAdmin = false;
+    if (!hasPro) {
+      const { data: adminRow } = await supabase
+        .from('platform_admins')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      isPlatformAdmin = !!adminRow;
+    }
+
+    if (!hasPro && !isPlatformAdmin) {
+      return new Response(JSON.stringify({ error: 'Pro plan required for JaaS video calls' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Parse request body
     const { roomName, userName, userAvatar, isModerator } = await req.json();
 

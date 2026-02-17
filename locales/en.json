@@ -980,7 +980,9 @@
     "orgF2": "Up to 50 members",
     "orgF3": "Admin dashboard",
     "orgF4": "Branded communities",
-    "orgF5": "Reporting & analytics"
+    "orgF5": "Reporting & analytics",
+    "proF6": "Unlimited video calls",
+    "orgF6": "Org-level analytics"
   },
   "seo": {
     "defaultTitle": "Rootwise - Intergenerational Wisdom Hub",

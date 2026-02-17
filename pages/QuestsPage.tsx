@@ -136,6 +136,16 @@ const QuestsPage: React.FC = () => {
       setShowUpgrade(true);
       return;
     }
+    // Check quest slot limit for free users
+    if (!hasPro) {
+      const activeCount = quests.filter(q => q.participants.includes(profile.id) && q.status !== 'completed').length;
+      const max = PLAN_LIMITS.free.maxActiveQuests;
+      if (activeCount >= max) {
+        setUpgradeFeature(t('quests.upgradeUnlimited'));
+        setShowUpgrade(true);
+        return;
+      }
+    }
     setIsAiLoading(true);
     try {
       // Build personalized context from user profile

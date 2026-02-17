@@ -10,6 +10,7 @@ import { useQuests } from '../hooks/useQuests';
 import { useConnections } from '../hooks/useConnections';
 import { profileToUser } from '../types';
 import { supabase } from '../services/supabase';
+import { isPro, isOrg } from '../services/planService';
 import { formatChartDate, formatDateTime } from '../utils/formatDate';
 
 const DashboardPage: React.FC = () => {
@@ -173,15 +174,17 @@ const DashboardPage: React.FC = () => {
               </button>
               <button
                 onClick={() => navigate('/matching')}
-                className="w-full py-3 bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl text-sm hover:bg-white/30 transition-colors text-left px-4"
+                className="w-full py-3 bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl text-sm hover:bg-white/30 transition-colors text-left px-4 flex items-center justify-between"
               >
-                🔗 {t('dashboard.findMatches')}
+                <span>🔗 {t('dashboard.findMatches')}</span>
+                {!isPro(profile?.plan || 'free') && <span className="text-[10px] px-1.5 py-0.5 bg-white/20 rounded-full">PRO</span>}
               </button>
               <button
                 onClick={() => navigate('/analytics')}
-                className="w-full py-3 bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl text-sm hover:bg-white/30 transition-colors text-left px-4"
+                className="w-full py-3 bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl text-sm hover:bg-white/30 transition-colors text-left px-4 flex items-center justify-between"
               >
-                📊 {t('dashboard.viewAnalytics')}
+                <span>📊 {t('dashboard.viewAnalytics')}</span>
+                {!isPro(profile?.plan || 'free') && <span className="text-[10px] px-1.5 py-0.5 bg-white/20 rounded-full">PRO</span>}
               </button>
             </div>
           </section>

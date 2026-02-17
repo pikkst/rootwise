@@ -56,6 +56,7 @@ export function planLabel(plan: Plan): string {
   switch (plan) {
     case 'pro': return 'Pro';
     case 'org': return 'Organization';
+    case 'admin': return 'Admin';
     default: return 'Free';
   }
 }
@@ -63,8 +64,8 @@ export function planLabel(plan: Plan): string {
 /** Get plan price label */
 export function planPrice(plan: Plan): string {
   switch (plan) {
-    case 'pro': return '$9.99/mo';
-    case 'org': return '$49/mo';
+    case 'pro': return '€9.99/mo';
+    case 'org': return '€49/mo';
     default: return 'Free';
   }
 }
@@ -77,6 +78,7 @@ export const PLAN_FEATURES = {
     { label: 'AI mentor (5 msgs/day)', included: true },
     { label: 'Basic profile & XP', included: true },
     { label: 'Quest generation (1/day)', included: true },
+    { label: 'Video calls (5 min)', included: true },
   ],
   pro: [
     { label: 'Unlimited quests', included: true },
@@ -84,6 +86,7 @@ export const PLAN_FEATURES = {
     { label: 'AI quest generation', included: true },
     { label: 'Advanced analytics', included: true },
     { label: 'Priority matching', included: true },
+    { label: 'Unlimited video calls', included: true },
   ],
   org: [
     { label: 'Everything in Pro', included: true },
@@ -91,5 +94,6 @@ export const PLAN_FEATURES = {
     { label: 'Admin dashboard', included: true },
     { label: 'Branded communities', included: true },
     { label: 'Reporting & analytics', included: true },
+    { label: 'Org-level analytics', included: true },
   ],
 } as const;

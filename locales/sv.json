@@ -980,7 +980,9 @@
     "orgF2": "Upp till 50 medlemmar",
     "orgF3": "Admin-panel",
     "orgF4": "Varumärkesanpassade communities",
-    "orgF5": "Rapportering & analys"
+    "orgF5": "Rapportering & analys",
+    "proF6": "Obegränsade videosamtal",
+    "orgF6": "Analys på organisationsnivå"
   },
   "seo": {
     "defaultTitle": "Rootwise - Nav för visdom mellan generationer",

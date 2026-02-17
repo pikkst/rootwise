@@ -14,11 +14,11 @@ export interface PlanInfo {
   limits: typeof PLAN_LIMITS['free'];
   loading: boolean;
   trialEndsAt: string | null;
-  canUseFeature: (feature: 'unlimited_quests' | 'unlimited_ai' | 'quest_generation' | 'analytics' | 'matching' | 'admin' | 'branded_communities' | 'reporting') => boolean;
+  canUseFeature: (feature: 'unlimited_quests' | 'unlimited_ai' | 'quest_generation' | 'analytics' | 'matching' | 'video_calls' | 'admin' | 'branded_communities' | 'reporting') => boolean;
   refreshSubscription: () => Promise<void>;
 }
 
-const PRO_FEATURES = new Set(['unlimited_quests', 'unlimited_ai', 'quest_generation', 'analytics', 'matching']);
+const PRO_FEATURES = new Set(['unlimited_quests', 'unlimited_ai', 'quest_generation', 'analytics', 'matching', 'video_calls']);
 const ORG_FEATURES = new Set(['admin', 'branded_communities', 'reporting']);
 
 export function usePlan(): PlanInfo {

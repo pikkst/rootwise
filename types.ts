@@ -140,7 +140,7 @@ export interface Profile {
   bio: string | null;
   xp: number;
   level: number;
-  plan: 'free' | 'pro' | 'org';
+  plan: 'free' | 'pro' | 'org' | 'admin';
   stripe_customer_id: string | null;
   created_at: string;
   updated_at: string;

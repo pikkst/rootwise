@@ -46,6 +46,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, r
               <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> {t('plans.proF3')}</li>
               <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> {t('plans.proF4')}</li>
               <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> {t('plans.proF5')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-indigo-500">✓</span> {t('plans.proF6')}</li>
             </ul>
           ) : (
             <ul className="space-y-2">
@@ -54,6 +55,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, r
               <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> {t('plans.orgF3')}</li>
               <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> {t('plans.orgF4')}</li>
               <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> {t('plans.orgF5')}</li>
+              <li className="flex items-center gap-2 text-sm"><span className="text-amber-500">✓</span> {t('plans.orgF6')}</li>
             </ul>
           )}
         </div>

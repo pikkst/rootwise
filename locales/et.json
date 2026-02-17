@@ -980,7 +980,9 @@
     "orgF2": "Kuni 50 liiget",
     "orgF3": "Administraatori juhtpaneel",
     "orgF4": "Bränditud kogukonnad",
-    "orgF5": "Aruandlus ja analüütika"
+    "orgF5": "Aruandlus ja analüütika",
+    "proF6": "Piiramatud videokõned",
+    "orgF6": "Organisatsiooni analüütika"
   },
   "seo": {
     "defaultTitle": "Rootwise - põlvkondadevahelise tarkuse keskus",

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../services/supabase';
 import { Quest, DbQuest, QuestMember } from '../types';
-import { canJoinQuest } from '../services/planService';
+import { canJoinQuest, isPro } from '../services/planService';
 import { Plan } from '../services/stripeService';
 
 export function useQuests() {
@@ -188,6 +188,27 @@ export function useQuests() {
 
   // Create quest (creator workflow)
   const createQuest = async (questData: Omit<DbQuest, 'id' | 'created_at' | 'updated_at'>) => {
+    // Enforce quest limit for free users on creation too
+    if (questData.created_by) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('plan')
+        .eq('id', questData.created_by)
+        .maybeSingle();
+      const plan = (profileData?.plan as Plan) || 'free';
+      if (!isPro(plan)) {
+        const { data: activeMemberships } = await supabase
+          .from('quest_members')
+          .select('id')
+          .eq('user_id', questData.created_by)
+          .in('status', ['accepted', 'in_progress']);
+        const activeCount = activeMemberships?.length ?? 0;
+        if (!canJoinQuest(plan, activeCount)) {
+          return null; // limit reached
+        }
+      }
+    }
+
     // Solo quests auto-publish; group/community quests remain draft for review
     const resolvedStatus = questData.quest_type === 'solo'
       ? 'published'
