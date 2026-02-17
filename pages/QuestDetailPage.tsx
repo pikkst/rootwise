@@ -238,10 +238,10 @@ const QuestDetailPage: React.FC = () => {
         quest_id: questId,
         user_id: profile.id,
         role: 'learner',
-        status: 'active',
-        joined_at: new Date().toISOString(),
+        status: 'accepted',
         proof_submitted: null,
         proof_verified: false,
+        xp_awarded: false,
       });
 
       if (error) {
@@ -385,6 +385,32 @@ const QuestDetailPage: React.FC = () => {
     }
   };
 
+  // Video call handlers — must be before early returns to satisfy Rules of Hooks
+  const handleStartCall = useCallback(() => {
+    if (!questId) return;
+    setShowVideoCall(true);
+    callChannelRef.current?.track({
+      userId: profile?.id,
+      userName: profile?.name || 'User',
+      avatarUrl: profile?.avatar_url,
+      joinedAt: new Date().toISOString(),
+    });
+    // Log call start
+    if (profile?.id) {
+      supabase.from('quest_video_calls').insert({
+        quest_id: questId,
+        room_name: `Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`,
+        created_by: profile.id,
+        status: 'active',
+      }).then(() => {});
+    }
+  }, [questId, profile]);
+
+  const handleLeaveCall = useCallback(() => {
+    setShowVideoCall(false);
+    callChannelRef.current?.untrack();
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -442,31 +468,6 @@ const QuestDetailPage: React.FC = () => {
       setShowShareMenu((v) => !v);
     }
   };
-
-  // Video call handlers
-  const handleStartCall = useCallback(() => {
-    setShowVideoCall(true);
-    callChannelRef.current?.track({
-      userId: profile?.id,
-      userName: profile?.name || 'User',
-      avatarUrl: profile?.avatar_url,
-      joinedAt: new Date().toISOString(),
-    });
-    // Log call start
-    if (profile?.id) {
-      supabase.from('quest_video_calls').insert({
-        quest_id: questId,
-        room_name: `Rootwise_${questId!.replace(/-/g, '').slice(0, 16)}`,
-        created_by: profile.id,
-        status: 'active',
-      }).then(() => {});
-    }
-  }, [questId, profile]);
-
-  const handleLeaveCall = useCallback(() => {
-    setShowVideoCall(false);
-    callChannelRef.current?.untrack();
-  }, []);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-32">
