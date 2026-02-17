@@ -298,9 +298,25 @@ Deno.serve(async (req: Request) => {
     const { action, payload } = await req.json();
 
     if (action === 'chat') {
-      const { contents, systemInstruction } = payload as {
+      const { contents, systemInstruction, userProfile } = payload as {
         contents: ChatContent[];
         systemInstruction?: string;
+        userProfile?: {
+          name: string;
+          age?: number | null;
+          role?: string;
+          skills?: string[];
+          interests?: string[];
+          bio?: string | null;
+          location?: string | null;
+          spokenLanguages?: string[];
+          level?: number;
+          xp?: number;
+          plan?: string;
+          memberSince?: string;
+          completedQuestCount?: number;
+          communityNames?: string[];
+        } | null;
       };
 
       const safeContents = Array.isArray(contents) ? contents : [];
@@ -311,6 +327,56 @@ Deno.serve(async (req: Request) => {
       const languageHint = extractLanguageHint(latestMessage);
       const wantsQuest = shouldCreateQuest(latestMessage);
 
+      // ── 1. Load user's AI memory (persistent facts across sessions) ──
+      let memory: Record<string, string> = {};
+      try {
+        const { data: memRow } = await supabase
+          .from('user_ai_memory')
+          .select('facts')
+          .eq('user_id', user.id)
+          .single();
+        if (memRow?.facts) memory = memRow.facts;
+      } catch { /* no memory yet */ }
+
+      // ── 2. Fetch platform data for recommendations ──
+      let availableQuests: { id: string; title: string; category: string; quest_type: string }[] = [];
+      let suggestedCommunities: { id: string; name: string; category: string; member_count: number }[] = [];
+      try {
+        // Quests the user hasn't joined yet (published, not full)
+        const { data: qData } = await supabase
+          .from('quests')
+          .select('id, title, category, quest_type')
+          .eq('status', 'published')
+          .neq('created_by', user.id)
+          .limit(15);
+        if (qData) availableQuests = qData;
+      } catch { /* ok */ }
+
+      try {
+        // Communities the user is NOT in
+        const { data: memberOf } = await supabase
+          .from('community_members')
+          .select('community_id')
+          .eq('user_id', user.id);
+        const joinedIds = (memberOf ?? []).map((m: any) => m.community_id);
+
+        let query = supabase
+          .from('community_with_member_count')
+          .select('id, name, category, member_count')
+          .limit(10);
+        if (joinedIds.length > 0) {
+          // Supabase doesn't have a direct "not in" for arrays, filter client-side
+          const { data: cData } = await query;
+          if (cData) {
+            suggestedCommunities = cData.filter((c: any) => !joinedIds.includes(c.id));
+          }
+        } else {
+          const { data: cData } = await query;
+          if (cData) suggestedCommunities = cData;
+        }
+      } catch { /* ok */ }
+
+      // ── 3. Smart candidate matching (with privacy protection) ──
       let ranked: CandidateProfile[] = [];
       try {
         const pool = await fetchCandidateProfiles(supabase, user.id);
@@ -344,6 +410,17 @@ Deno.serve(async (req: Request) => {
         }
       }
 
+      // ── 4. Privacy-safe candidate profiles (strip sensitive data) ──
+      const privacySafeCandidates = ranked.slice(0, 3).map((c) => ({
+        name: c.name,
+        ageRange: c.age ? (c.age < 25 ? '18-25' : c.age < 40 ? '25-40' : c.age < 60 ? '40-60' : '60+') : 'unknown',
+        role: c.role,
+        skills: c.skills,
+        interests: c.interests,
+        generalLocation: c.locations.length > 0 ? c.locations[0].split(',').slice(-2).join(',').trim() : null,
+      }));
+
+      // Keep full context for response metadata (but AI only sees privacy-safe version)
       const candidateContext = ranked.slice(0, 3).map((c) => ({
         id: c.id,
         name: c.name,
@@ -356,21 +433,88 @@ Deno.serve(async (req: Request) => {
         locations: c.locations,
       }));
 
-      const dynamicInstruction = `
-You are Rootwise AI mentor. Use platform data first.
-If candidateContext has people, reference them as available platform matches.
-Do not claim missing people are available.
-Always answer in the same language the user used.
-If no direct match exists, suggest how to broaden search (age range, nearby location, skills).
-If createdQuest exists, clearly mention that quest was created and include quest ID.
+      // ── 5. Build the comprehensive system instruction ──
+      const userProfileBlock = userProfile
+        ? `
+── CURRENT USER (you are mentoring this person) ──
+Name: ${userProfile.name}
+${userProfile.age ? `Age: ${userProfile.age}` : ''}
+Role: ${userProfile.role || 'Seeker'} (Sage = experienced mentor, Seeker = eager learner, Hybrid = both)
+${userProfile.skills?.length ? `Skills: ${userProfile.skills.join(', ')}` : ''}
+${userProfile.interests?.length ? `Interests: ${userProfile.interests.join(', ')}` : ''}
+${userProfile.bio ? `Bio: "${userProfile.bio}"` : ''}
+${userProfile.location ? `Location: ${userProfile.location}` : ''}
+${userProfile.spokenLanguages?.length ? `Languages: ${userProfile.spokenLanguages.join(', ')}` : ''}
+Platform level: ${userProfile.level ?? 1} (XP: ${userProfile.xp ?? 0})
+Plan: ${userProfile.plan || 'free'}
+${userProfile.memberSince ? `Member since: ${userProfile.memberSince}` : ''}
+${userProfile.completedQuestCount ? `Completed quests: ${userProfile.completedQuestCount}` : ''}
+${userProfile.communityNames?.length ? `Communities: ${userProfile.communityNames.join(', ')}` : ''}
+── END USER PROFILE ──
+`.trim()
+        : '';
 
-candidateContext: ${JSON.stringify(candidateContext)}
+      const memoryBlock = Object.keys(memory).length > 0
+        ? `
+── MEMORY (facts you learned about this user in past conversations — use naturally) ──
+${Object.entries(memory).map(([k, v]) => `• ${k}: ${v}`).join('\n')}
+── END MEMORY ──
+`.trim()
+        : '';
+
+      const platformBlock = `
+── PLATFORM DATA (use to make specific recommendations) ──
+${availableQuests.length > 0
+  ? `Available quests to recommend:\n${availableQuests.slice(0, 8).map((q) => `• "${q.title}" (${q.category}, ${q.quest_type})`).join('\n')}`
+  : 'No available quests at the moment.'
+}
+${suggestedCommunities.length > 0
+  ? `\nCommunities to suggest:\n${suggestedCommunities.slice(0, 5).map((c) => `• "${c.name}" (${c.category}, ${c.member_count} members)`).join('\n')}`
+  : ''
+}
+── END PLATFORM DATA ──
+`.trim();
+
+      const dynamicInstruction = `
+You are Rootwise AI Mentor — a warm, wise, and deeply personal mentor for the Rootwise intergenerational wisdom platform.
+
+YOUR CORE PRINCIPLES:
+1. BE PERSONAL — Address the user by name. Reference their skills, interests, and goals. Remember details they share.
+2. BE A REAL MENTOR — Give specific, actionable advice. Not generic platitudes. Push gently toward growth.
+3. RECOMMEND PLATFORM CONTENT — Suggest specific quests and communities from the platform data when relevant.
+4. CONNECT PEOPLE — When the user needs help or wants to teach, suggest matched platform members. But PROTECT PRIVACY (see rules).
+5. REMEMBER — Note important facts the user shares (goals, life events, preferences) and reference them in future conversations.
+6. BE CONCISE — 2-4 paragraphs max. Quality over quantity.
+7. ENCOURAGE ACTION — End messages with a specific suggestion or question that moves the user forward.
+
+PRIVACY RULES (STRICT):
+• NEVER share a matched person's exact age — only age range (e.g., "someone in their 40s").
+• NEVER share a matched person's bio, email, or personal details beyond name, general location (city/region only), and skills.
+• NEVER reveal internal scoring, algorithms, or JSON data to the user.
+• When suggesting a match, say something like: "I found [Name], who has experience with [skills] and is in [city]. You could connect through a quest!"
+• If the user asks about another user's private details, politely explain that privacy is important on the platform.
+
+MEMORY INSTRUCTIONS:
+At the END of your response, if the user shared any important personal fact (a goal, life event, preference, challenge, family info, career detail), append a hidden memory line in this exact format:
+<memory>key: value</memory>
+Examples: <memory>career_goal: wants to learn programming</memory>, <memory>family: has 2 grandchildren</memory>
+Only add genuinely useful facts. Do not add trivial things. Maximum 2 memory lines per response. The user will NOT see these lines.
+
+${userProfileBlock}
+
+${memoryBlock}
+
+${platformBlock}
+
+candidateContext (privacy-safe): ${JSON.stringify(privacySafeCandidates)}
 createdQuest: ${JSON.stringify(createdQuest)}
 locationHints: ${JSON.stringify(locationHints)}
 languageHint: ${JSON.stringify(languageHint)}
 skillHints: ${JSON.stringify(skillHints)}
 targetAge: ${JSON.stringify(targetAge)}
-      `.trim();
+
+Always answer in the same language the user used.
+`.trim();
 
       const body = {
         contents: safeContents,
@@ -388,9 +532,41 @@ targetAge: ${JSON.stringify(targetAge)}
       });
 
       const data = await res.json();
-      const text =
+      let text =
         data?.candidates?.[0]?.content?.parts?.[0]?.text ??
         "I'm having trouble right now. Please try again.";
+
+      // ── 6. Extract and persist memory facts from AI response ──
+      const memoryRegex = /<memory>(.+?):\s*(.+?)<\/memory>/g;
+      let memMatch;
+      const newFacts: Record<string, string> = {};
+      while ((memMatch = memoryRegex.exec(text)) !== null) {
+        newFacts[memMatch[1].trim()] = memMatch[2].trim();
+      }
+      // Strip memory tags from visible response
+      text = text.replace(/<memory>.+?<\/memory>/g, '').trim();
+
+      // Persist new memory facts
+      if (Object.keys(newFacts).length > 0) {
+        const merged = { ...memory, ...newFacts };
+        // Keep max 30 facts
+        const keys = Object.keys(merged);
+        if (keys.length > 30) {
+          const toRemove = keys.slice(0, keys.length - 30);
+          for (const k of toRemove) delete merged[k];
+        }
+        try {
+          await supabase
+            .from('user_ai_memory')
+            .upsert({
+              user_id: user.id,
+              facts: merged,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'user_id' });
+        } catch (memError) {
+          console.error('Failed to persist AI memory:', memError);
+        }
+      }
 
       return new Response(JSON.stringify({ text, matches: candidateContext, createdQuest }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

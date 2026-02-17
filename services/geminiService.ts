@@ -28,6 +28,24 @@ export interface CommunityQuestContext {
   existingQuestTitles?: string[];
 }
 
+  /** User profile context passed to AI mentor for personalized conversations */
+  export interface ChatUserProfile {
+    name: string;
+    age?: number | null;
+    role?: string;
+    skills?: string[];
+    interests?: string[];
+    bio?: string | null;
+    location?: string | null;
+    spokenLanguages?: string[];
+    level?: number;
+    xp?: number;
+    plan?: string;
+    memberSince?: string;
+    completedQuestCount?: number;
+    communityNames?: string[];
+  }
+
 export class RootwiseAIService {
   private async callProxy(action: string, payload: Record<string, unknown>) {
     const { data: { session } } = await supabase.auth.getSession();
@@ -101,7 +119,10 @@ export class RootwiseAIService {
     }
   }
 
-  async getAiMentorResponse(history: { role: string; parts: { text: string }[] }[]): Promise<string> {
+  async getAiMentorResponse(
+    history: { role: string; parts: { text: string }[] }[],
+    userProfile?: ChatUserProfile
+  ): Promise<string> {
     try {
       // Check rate limit
       const { data: usage } = await supabase.rpc('check_ai_usage', {
@@ -119,7 +140,12 @@ export class RootwiseAIService {
 
       const systemInstruction = `You are Rootwise AI, a wise and encouraging mentor for an intergenerational wisdom platform. You help connect generations through shared wisdom and roots. Your tone is warm, patient, and highly productive. Encourage users to share their unique life perspectives regardless of age. When asked about quests, suggest collaborative activities between different generations. Keep responses concise but meaningful — aim for 2-4 paragraphs max. IMPORTANT: Always respond in the user's language. The user's current language is: ${i18next.language || 'en'}.`;
 
-      const result = await this.callProxy('chat', { contents, systemInstruction, locale: i18next.language || 'en' });
+      const result = await this.callProxy('chat', {
+        contents,
+        systemInstruction,
+        locale: i18next.language || 'en',
+        userProfile: userProfile || null,
+      });
       const baseText = result.text ?? i18next.t('ai.troubleNow');
 
       if (result.createdQuest?.id) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
@@ -8,6 +8,8 @@ import { useAuth } from '../context/AuthContext';
 import { useChatMessages } from '../hooks/useChatMessages';
 import { useAiUsage } from '../hooks/useAiUsage';
 import { RootwiseAIService } from '../services/geminiService';
+import type { ChatUserProfile } from '../services/geminiService';
+import { supabase } from '../services/supabase';
 import { formatTime } from '../utils/formatDate';
 import { isPro } from '../services/planService';
 
@@ -25,6 +27,66 @@ const AiNexusPage: React.FC = () => {
 
   const plan = profile?.plan || 'free';
   const hasPro = isPro(plan);
+
+  // Build user profile context for AI mentor (cached, refreshed on profile change)
+  const userProfileRef = useRef<ChatUserProfile | null>(null);
+  const buildUserProfile = useCallback(async () => {
+    if (!profile) return;
+    const ctx: ChatUserProfile = {
+      name: profile.name,
+      age: profile.age,
+      role: profile.role,
+      skills: profile.skills ?? [],
+      interests: profile.interests ?? [],
+      bio: profile.bio,
+      spokenLanguages: profile.spoken_languages ?? [],
+      level: profile.level ?? 1,
+      xp: profile.xp ?? 0,
+      plan: profile.plan,
+      memberSince: profile.created_at ? new Date(profile.created_at).toISOString().slice(0, 10) : undefined,
+    };
+
+    // Fetch primary location
+    try {
+      const { data: locData } = await supabase
+        .from('profile_locations')
+        .select('locations(country, county, city, locality)')
+        .eq('profile_id', profile.id)
+        .eq('is_primary', true)
+        .limit(1)
+        .single();
+      const loc = (locData as any)?.locations;
+      if (loc) ctx.location = [loc.locality, loc.city, loc.county, loc.country].filter(Boolean).join(', ');
+    } catch { /* no location */ }
+
+    // Fetch completed quest count
+    try {
+      const { count } = await supabase
+        .from('quest_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profile.id)
+        .eq('xp_awarded', true);
+      ctx.completedQuestCount = count ?? 0;
+    } catch { /* ok */ }
+
+    // Fetch community memberships
+    try {
+      const { data: memberships } = await supabase
+        .from('community_members')
+        .select('community_id, communities(name)')
+        .eq('user_id', profile.id)
+        .limit(10);
+      if (memberships?.length) {
+        ctx.communityNames = memberships.map((m: any) => m.communities?.name).filter(Boolean);
+      }
+    } catch { /* ok */ }
+
+    userProfileRef.current = ctx;
+  }, [profile]);
+
+  useEffect(() => {
+    buildUserProfile();
+  }, [buildUserProfile]);
 
   useEffect(() => {
     if (profile?.id) fetchMessages();
@@ -54,7 +116,7 @@ const AiNexusPage: React.FC = () => {
     }));
     history.push({ role: 'user', parts: [{ text: msgText }] });
 
-    const response = await aiService.current.getAiMentorResponse(history);
+    const response = await aiService.current.getAiMentorResponse(history, userProfileRef.current || undefined);
     await addMessage('ai', response || t('ai.fallback'));
 
     setIsAiLoading(false);
