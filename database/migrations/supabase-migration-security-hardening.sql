@@ -58,15 +58,33 @@ CREATE TRIGGER tg_guard_proof_verified
 
 ALTER TABLE quest_members ENABLE ROW LEVEL SECURITY;
 
+-- Helper funktsioon SELECT policy jaoks, et vältida RLS recursion'it
+-- (policy ei tohi teha sama tabeli alampäringut otse)
+CREATE OR REPLACE FUNCTION can_view_quest_members(p_quest_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM quest_members qm
+    WHERE qm.quest_id = p_quest_id
+      AND qm.user_id = auth.uid()
+  );
+$$;
+
+REVOKE ALL ON FUNCTION can_view_quest_members(UUID) FROM public;
+GRANT EXECUTE ON FUNCTION can_view_quest_members(UUID) TO authenticated;
+
 -- SELECT: näed oma ridu + kõiki oma questi liikmeid
 DROP POLICY IF EXISTS "qm_select" ON quest_members;
 CREATE POLICY "qm_select"
   ON quest_members FOR SELECT
   USING (
     user_id = auth.uid()
-    OR quest_id IN (
-      SELECT quest_id FROM quest_members qm2 WHERE qm2.user_id = auth.uid()
-    )
+    OR can_view_quest_members(quest_id)
   );
 
 -- INSERT: saad lisada enda rea (kutse vastuvõtmisel / joinides)
