@@ -5,7 +5,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!;
-const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
+const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SIGNING_SECRET')!;
 
 async function resolveUserIdFromCustomer(supabase: any, customerId?: string | null): Promise<string | null> {
   if (!customerId) return null;
@@ -78,6 +78,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const event = JSON.parse(body);
+  console.log(`Webhook received: ${event.type}, id: ${event.id}`);
 
   // Use service role to bypass RLS
   const supabase = createClient(
@@ -91,6 +92,7 @@ Deno.serve(async (req: Request) => {
         const session = event.data.object;
         const userId = session.metadata?.supabase_user_id || await resolveUserIdFromCustomer(supabase, session.customer);
         const subscriptionId = session.subscription;
+        console.log(`checkout.session.completed — userId: ${userId}, subscriptionId: ${subscriptionId}, customer: ${session.customer}`);
         if (!userId || !subscriptionId) break;
 
         // Fetch subscription details from Stripe
@@ -102,6 +104,7 @@ Deno.serve(async (req: Request) => {
 
         // Determine plan
         const plan = priceId === Deno.env.get('STRIPE_ORG_PRICE_ID') ? 'org' : 'pro';
+        console.log(`Resolved plan: ${plan}, priceId: ${priceId}`);
 
         // Upsert subscription record
         await supabase.from('subscriptions').upsert({
