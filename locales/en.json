@@ -51,7 +51,6 @@
     "coreFree": "Core experience is free",
     "brand": "ROOTWISE"
   },
-
   "nav": {
     "dashboard": "Dashboard",
     "quests": "Quests",
@@ -66,7 +65,6 @@
     "orgBadge": "ORG",
     "proBadge": "PRO"
   },
-
   "footer": {
     "tagline": "Bridging generations through collaborative quests, AI mentoring, and shared wisdom.",
     "platform": "Platform",
@@ -87,7 +85,6 @@
     "legalEntity": "EventNexus OÜ (reg. no. 17431557), Põltsamaa, Estonia",
     "responseTime": "Response time: Within 24 hours"
   },
-
   "landing": {
     "seoTitle": "Rootwise - Unlock the World's Wisdom",
     "seoDescription": "Bridge the gap between generations. Turn your unique life experience into a shared adventure through collaborative Quests, AI mentoring, and community learning.",
@@ -169,7 +166,6 @@
     "finalCtaDesc": "Join the movement where every interaction is an investment in our collective future. Start your first quest today.",
     "finalCtaBrowse": "Browse Quests"
   },
-
   "auth": {
     "seoSignIn": "Sign In - Rootwise",
     "seoSignInDesc": "Sign in to Rootwise and continue your intergenerational learning journey.",
@@ -191,7 +187,6 @@
     "legalAgree": "By continuing, you agree to Rootwise's",
     "legalAnd": "and"
   },
-
   "dashboard": {
     "loading": "Loading your dashboard...",
     "welcome": "Welcome back, {{name}}!",
@@ -215,7 +210,6 @@
     "questCompleted": "Quest completed! XP awarded.",
     "quickActions": "Quick Actions"
   },
-
   "quests": {
     "categoryAll": "All",
     "categoryTechnology": "Technology",
@@ -246,7 +240,6 @@
     "upgradeUnlimited": "Upgrade for unlimited",
     "aiQuestGeneration": "AI Quest Generation"
   },
-
   "questCard": {
     "completed": "✓ COMPLETED",
     "xpReward": "+{{xp}} XP",
@@ -257,7 +250,6 @@
     "markComplete": "Mark Complete",
     "joinQuest": "Join Quest"
   },
-
   "questDetail": {
     "notFound": "Quest not found",
     "backToQuests": "Back to Quests",
@@ -365,7 +357,6 @@
     "cancel": "Cancel",
     "translating": "Translating..."
   },
-
   "questDiscovery": {
     "title": "Discover Quests",
     "subtitle": "Find quests matched to your interests and skills",
@@ -406,7 +397,6 @@
     "categoryDisplay": "📚 {{category}}",
     "locationKm": "{{distance}} km"
   },
-
   "communities": {
     "title": "Community Hub",
     "subtitle": "Connect with groups of like-minded lifelong learners across all generations.",
@@ -423,7 +413,6 @@
     "failedJoin": "Failed to join group",
     "failedLeave": "Failed to leave group"
   },
-
   "communityDetail": {
     "tabOverview": "📋 Overview",
     "tabMembers": "👥 Members",
@@ -485,7 +474,6 @@
     "statusInProgress": "In Progress",
     "statusCompleted": "Completed"
   },
-
   "ai": {
     "title": "Nexus AI Mentor",
     "subtitle": "Your intelligent bridge to community wisdom.",
@@ -507,7 +495,6 @@
     "troubleConnecting": "I'm having a little trouble connecting right now. Please try again in a moment.",
     "questCreated": "✅ I created a quest for this request: {{title}} (ID: {{id}})."
   },
-
   "profile": {
     "changeCover": "Change Cover",
     "dragToReposition": "Drag to reposition",
@@ -536,7 +523,7 @@
     "manageBilling": "Manage Billing",
     "upgradeTitle": "Upgrade to Pro",
     "unlockFeatures": "Unlock all features:",
-    "upgradeBtn": "Upgrade — $9.99/mo",
+    "upgradeBtn": "Upgrade — €9.99/mo",
     "postPlaceholder": "Share an update or a learning win...",
     "postGuideline": "Keep it friendly and focused on learning.",
     "postBtn": "Post",
@@ -617,7 +604,6 @@
     "trophyCase": "Trophy Case",
     "noQuestsYet": "No quests completed yet. Start your first quest!"
   },
-
   "publicProfile": {
     "notFound": "Profile not found.",
     "seoDescription": "Rootwise member profile.",
@@ -653,7 +639,6 @@
     "interests": "Interests",
     "memberSince": "Member since"
   },
-
   "analytics": {
     "title": "Advanced Analytics",
     "subtitle": "Deep insights into your learning journey and growth patterns.",
@@ -677,16 +662,15 @@
     "unlimitedNote": "Unlimited — Your Pro plan includes unlimited AI usage.",
     "upgradeDescription": "Get detailed insights into your learning journey, quest performance, skill development, and AI usage patterns.",
     "upgradeHint": "Available on Pro and Organization plans.",
-    "upgradeCta": "Upgrade to Pro — $9.99/mo",
+    "upgradeCta": "Upgrade to Pro — €9.99/mo",
     "upgradeWallDesc": "Get detailed insights into your learning journey, quest performance, and AI usage.",
     "upgradeWallNote": "Available on Pro and Organization plans.",
-    "upgradeBtn": "Upgrade to Pro — $9.99/mo",
+    "upgradeBtn": "Upgrade to Pro — €9.99/mo",
     "relatedQuests": "Related Quests",
     "noXpData": "Complete quests to see your growth chart.",
     "noCategoryData": "Join quests to see category distribution.",
     "noSkillData": "Add skills to your profile to track development."
   },
-
   "matching": {
     "title": "Priority Matching",
     "subtitle": "AI-powered partner recommendations based on your profile.",
@@ -701,10 +685,9 @@
     "noMatchesDesc": "Add skills and interests to your profile, and join communities to improve your matching results.",
     "upgradeWallDesc": "Our AI analyzes your skills, interests, role, and community involvement to find ideal intergenerational partners.",
     "upgradeWallNote": "Available on Pro and Organization plans.",
-    "upgradeBtn": "Upgrade to Pro — $9.99/mo",
+    "upgradeBtn": "Upgrade to Pro — €9.99/mo",
     "connectedToast": "Connection request sent!"
   },
-
   "pricing": {
     "title": "Pricing",
     "headline": "Simple, transparent pricing",
@@ -725,13 +708,13 @@
     "freeFeature3": "AI quest generation (1/day)",
     "freeFeature4": "Community access",
     "freeFeature5": "XP & Level tracking",
-    "freeFeature6": "Basic profile",
+    "freeFeature6": "Video calls (5 min)",
     "proFeature1": "Unlimited active quests",
     "proFeature2": "Unlimited AI mentor",
     "proFeature3": "Unlimited AI quest generation",
     "proFeature4": "Advanced analytics",
     "proFeature5": "Priority matching",
-    "proFeature6": "All Free features",
+    "proFeature6": "Unlimited video calls",
     "orgFeature1": "Everything in Pro",
     "orgFeature2": "Admin dashboard",
     "orgFeature3": "Up to 50 team members",
@@ -768,13 +751,15 @@
     "compAdminDash": "Admin Dashboard",
     "compBranded": "Branded Communities",
     "compReports": "Reporting & Export",
+    "compVideoCalls": "Video Calls",
+    "comp5Min": "5 min",
     "compTeam": "Team Members",
     "compUpTo50": "Up to 50",
     "seoTitle": "Pricing - Rootwise",
     "seoDesc": "Simple, transparent pricing for Rootwise. Start free, upgrade when ready.",
-    "freePrice": "$0",
-    "proPrice": "$9.99",
-    "orgPrice": "$49",
+    "freePrice": "€0",
+    "proPrice": "€9.99",
+    "orgPrice": "€49",
     "status": "Status",
     "updatePaymentMethod": "Update payment method",
     "faqTitle": "Frequently Asked Questions",
@@ -787,12 +772,11 @@
     "faq4Q": "Can I switch plans?",
     "faq4A": "Absolutely. Upgrade or downgrade at any time. Changes take effect at the start of your next billing cycle."
   },
-
   "admin": {
     "authWallTitle": "Organization Dashboard",
     "authWallDesc": "Manage up to 50 members, create branded communities, track team analytics, and download reports.",
     "authWallNote": "Available on the Organization plan.",
-    "authWallBtn": "Upgrade to Organization — $49/mo",
+    "authWallBtn": "Upgrade to Organization — €49/mo",
     "title": "Admin Dashboard",
     "tabOverview": "Overview",
     "tabTraffic": "Traffic",
@@ -892,7 +876,6 @@
     "membersCount_other": "{{count}} members",
     "membersLabel": "Members"
   },
-
   "reports": {
     "seoTitle": "Submit a Report - Rootwise",
     "seoDesc": "Report users, posts, bugs, and suggestions.",
@@ -925,7 +908,6 @@
     "submittedToast": "Report submitted. Thank you!",
     "failedToast": "Failed to submit report."
   },
-
   "videoCall": {
     "unavailableTitle": "Video call unavailable",
     "unavailableDesc": "Make sure your browser allows camera and microphone access, disable ad blockers, and try a different browser if needed.",
@@ -965,26 +947,24 @@
     "freeCallEnded": "Free call limit reached",
     "upgradeForUnlimited": "Upgrade to Pro for unlimited video calls with no time limit."
   },
-
   "upgradeModal": {
     "titlePro": "Upgrade to Pro",
     "titleOrg": "Upgrade to Organization",
     "requiresPlan": "requires the {{plan}} plan.",
     "descPro": "Unlock the full power of Rootwise with advanced features designed for serious learners.",
     "descOrg": "Manage teams, create branded communities, track progress, and unlock every feature.",
-    "upgradePro": "Upgrade to Pro — $9.99/mo",
-    "upgradeOrg": "Upgrade to Organization — $49/mo",
+    "upgradePro": "Upgrade to Pro — €9.99/mo",
+    "upgradeOrg": "Upgrade to Organization — €49/mo",
     "compareAll": "Compare all plans",
     "maybeLater": "Maybe later",
     "footer": "Upgrade anytime from your profile or billing settings."
   },
-
   "plans": {
     "pro": "Pro",
     "org": "Organization",
     "free": "Free",
-    "proPriceMo": "$9.99/mo",
-    "orgPriceMo": "$49/mo",
+    "proPriceMo": "€9.99/mo",
+    "orgPriceMo": "€49/mo",
     "freePriceMo": "Free",
     "freeF1": "3 active quests",
     "freeF2": "Community access",
@@ -1002,19 +982,16 @@
     "orgF4": "Branded communities",
     "orgF5": "Reporting & analytics"
   },
-
   "seo": {
     "defaultTitle": "Rootwise - Intergenerational Wisdom Hub",
     "defaultDescription": "Connect generations through collaborative Quests, shared wisdom, and AI-powered mentoring tools."
   },
-
   "cookies": {
     "title": "We use cookies",
     "description": "We use cookies to improve the site and measure performance. You can accept or reject analytics and ads.",
     "reject": "Reject",
     "accept": "Accept"
   },
-
   "hooks": {
     "alreadyJoined": "Already joined this quest",
     "communityQuestFirst": "This is a community quest. Join the community first to participate.",
@@ -1023,7 +1000,6 @@
     "legacyComplete": "Marked complete via legacy interface",
     "signInFailed": "Sign in failed"
   },
-
   "notifications": {
     "bell": "Notifications",
     "title": "Notifications",
@@ -1031,7 +1007,6 @@
     "empty": "No notifications yet",
     "justNow": "Just now"
   },
-
   "language": {
     "label": "Language",
     "select": "Select language"
