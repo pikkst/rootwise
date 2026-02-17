@@ -52,11 +52,18 @@ async function verifySignature(payload: string, sigHeader: string): Promise<bool
     ['sign']
   );
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signedPayload));
-  const computed = Array.from(new Uint8Array(sig))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+  const computed = new Uint8Array(sig);
+  const expected = new Uint8Array(
+    signature.match(/.{2}/g)!.map((b: string) => parseInt(b, 16))
+  );
 
-  return computed === signature;
+  // Timing-safe comparison to prevent timing attacks
+  if (computed.length !== expected.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < computed.length; i++) {
+    mismatch |= computed[i] ^ expected[i];
+  }
+  return mismatch === 0;
 }
 
 Deno.serve(async (req: Request) => {

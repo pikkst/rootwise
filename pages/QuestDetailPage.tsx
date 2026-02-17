@@ -9,6 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { DbQuest, QuestMember, QuestMessage, QuestFile, QuestMilestone, Profile } from '../types';
 import { formatTime, formatDateNumeric } from '../utils/formatDate';
 import { useQuestTranslation } from '../hooks/useQuestTranslation';
+import { canJoinQuest } from '../services/planService';
+import { Plan } from '../services/stripeService';
 
 /** Privacy name: "Malle K." format */
 const privacyName = (fullName?: string | null): string => {
@@ -281,6 +283,20 @@ const QuestDetailPage: React.FC = () => {
 
     setJoiningQuest(true);
     try {
+      // Enforce plan quest limit before joining
+      const { data: activeMemberships } = await supabase
+        .from('quest_members')
+        .select('id')
+        .eq('user_id', profile.id)
+        .in('status', ['accepted', 'in_progress']);
+
+      const activeCount = activeMemberships?.length ?? 0;
+      if (!canJoinQuest(profile.plan as Plan, activeCount)) {
+        showToast('error', t('hooks.freeQuestLimit'));
+        setJoiningQuest(false);
+        return;
+      }
+
       const { error } = await supabase.from('quest_members').insert({
         quest_id: questId,
         user_id: profile.id,

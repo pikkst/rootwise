@@ -298,6 +298,18 @@ Deno.serve(async (req: Request) => {
     const { action, payload } = await req.json();
 
     if (action === 'chat') {
+      // ── Server-side rate limit check (prevents API bypass) ──
+      const { data: chatUsage } = await supabase.rpc('check_ai_usage', {
+        p_user_id: user.id,
+        p_type: 'chat',
+      });
+      if (chatUsage && !chatUsage.allowed) {
+        return new Response(JSON.stringify({ error: `Daily message limit reached (${chatUsage.limit}/day). Upgrade to Pro for unlimited messages.` }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       const { contents, systemInstruction, userProfile } = payload as {
         contents: ChatContent[];
         systemInstruction?: string;
@@ -568,7 +580,7 @@ Always answer in the same language the user used.
         }
       }
 
-      return new Response(JSON.stringify({ text, matches: candidateContext, createdQuest }), {
+      return new Response(JSON.stringify({ text, matches: privacySafeCandidates, createdQuest }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

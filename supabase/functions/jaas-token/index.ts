@@ -7,8 +7,8 @@ import { corsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { SignJWT, importPKCS8 } from 'https://deno.land/x/jose@v5.2.2/index.ts';
 
-const JAAS_APP_ID = 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028';
-const JAAS_KID = 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028/bd8234';
+const JAAS_APP_ID = Deno.env.get('JAAS_APP_ID') || 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028';
+const JAAS_KID = Deno.env.get('JAAS_KID') || 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028/bd8234';
 
 Deno.serve(async (req) => {
   // CORS preflight
@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
     }
 
     // Parse request body
-    const { roomName, userName, userAvatar, isModerator } = await req.json();
+    const { roomName, userName, userAvatar } = await req.json();
 
     if (!roomName || !userName) {
       return new Response(JSON.stringify({ error: 'roomName and userName required' }), {
@@ -78,6 +78,9 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Moderator status is determined server-side only — never trust client
+    const isModerator = hasPro || isPlatformAdmin;
 
     // Import private key
     const privateKeyPem = Deno.env.get('JAAS_PRIVATE_KEY')!;

@@ -21,8 +21,9 @@ export function isOrg(plan: Plan): boolean {
   return plan === 'org' || plan === 'admin';
 }
 
-/** Get the effective plan */
+/** Get the effective plan — admin is treated as org for org operations */
 export function getEffectivePlan(plan: Plan): Plan {
+  if (plan === 'admin') return 'org';
   return plan;
 }
 
@@ -43,7 +44,9 @@ export function remainingQuestSlots(plan: Plan, activeQuestCount: number): numbe
 /** Can the organization add more members? */
 export function canAddOrgMember(plan: Plan, currentMemberCount: number): boolean {
   if (!isOrg(plan)) return false;
-  return currentMemberCount < PLAN_LIMITS.org.maxOrgMembers;
+  const max = PLAN_LIMITS[plan as 'org' | 'admin'].maxOrgMembers;
+  if (max === Infinity) return true;
+  return currentMemberCount < max;
 }
 
 /** Get remaining org member slots */
@@ -78,7 +81,7 @@ export const PLAN_FEATURES = {
     { label: 'AI mentor (5 msgs/day)', included: true },
     { label: 'Basic profile & XP', included: true },
     { label: 'Quest generation (1/day)', included: true },
-    { label: 'Video calls (5 min)', included: true },
+    { label: 'Video calls', included: false },
   ],
   pro: [
     { label: 'Unlimited quests', included: true },
