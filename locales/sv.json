@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "loading": "Laddar...",
     "save": "Spara",
@@ -948,11 +948,11 @@
     "upgradeForUnlimited": "Uppgradera till Pro för obegränsade videosamtal utan tidsgräns.",
     "toast60s": "1 minut kvar på ditt gratissamtal!",
     "toast10s": "10 sekunder! Samtalet avslutas nu.",
-    "timesUpTitle": "Tiden flög förbi! ",
-    "timesUpSubtitle": "Synd att avbryta \"{{quest}}\"."
-        "timesUpDesc": "Med PRO är samtal obegränsade  inga timers, inga avbrott. Håll momentum uppe."
-        "timesUpCta": "Fortsätt samtalet (Uppgradera till Pro)",
-    "timesUpViewSummary": "Visa samtalssammanfattning"
+    "timesUpTitle": "Tiden flög förbi! 🚀",
+    "timesUpDesc": "Med PRO är samtal obegränsade — inga timers, inga avbrott. Håll momentum uppe.",
+    "timesUpViewSummary": "Visa samtalssammanfattning",
+    "timesUpSubtitle": "Synd att avbryta \"{{quest}}\".",
+    "timesUpCta": "Fortsätt samtalet (Uppgradera till Pro)"
   },
   "upgradeModal": {
     "titlePro": "Uppgradera till Pro",

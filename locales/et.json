@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "loading": "Laadimine...",
     "save": "Salvesta",
@@ -948,11 +948,11 @@
     "upgradeForUnlimited": "Uuenda Pro plaanile piiramatute videokõnede jaoks.",
     "toast60s": "1 minut jäänud tasuta kõnest!",
     "toast10s": "10 sekundit! Kõne katkeb kohe.",
-    "timesUpTitle": "Aeg lendas! ",
-    "timesUpSubtitle": "Kahju katkestada \"{{quest}}\" pooleli."
-        "timesUpDesc": "PRO paketiga on kõned piiramatud  ilma taimerite ja katkestusteta. Jätka sinna, kus pooleli jäid."
-        "timesUpCta": "Jätka vestlust (Uuenda Pro plaanile)",
-    "timesUpViewSummary": "Vaata kõne kokkuvõtet"
+    "timesUpTitle": "Aeg lendas! 🚀",
+    "timesUpDesc": "PRO paketiga on kõned piiramatud — ilma taimerite ja katkestusteta. Jätka sinna, kus pooleli jäid.",
+    "timesUpViewSummary": "Vaata kõne kokkuvõtet",
+    "timesUpSubtitle": "Kahju katkestada \"{{quest}}\" pooleli.",
+    "timesUpCta": "Jätka vestlust (Uuenda Pro plaanile)"
   },
   "upgradeModal": {
     "titlePro": "Pro versioonile üleminek",

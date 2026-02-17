@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "loading": "Įkeliama...",
     "save": "Išsaugoti",
@@ -948,11 +948,11 @@
     "upgradeForUnlimited": "Atnaujinkite į Pro neribotiems vaizdo skambučiams be laiko limito.",
     "toast60s": "Nemokamam skambučiui liko 1 minutė!",
     "toast10s": "10 sekundžių! Skambutis baigiasi dabar.",
-    "timesUpTitle": "Laikas praskriejo! ",
-    "timesUpSubtitle": "Gaila nutraukti \"{{quest}}\"."
-        "timesUpDesc": "Su PRO skambučiai neriboti  jokių laikmatų, jokių pertraukimų. Išlaikykite pagreitį."
-        "timesUpCta": "Tęsti pokalbį (Atnaujinti į Pro)",
-    "timesUpViewSummary": "Peržiūrėti skambučio santrauką"
+    "timesUpTitle": "Laikas praskriejo! 🚀",
+    "timesUpDesc": "Su PRO skambučiai neriboti — jokių laikmatų, jokių pertraukimų. Išlaikykite pagreitį.",
+    "timesUpViewSummary": "Peržiūrėti skambučio santrauką",
+    "timesUpSubtitle": "Gaila nutraukti \"{{quest}}\".",
+    "timesUpCta": "Tęsti pokalbį (Atnaujinti į Pro)"
   },
   "upgradeModal": {
     "titlePro": "Atnaujinti į Pro",

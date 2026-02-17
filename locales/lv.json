@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "loading": "Ielādē...",
     "save": "Saglabāt",
@@ -948,11 +948,11 @@
     "upgradeForUnlimited": "Jauniniet uz Pro neierobežotiem videozvaniem bez laika ierobežojuma.",
     "toast60s": "Bezmaksas zvana atlicis 1 minūte!",
     "toast10s": "10 sekundes! Zvans beidzas tagad.",
-    "timesUpTitle": "Laiks aizlidoja! ",
-    "timesUpSubtitle": "Žēl pārtraukt \"{{quest}}\"."
-        "timesUpDesc": "Ar PRO zvani ir neierobežoti  bez taimeris, bez pārtraukumiem. Saglabājiet tempu."
-        "timesUpCta": "Turpināt sarunu (Jauniniet uz Pro)",
-    "timesUpViewSummary": "Skatīt zvana kopsavilkumu"
+    "timesUpTitle": "Laiks aizlidoja! 🚀",
+    "timesUpDesc": "Ar PRO zvani ir neierobežoti — bez taimera, bez pārtraukumiem. Saglabājiet tempu.",
+    "timesUpViewSummary": "Skatīt zvana kopsavilkumu",
+    "timesUpSubtitle": "Žēl pārtraukt \"{{quest}}\".",
+    "timesUpCta": "Turpināt sarunu (Jaunināt uz Pro)"
   },
   "upgradeModal": {
     "titlePro": "Jauniniet uz Pro",

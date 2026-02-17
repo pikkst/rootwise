@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "loading": "Ładowanie...",
     "save": "Zapisz",
@@ -948,11 +948,11 @@
     "upgradeForUnlimited": "Ulepsz do Pro, aby korzystać z nieograniczonych rozmów wideo bez limitu czasu.",
     "toast60s": "Pozostała 1 minuta bezpłatnej rozmowy!",
     "toast10s": "10 sekund! Rozmowa kończy się teraz.",
-    "timesUpTitle": "Czas minął błyskawicznie! ",
-    "timesUpSubtitle": "Szkoda przerywać \"{{quest}}\"."
-        "timesUpDesc": "Z PRO rozmowy są nieograniczone  bez timerów, bez przerw. Utrzymaj impet."
-        "timesUpCta": "Kontynuuj rozmowę (Uaktualnij do Pro)",
-    "timesUpViewSummary": "Zobacz podsumowanie rozmowy"
+    "timesUpTitle": "Czas minął błyskawicznie! 🚀",
+    "timesUpDesc": "Z PRO rozmowy są nieograniczone — bez timerów, bez przerw. Utrzymaj impet.",
+    "timesUpViewSummary": "Zobacz podsumowanie rozmowy",
+    "timesUpSubtitle": "Szkoda przerywać \"{{quest}}\".",
+    "timesUpCta": "Kontynuuj rozmowę (Uaktualnij do Pro)"
   },
   "upgradeModal": {
     "titlePro": "Uaktualnij do Pro",
