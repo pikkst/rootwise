@@ -66,11 +66,12 @@ export interface CommunityQuestContext {
 export class RootwiseAIService {
   private async callProxy(action: string, payload: Record<string, unknown>) {
     const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token || '';
+    if (!session?.access_token) {
+      throw new Error('Not authenticated');
+    }
 
     const res = await supabase.functions.invoke('gemini-proxy', {
       body: { action, payload },
-      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (res.error) throw new Error(res.error.message);
