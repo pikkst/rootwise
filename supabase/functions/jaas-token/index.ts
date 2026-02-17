@@ -3,7 +3,7 @@
 // Deploy: npx supabase functions deploy jaas-token --no-verify-jwt
 // Env vars needed: JAAS_PRIVATE_KEY
 
-import { corsHeaders } from '../_shared/cors.ts';
+import { getCorsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { SignJWT, importPKCS8 } from 'https://deno.land/x/jose@v5.2.2/index.ts';
 
@@ -11,6 +11,9 @@ const JAAS_APP_ID = Deno.env.get('JAAS_APP_ID') || 'vpaas-magic-cookie-cd11b4798
 const JAAS_KID = Deno.env.get('JAAS_KID') || 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028/bd8234';
 
 Deno.serve(async (req) => {
+  // Per-request CORS headers — restricts to allowed origins
+  const corsHeaders = getCorsHeaders(req);
+
   // CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });

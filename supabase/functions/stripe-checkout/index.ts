@@ -2,7 +2,7 @@
 // Deploy: supabase functions deploy stripe-checkout
 // Env vars needed: STRIPE_SECRET_KEY, STRIPE_PRO_PRICE_ID, STRIPE_ORG_PRICE_ID, CLIENT_URL
 
-import { corsHeaders } from '../_shared/cors.ts';
+import { getCorsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!;
@@ -27,6 +27,7 @@ async function stripeRequest(endpoint: string, body: Record<string, string>) {
 }
 
 Deno.serve(async (req: Request) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -60,7 +61,16 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const { plan } = await req.json(); // 'pro' or 'org'
+    const body = await req.json();
+    const plan = body?.plan;
+
+    // Validate plan value — only 'pro' or 'org' are accepted
+    if (plan !== 'pro' && plan !== 'org') {
+      return new Response(JSON.stringify({ error: 'Invalid plan. Must be "pro" or "org".' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const priceId = plan === 'org'
       ? Deno.env.get('STRIPE_ORG_PRICE_ID')!

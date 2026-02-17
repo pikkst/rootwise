@@ -48,9 +48,10 @@ const PublicProfilePage: React.FC = () => {
     if (!id) return;
     const load = async () => {
       setLoading(true);
+      // Only select public-safe fields — never expose stripe_customer_id or internal fields
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, name, age, role, bio, avatar_url, banner_url, banner_position_x, banner_position_y, skills, interests, preferred_language, spoken_languages, xp, level, plan, created_at, updated_at')
         .eq('id', id)
         .single();
       if (error || !data) {

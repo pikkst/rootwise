@@ -8,6 +8,9 @@ import { UserReport } from '../types';
 import { supabase } from '../services/supabase';
 import { formatDateTime } from '../utils/formatDate';
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isValidUUID = (s: string) => !s || UUID_REGEX.test(s);
+
 const ReportsPage: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -60,6 +63,18 @@ const ReportsPage: React.FC = () => {
       return;
     }
 
+    // Validate UUID fields that may originate from URL params
+    const cleanTargetUserId = targetUserId.trim();
+    const cleanTargetPostId = targetPostId.trim();
+    if (!isValidUUID(cleanTargetUserId)) {
+      showToast('error', 'Invalid target user ID.');
+      return;
+    }
+    if (!isValidUUID(cleanTargetPostId)) {
+      showToast('error', 'Invalid target post ID.');
+      return;
+    }
+
     setSubmitting(true);
     const { error } = await supabase.from('user_reports').insert({
       reporter_id: user.id,
@@ -67,8 +82,8 @@ const ReportsPage: React.FC = () => {
       severity,
       title: title.trim(),
       description: description.trim(),
-      target_user_id: targetUserId.trim() || null,
-      target_post_id: targetPostId.trim() || null,
+      target_user_id: cleanTargetUserId || null,
+      target_post_id: cleanTargetPostId || null,
       source_path: window.location.pathname,
       status: 'open',
     });

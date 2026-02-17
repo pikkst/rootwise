@@ -2,7 +2,7 @@
 // Deploy: supabase functions deploy gemini-proxy --no-verify-jwt
 // Env vars needed: GEMINI_API_KEY
 
-import { corsHeaders } from '../_shared/cors.ts';
+import { getCorsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!;
@@ -159,17 +159,25 @@ function computeCandidateScore(
 }
 
 async function fetchCandidateProfiles(supabase: any, currentUserId: string): Promise<CandidateProfile[]> {
+  // Only fetch profiles that have skills listed — these are the useful candidates for matching.
+  // Limit to 100 (down from 300) to reduce DB load per chat message.
   const { data: profilesData } = await supabase
     .from('profiles')
     .select('id, name, age, role, preferred_language, spoken_languages, skills, interests, bio')
     .neq('id', currentUserId)
-    .limit(300);
+    .not('skills', 'is', null)
+    .limit(100);
 
+  if (!profilesData || profilesData.length === 0) return [];
+
+  // Only fetch location links for the profiles we actually got
+  const profileIds = profilesData.map((p: any) => p.id);
   const { data: locationLinks } = await supabase
     .from('profile_locations')
     .select('profile_id, visibility, is_primary, locations(country, county, city, locality, normalized_name)')
     .eq('visibility', 'public')
-    .limit(1000);
+    .in('profile_id', profileIds)
+    .limit(300);
 
   const byProfile = new Map<string, string[]>();
   for (const row of locationLinks ?? []) {
@@ -265,6 +273,9 @@ async function createSupportQuest(
 }
 
 Deno.serve(async (req: Request) => {
+  // Per-request CORS headers — restricts to allowed origins
+  const corsHeaders = getCorsHeaders(req);
+
   // CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });

@@ -18,7 +18,8 @@ export interface PlanInfo {
   refreshSubscription: () => Promise<void>;
 }
 
-const PRO_FEATURES = new Set(['unlimited_quests', 'unlimited_ai', 'quest_generation', 'analytics', 'matching', 'video_calls']);
+// video_calls is available on all plans (free = 5 min via meet.jit.si, pro = unlimited via JaaS)
+const PRO_FEATURES = new Set(['unlimited_quests', 'unlimited_ai', 'quest_generation', 'analytics', 'matching']);
 const ORG_FEATURES = new Set(['admin', 'branded_communities', 'reporting']);
 
 export function usePlan(): PlanInfo {

@@ -148,7 +148,8 @@ const AdminPage: React.FC = () => {
 
     const [
       usersCount,
-      activeUsersCount,
+      postsActivityRaw,
+      commentsActivityRaw,
       communitiesCount,
       questsCount,
       postsCount,
@@ -159,7 +160,9 @@ const AdminPage: React.FC = () => {
       postsTrend,
     ] = await Promise.all([
       supabase.from('profiles').select('id', { count: 'exact', head: true }),
-      supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('updated_at', iso),
+      // Active users = distinct users who posted or commented in last 7 days
+      supabase.from('posts').select('user_id').gte('created_at', iso).limit(1000),
+      supabase.from('post_comments').select('user_id').gte('created_at', iso).limit(1000),
       supabase.from('communities').select('id', { count: 'exact', head: true }),
       supabase.from('quests').select('id', { count: 'exact', head: true }),
       supabase.from('posts').select('id', { count: 'exact', head: true }),
@@ -170,9 +173,15 @@ const AdminPage: React.FC = () => {
       supabase.from('posts').select('created_at').gte('created_at', iso),
     ]);
 
+    // Distinct users who posted or commented in the last 7 days
+    const activeUserIds = new Set([
+      ...(postsActivityRaw.data ?? []).map((r: { user_id: string }) => r.user_id),
+      ...(commentsActivityRaw.data ?? []).map((r: { user_id: string }) => r.user_id),
+    ]);
+
     setPlatformStats({
       totalUsers: usersCount.count ?? 0,
-      activeUsers7d: activeUsersCount.count ?? 0,
+      activeUsers7d: activeUserIds.size,
       totalCommunities: communitiesCount.count ?? 0,
       totalQuests: questsCount.count ?? 0,
       totalPosts: postsCount.count ?? 0,
