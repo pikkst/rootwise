@@ -456,6 +456,7 @@ Deno.serve(async (req: Request) => {
         generalLocation: c.locations.length > 0 ? c.locations[0].split(',').slice(-2).join(',').trim() : null,
         profileUrl: `/users/${c.id}`,
       }));
+      const allowedCandidateNames = privacySafeCandidates.map((candidate) => candidate.name);
 
       // Keep full context for response metadata (but AI only sees privacy-safe version)
       const candidateContext = ranked.slice(0, 3).map((c) => ({
@@ -552,6 +553,8 @@ skillHints: ${JSON.stringify(skillHints)}
 targetAge: ${JSON.stringify(targetAge)}
 
 If candidateContext contains suitable matches, you MUST mention 1-2 by name naturally in your answer and suggest that the user can open the profile cards to contact them.
+You may only mention person names that exist in this exact allowlist: ${JSON.stringify(allowedCandidateNames)}.
+If the allowlist is empty, do NOT suggest or invent any person. Clearly say that no suitable direct people-matches were found right now, then offer quests/communities instead.
 Do not reveal private details; the UI will show clickable profile cards separately.
 
 Always answer in the same language the user used.
