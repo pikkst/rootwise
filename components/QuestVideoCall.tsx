@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../services/supabase';
+import { useToast } from '../context/ToastContext';
 
 interface QuestVideoCallProps {
   questId: string;
@@ -58,11 +59,14 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const containerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<any>(null);
   const startTimeRef = useRef(Date.now());
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasJoinedRef = useRef(false);
+  const warned60Ref = useRef(false);
+  const warned10Ref = useRef(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +79,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   const [showSummary, setShowSummary] = useState(false);
   const [finalDuration, setFinalDuration] = useState(0);
   const [freeTimeLeft, setFreeTimeLeft] = useState<number | null>(null);
+  const [showTimesUp, setShowTimesUp] = useState(false);
   const freeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Free users get 5 minutes, Pro/Org/Admin get unlimited
@@ -228,20 +233,34 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           // Start 5-minute countdown for free users
           if (!isPro) {
             setFreeTimeLeft(FREE_CALL_LIMIT);
+            warned60Ref.current = false;
+            warned10Ref.current = false;
             freeTimerRef.current = setInterval(() => {
               if (!mounted) return;
               const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
               const remaining = Math.max(0, FREE_CALL_LIMIT - elapsed);
               setFreeTimeLeft(remaining);
+
+              // Toast warning: 1 minute left
+              if (remaining <= 60 && !warned60Ref.current) {
+                warned60Ref.current = true;
+                showToast('info', t('videoCall.toast60s'));
+              }
+              // Toast warning: 10 seconds left
+              if (remaining <= 10 && !warned10Ref.current) {
+                warned10Ref.current = true;
+                showToast('error', t('videoCall.toast10s'));
+              }
+
               if (remaining <= 0) {
-                // Auto-disconnect free user
                 if (freeTimerRef.current) clearInterval(freeTimerRef.current);
+                // Dispose Jitsi, then show Time's Up modal (not raw summary)
                 if (apiRef.current) {
                   apiRef.current.dispose();
                   apiRef.current = null;
                 }
                 setFinalDuration(FREE_CALL_LIMIT);
-                setShowSummary(true);
+                setShowTimesUp(true);
               }
             }, 1000);
           }
@@ -372,6 +391,39 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
     }
     setShowSummary(true);
   };
+
+  // Time's Up modal — shown when free 5-min limit expires
+  if (showTimesUp) {
+    return (
+      <div className="fixed inset-0 z-[60] bg-slate-900/95 flex items-center justify-center p-6">
+        <div className="bg-white rounded-3xl p-8 sm:p-10 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 rounded-full blur-3xl -translate-y-24 translate-x-24" />
+          <div className="absolute bottom-0 left-0 w-36 h-36 bg-amber-500/10 rounded-full blur-2xl translate-y-18 -translate-x-18" />
+          <div className="relative z-10">
+            <div className="text-6xl mb-4">⏰</div>
+            <h2 className="text-2xl font-black text-slate-800 mb-3">
+              {t('videoCall.timesUpTitle')}
+            </h2>
+            <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+              {t('videoCall.timesUpDesc')}
+            </p>
+            <a
+              href="/pricing"
+              className="block w-full px-6 py-4 mb-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition text-base shadow-xl shadow-indigo-600/20"
+            >
+              ⭐ {t('videoCall.upgradePro')}
+            </a>
+            <button
+              onClick={() => { setShowTimesUp(false); setShowSummary(true); }}
+              className="w-full px-6 py-3 text-slate-600 font-semibold rounded-2xl border border-slate-200 hover:bg-slate-50 transition text-sm"
+            >
+              {t('videoCall.timesUpViewSummary')}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Post-call summary screen
   if (showSummary) {

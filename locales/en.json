@@ -945,7 +945,12 @@
     "freeTimeUp": "Free call time is up!",
     "upgradePro": "Upgrade to Pro",
     "freeCallEnded": "Free call limit reached",
-    "upgradeForUnlimited": "Upgrade to Pro for unlimited video calls with no time limit."
+    "upgradeForUnlimited": "Upgrade to Pro for unlimited video calls with no time limit.",
+    "toast60s": "1 minute left on your free call!",
+    "toast10s": "10 seconds! Call is ending now.",
+    "timesUpTitle": "Time's Up!",
+    "timesUpDesc": "Your free 5-minute call has ended. Continue with Pro for unlimited calls — no time limits, ever.",
+    "timesUpViewSummary": "View call summary"
   },
   "upgradeModal": {
     "titlePro": "Upgrade to Pro",
