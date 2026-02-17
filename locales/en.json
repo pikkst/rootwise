@@ -942,7 +942,13 @@
     "noDevicesNotice": "No camera or microphone detected — you've joined as a listener. Connect a device to participate.",
     "connectingNoCamera": "📷 No camera found — connecting with audio only...",
     "connectingNoDevices": "⚠️ No camera or mic found — connecting as listener...",
-    "skipLoading": "Skip — show call now"
+    "skipLoading": "Skip — show call now",
+    "summaryTitle": "Thanks for the call!",
+    "summaryDesc": "Great session on \"{{quest}}\" — keep up the momentum!",
+    "summaryDuration": "Duration",
+    "summarySteps": "Steps",
+    "summaryAllComplete": "All quest steps completed during the call!",
+    "summaryClose": "Back to Quest"
   },
 
   "upgradeModal": {

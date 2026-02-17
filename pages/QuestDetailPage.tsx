@@ -1233,6 +1233,7 @@ const QuestDetailPage: React.FC = () => {
           questSteps={quest.steps ?? []}
           userName={profile.name || t('questDetail.defaultUser')}
           userAvatar={profile.avatar_url ?? undefined}
+          rewardXP={quest.reward_xp ?? 0}
           onClose={handleLeaveCall}
         />
       )}

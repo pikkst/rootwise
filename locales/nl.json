@@ -922,7 +922,13 @@
     "noDevicesNotice": "Geen camera of microfoon gedetecteerd — u bent als luisteraar verbonden. Sluit een apparaat aan om deel te nemen.",
     "connectingNoCamera": "📷 Geen camera gevonden — verbinding maken met alleen audio...",
     "connectingNoDevices": "⚠️ Geen camera of microfoon gevonden — verbinding maken als luisteraar...",
-    "skipLoading": "Overslaan — gesprek nu tonen"
+    "skipLoading": "Overslaan — gesprek nu tonen",
+    "summaryTitle": "Bedankt voor het gesprek!",
+    "summaryDesc": "Geweldige sessie over \"{{quest}}\" — ga zo door!",
+    "summaryDuration": "Duur",
+    "summarySteps": "Stappen",
+    "summaryAllComplete": "Alle stappen voltooid tijdens het gesprek!",
+    "summaryClose": "Terug naar quest"
   },
   "upgradeModal": {
     "titlePro": "Upgrade naar Pro",

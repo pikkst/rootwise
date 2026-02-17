@@ -922,7 +922,13 @@
     "noDevicesNotice": "Nie wykryto kamery ani mikrofonu — dołączono jako słuchacz. Podłącz urządzenie, aby uczestniczyć.",
     "connectingNoCamera": "📷 Nie znaleziono kamery — łączenie tylko z dźwiękiem...",
     "connectingNoDevices": "⚠️ Nie znaleziono kamery ani mikrofonu — łączenie jako słuchacz...",
-    "skipLoading": "Pomiń — pokaż połączenie teraz"
+    "skipLoading": "Pomiń — pokaż połączenie teraz",
+    "summaryTitle": "Dzięki za rozmowę!",
+    "summaryDesc": "Świetna sesja o \"{{quest}}\" — tak trzymaj!",
+    "summaryDuration": "Czas trwania",
+    "summarySteps": "Kroki",
+    "summaryAllComplete": "Wszystkie kroki ukończone podczas rozmowy!",
+    "summaryClose": "Wróć do zadania"
   },
   "upgradeModal": {
     "titlePro": "Uaktualnij do Pro",

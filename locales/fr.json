@@ -922,7 +922,13 @@
     "noDevicesNotice": "Aucune caméra ni microphone détectés — vous avez rejoint en tant qu'auditeur. Connectez un appareil pour participer.",
     "connectingNoCamera": "📷 Aucune caméra trouvée — connexion en audio uniquement...",
     "connectingNoDevices": "⚠️ Aucune caméra ni micro trouvés — connexion en tant qu'auditeur...",
-    "skipLoading": "Passer — afficher l'appel maintenant"
+    "skipLoading": "Passer — afficher l'appel maintenant",
+    "summaryTitle": "Merci pour l'appel !",
+    "summaryDesc": "Super session sur \"{{quest}}\" — continuez sur cette lancée !",
+    "summaryDuration": "Durée",
+    "summarySteps": "Étapes",
+    "summaryAllComplete": "Toutes les étapes complétées pendant l'appel !",
+    "summaryClose": "Retour à la quête"
   },
   "upgradeModal": {
     "titlePro": "Passer à Pro",

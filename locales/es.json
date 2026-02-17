@@ -922,7 +922,13 @@
     "noDevicesNotice": "No se detectó cámara ni micrófono — se unió como oyente. Conecte un dispositivo para participar.",
     "connectingNoCamera": "📷 No se encontró cámara — conectando solo con audio...",
     "connectingNoDevices": "⚠️ No se encontró cámara ni micrófono — conectando como oyente...",
-    "skipLoading": "Omitir — mostrar llamada ahora"
+    "skipLoading": "Omitir — mostrar llamada ahora",
+    "summaryTitle": "¡Gracias por la llamada!",
+    "summaryDesc": "Gran sesión sobre \"{{quest}}\" — ¡sigue así!",
+    "summaryDuration": "Duración",
+    "summarySteps": "Pasos",
+    "summaryAllComplete": "¡Todos los pasos completados durante la llamada!",
+    "summaryClose": "Volver a la misión"
   },
   "upgradeModal": {
     "titlePro": "Actualizar a Pro",

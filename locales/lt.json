@@ -922,7 +922,13 @@
     "noDevicesNotice": "Kamera ir mikrofonas nerasti — prisijungėte kaip klausytojas. Prijunkite įrenginį, kad galėtumėte dalyvauti.",
     "connectingNoCamera": "📷 Kamera nerasta — jungiamasi tik su garsu...",
     "connectingNoDevices": "⚠️ Kamera ir mikrofonas nerasti — jungiamasi kaip klausytojas...",
-    "skipLoading": "Praleisti — rodyti skambutį dabar"
+    "skipLoading": "Praleisti — rodyti skambutį dabar",
+    "summaryTitle": "Ačiū už pokalbį!",
+    "summaryDesc": "Puiki sesija tema \"{{quest}}\" — tęskite!",
+    "summaryDuration": "Trukmė",
+    "summarySteps": "Žingsniai",
+    "summaryAllComplete": "Visi užduoties žingsniai atlikti pokalbio metu!",
+    "summaryClose": "Grįžti į užduotį"
   },
   "upgradeModal": {
     "titlePro": "Atnaujinti į Pro",

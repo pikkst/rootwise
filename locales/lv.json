@@ -922,7 +922,13 @@
     "noDevicesNotice": "Kamera vai mikrofons nav atrasts — jūs pievienojāties kā klausītājs. Pievienojiet ierīci, lai piedalītos.",
     "connectingNoCamera": "📷 Kamera nav atrasta — savienojums tikai ar audio...",
     "connectingNoDevices": "⚠️ Kamera vai mikrofons nav atrasts — savienojums kā klausītājs...",
-    "skipLoading": "Izlaist — rādīt zvanu tagad"
+    "skipLoading": "Izlaist — rādīt zvanu tagad",
+    "summaryTitle": "Paldies par zvanu!",
+    "summaryDesc": "Lieliska sesija par \"{{quest}}\" — turpini tāpat!",
+    "summaryDuration": "Ilgums",
+    "summarySteps": "Soļi",
+    "summaryAllComplete": "Visi uzdevuma soļi izpildīti zvana laikā!",
+    "summaryClose": "Atpakaļ pie uzdevuma"
   },
   "upgradeModal": {
     "titlePro": "Jauniniet uz Pro",

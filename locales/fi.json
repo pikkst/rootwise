@@ -922,7 +922,13 @@
     "noDevicesNotice": "Kameraa tai mikrofonia ei havaittu — liityit kuuntelijana. Yhdistä laite osallistuaksesi.",
     "connectingNoCamera": "📷 Kameraa ei löytynyt — yhdistetään vain äänellä...",
     "connectingNoDevices": "⚠️ Kameraa tai mikrofonia ei löytynyt — yhdistetään kuuntelijana...",
-    "skipLoading": "Ohita — näytä puhelu nyt"
+    "skipLoading": "Ohita — näytä puhelu nyt",
+    "summaryTitle": "Kiitos puhelusta!",
+    "summaryDesc": "Hieno sessio aiheesta \"{{quest}}\" — jatka samaan malliin!",
+    "summaryDuration": "Kesto",
+    "summarySteps": "Vaiheet",
+    "summaryAllComplete": "Kaikki tehtävän vaiheet suoritettu puhelun aikana!",
+    "summaryClose": "Takaisin tehtävään"
   },
   "upgradeModal": {
     "titlePro": "Päivitä Pro-versioon",

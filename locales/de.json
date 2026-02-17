@@ -922,7 +922,13 @@
     "noDevicesNotice": "Keine Kamera oder Mikrofon erkannt — Sie nehmen als Zuhörer teil. Schließen Sie ein Gerät an, um teilzunehmen.",
     "connectingNoCamera": "📷 Keine Kamera gefunden — Verbindung nur mit Audio...",
     "connectingNoDevices": "⚠️ Keine Kamera oder Mikrofon gefunden — Verbindung als Zuhörer...",
-    "skipLoading": "Überspringen — Anruf jetzt anzeigen"
+    "skipLoading": "Überspringen — Anruf jetzt anzeigen",
+    "summaryTitle": "Danke für das Gespräch!",
+    "summaryDesc": "Tolle Sitzung zu \"{{quest}}\" — weiter so!",
+    "summaryDuration": "Dauer",
+    "summarySteps": "Schritte",
+    "summaryAllComplete": "Alle Quest-Schritte während des Anrufs abgeschlossen!",
+    "summaryClose": "Zurück zur Quest"
   },
   "upgradeModal": {
     "titlePro": "Upgrade auf Pro",

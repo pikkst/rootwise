@@ -7,8 +7,34 @@ interface QuestVideoCallProps {
   questSteps: string[];
   userName: string;
   userAvatar?: string;
+  rewardXP: number;
   onClose: () => void;
 }
+
+/** Render simple markdown (bold, italic) inline */
+const renderMarkdown = (text: string): React.ReactNode[] => {
+  const parts: React.ReactNode[] = [];
+  // Match **bold** and *italic*
+  const regex = /\*\*(.+?)\*\*|\*(.+?)\*/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    if (match[1]) {
+      parts.push(<strong key={key++} className="font-bold">{match[1]}</strong>);
+    } else if (match[2]) {
+      parts.push(<em key={key++} className="italic">{match[2]}</em>);
+    }
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  return parts;
+};
 
 // Jitsi external API loaded dynamically
 declare global {
@@ -23,6 +49,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   questSteps,
   userName,
   userAvatar,
+  rewardXP,
   onClose,
 }) => {
   const { t } = useTranslation();
@@ -39,6 +66,8 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   const [showPanel, setShowPanel] = useState(true);
   const [mobileView, setMobileView] = useState<'video' | 'steps'>('video');
   const [cameraWarning, setCameraWarning] = useState<'none' | 'no-camera' | 'no-mic' | 'no-devices'>('none');
+  const [showSummary, setShowSummary] = useState(false);
+  const [finalDuration, setFinalDuration] = useState(0);
 
   // Deterministic room name from quest ID
   const roomName = `Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`;
@@ -106,7 +135,9 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
             enableNoAudioDetection: true,
             disableThirdPartyRequests: true,
             notifications: [],
-            hideConferenceSubject: false,
+            hideConferenceSubject: true,
+            hideConferenceTimer: true,
+            hideParticipantsStats: true,
             remoteVideoMenu: { disableKick: true, disableGrantModerator: true },
           },
           interfaceConfigOverrides: {
@@ -124,6 +155,8 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
             ],
             SHOW_JITSI_WATERMARK: false,
             SHOW_WATERMARK_FOR_GUESTS: false,
+            SHOW_BRAND_WATERMARK: false,
+            SHOW_POWERED_BY: false,
             MOBILE_APP_PROMO: false,
             HIDE_INVITE_MORE_HEADER: true,
             TOOLBAR_ALWAYS_VISIBLE: true,
@@ -163,11 +196,17 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         });
 
         api.addEventListener('videoConferenceLeft', () => {
-          if (mounted) onClose();
+          if (mounted) {
+            setFinalDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
+            setShowSummary(true);
+          }
         });
 
         api.addEventListener('readyToClose', () => {
-          if (mounted) onClose();
+          if (mounted) {
+            setFinalDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
+            setShowSummary(true);
+          }
         });
 
         // Set avatar
@@ -250,6 +289,80 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
 
   const stepsProgress = questSteps.length > 0 ? Math.round((checkedSteps.size / questSteps.length) * 100) : 0;
 
+  // Handle leave: dispose Jitsi and show summary
+  const handleLeave = () => {
+    setFinalDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
+    if (apiRef.current) {
+      apiRef.current.dispose();
+      apiRef.current = null;
+    }
+    setShowSummary(true);
+  };
+
+  // Post-call summary screen
+  if (showSummary) {
+    return (
+      <div className="fixed inset-0 z-[60] bg-slate-900/95 flex items-center justify-center p-6">
+        <div className="bg-white rounded-3xl p-8 sm:p-10 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl -translate-y-20 translate-x-20" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl translate-y-16 -translate-x-16" />
+
+          <div className="relative z-10">
+            <div className="text-6xl mb-4">🎉</div>
+            <h2 className="text-2xl font-black text-slate-800 mb-2">
+              {t('videoCall.summaryTitle')}
+            </h2>
+            <p className="text-slate-500 text-sm mb-8">
+              {t('videoCall.summaryDesc', { quest: questTitle })}
+            </p>
+
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="bg-slate-50 rounded-2xl p-4">
+                <p className="text-2xl font-black text-indigo-600">
+                  {formatDuration(finalDuration)}
+                </p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
+                  {t('videoCall.summaryDuration')}
+                </p>
+              </div>
+              <div className="bg-slate-50 rounded-2xl p-4">
+                <p className="text-2xl font-black text-emerald-600">
+                  {checkedSteps.size}/{questSteps.length}
+                </p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
+                  {t('videoCall.summarySteps')}
+                </p>
+              </div>
+              <div className="bg-slate-50 rounded-2xl p-4">
+                <p className="text-2xl font-black text-amber-500">
+                  {rewardXP}
+                </p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
+                  XP
+                </p>
+              </div>
+            </div>
+
+            {checkedSteps.size === questSteps.length && questSteps.length > 0 && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 mb-6">
+                <p className="text-emerald-700 font-bold text-sm">
+                  ✅ {t('videoCall.summaryAllComplete')}
+                </p>
+              </div>
+            )}
+
+            <button
+              onClick={onClose}
+              className="w-full px-6 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition text-base shadow-xl shadow-indigo-600/20"
+            >
+              {t('videoCall.summaryClose')}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-[60] bg-slate-900 flex flex-col">
       {/* ─── Top Bar ─── */}
@@ -267,6 +380,9 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
               <span className="text-xs text-slate-400 hidden sm:inline">
                 · {participantCount} 👤
               </span>
+              <span className="text-xs font-bold text-amber-400 hidden sm:inline">
+                · ⭐ {rewardXP} XP
+              </span>
             </>
           )}
         </div>
@@ -281,7 +397,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
             </button>
           )}
           <button
-            onClick={onClose}
+            onClick={handleLeave}
             className="px-3 sm:px-4 py-2 text-sm font-bold bg-red-600 hover:bg-red-500 rounded-lg transition"
           >
             ✕ {t('videoCall.leave')}
@@ -395,7 +511,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
                             : 'text-slate-700'
                         }`}
                       >
-                        {step}
+                        {renderMarkdown(step)}
                       </span>
                     </button>
                   </li>

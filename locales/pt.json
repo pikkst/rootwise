@@ -922,7 +922,13 @@
     "noDevicesNotice": "Nenhuma câmera ou microfone detectados — você entrou como ouvinte. Conecte um dispositivo para participar.",
     "connectingNoCamera": "📷 Nenhuma câmera encontrada — conectando apenas com áudio...",
     "connectingNoDevices": "⚠️ Nenhuma câmera ou microfone encontrados — conectando como ouvinte...",
-    "skipLoading": "Pular — mostrar chamada agora"
+    "skipLoading": "Pular — mostrar chamada agora",
+    "summaryTitle": "Obrigado pela chamada!",
+    "summaryDesc": "Ótima sessão sobre \"{{quest}}\" — continue assim!",
+    "summaryDuration": "Duração",
+    "summarySteps": "Passos",
+    "summaryAllComplete": "Todos os passos concluídos durante a chamada!",
+    "summaryClose": "Voltar à missão"
   },
   "upgradeModal": {
     "titlePro": "Atualizar para Pro",

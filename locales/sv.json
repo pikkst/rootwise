@@ -922,7 +922,13 @@
     "noDevicesNotice": "Ingen kamera eller mikrofon hittades — du anslöt som lyssnare. Anslut en enhet för att delta.",
     "connectingNoCamera": "📷 Ingen kamera hittades — ansluter med enbart ljud...",
     "connectingNoDevices": "⚠️ Ingen kamera eller mikrofon hittades — ansluter som lyssnare...",
-    "skipLoading": "Hoppa över — visa samtal nu"
+    "skipLoading": "Hoppa över — visa samtal nu",
+    "summaryTitle": "Tack för samtalet!",
+    "summaryDesc": "Bra session om \"{{quest}}\" — fortsätt så!",
+    "summaryDuration": "Varaktighet",
+    "summarySteps": "Steg",
+    "summaryAllComplete": "Alla uppdragssteg slutförda under samtalet!",
+    "summaryClose": "Tillbaka till uppdraget"
   },
   "upgradeModal": {
     "titlePro": "Uppgradera till Pro",

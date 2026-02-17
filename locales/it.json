@@ -922,7 +922,13 @@
     "noDevicesNotice": "Nessuna fotocamera o microfono rilevati — ti sei unito come ascoltatore. Collega un dispositivo per partecipare.",
     "connectingNoCamera": "📷 Nessuna fotocamera trovata — connessione solo audio...",
     "connectingNoDevices": "⚠️ Nessuna fotocamera o microfono trovati — connessione come ascoltatore...",
-    "skipLoading": "Salta — mostra la chiamata ora"
+    "skipLoading": "Salta — mostra la chiamata ora",
+    "summaryTitle": "Grazie per la chiamata!",
+    "summaryDesc": "Ottima sessione su \"{{quest}}\" — continua così!",
+    "summaryDuration": "Durata",
+    "summarySteps": "Passi",
+    "summaryAllComplete": "Tutti i passi completati durante la chiamata!",
+    "summaryClose": "Torna alla quest"
   },
   "upgradeModal": {
     "titlePro": "Passa a Pro",
