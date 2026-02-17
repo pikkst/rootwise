@@ -301,7 +301,7 @@
     "proofApprove": "Approve",
     "proofReject": "Reject",
     "toastProofApproved": "Proof approved and XP awarded!",
-    "toastProofRejected": "Proof rejected — learner can resubmit",
+    "toastProofRejected": "Proof returned for revision",
     "toastVerifyFailed": "Failed to verify proof",
     "sidebarTitle": "Quest Info",
     "sidebarJoin": "🚀 Join Quest",
@@ -356,7 +356,12 @@
     "filesDelete": "Delete",
     "proofSubmitting": "Submitting...",
     "defaultUser": "User",
-    "confirmDeleteFile": "Are you sure you want to delete this file?"
+    "confirmDeleteFile": "Are you sure you want to delete this file?",
+    "proofAskChanges": "Ask for Changes",
+    "proofFeedbackRequired": "What needs to change?",
+    "proofFeedbackPlaceholder": "Explain what should be improved...",
+    "proofFeedbackSubmit": "Send Feedback",
+    "cancel": "Cancel"
   },
 
   "questDiscovery": {
@@ -605,7 +610,10 @@
     "subscriptionActive": "Subscription active: {{plan}} plan enabled.",
     "paymentSuccessful": "Payment successful. Plan update may take a moment—refresh if needed.",
     "newRequest": "New request",
-    "member": "Member"
+    "member": "Member",
+    "tabQuests": "Quests",
+    "trophyCase": "Trophy Case",
+    "noQuestsYet": "No quests completed yet. Start your first quest!"
   },
 
   "publicProfile": {
@@ -1007,6 +1015,14 @@
     "communityMemberLimit": "Community member limit reached ({{limit}}).",
     "legacyComplete": "Marked complete via legacy interface",
     "signInFailed": "Sign in failed"
+  },
+
+  "notifications": {
+    "bell": "Notifications",
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "No notifications yet",
+    "justNow": "Just now"
   },
 
   "language": {

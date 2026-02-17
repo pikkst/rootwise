@@ -293,7 +293,7 @@
     "proofApprove": "Patvirtinti",
     "proofReject": "Atmesti",
     "toastProofApproved": "Įrodymas patvirtintas ir XP paskirti!",
-    "toastProofRejected": "Įrodymas atmestas — mokinys gali pateikti iš naujo",
+    "toastProofRejected": "Įrodymas grąžintas pataisymui",
     "toastVerifyFailed": "Nepavyko patikrinti įrodymo",
     "sidebarTitle": "Užduoties informacija",
     "sidebarJoin": "🚀 Prisijungti prie užduoties",
@@ -348,7 +348,12 @@
     "filesDownload": "Atsisiųsti",
     "filesDelete": "Ištrinti",
     "proofSubmitting": "Pateikiama...",
-    "defaultUser": "Vartotojas"
+    "defaultUser": "Vartotojas",
+    "proofAskChanges": "Prašyti pakeitimų",
+    "proofFeedbackRequired": "Ką reikia pakeisti?",
+    "proofFeedbackPlaceholder": "Paaiškinkite, ką reikia pagerinti...",
+    "proofFeedbackSubmit": "Siųsti atsiliepimą",
+    "cancel": "Atšaukti"
   },
   "questDiscovery": {
     "title": "Atraskite užduotis",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Prenumerata aktyvi: įjungtas {{plan}} planas.",
     "paymentSuccessful": "Mokėjimas sėkmingas. Plano atnaujinimas gali užtrukti, jei reikia, atnaujinkite puslapį.",
     "newRequest": "Naujas prašymas",
-    "member": "Narys"
+    "member": "Narys",
+    "tabQuests": "Užduotys",
+    "trophyCase": "Trofėjų vitrina",
+    "noQuestsYet": "Dar nėra atliktų užduočių. Pradėkite savo pirmąją užduotį!"
   },
   "publicProfile": {
     "notFound": "Profilis nerastas.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Pasiektas bendruomenės narių limitas ({{limit}}).",
     "legacyComplete": "Pažymėta kaip atlikta per senąją sąsają",
     "signInFailed": "Prisijungti nepavyko"
+  },
+  "notifications": {
+    "bell": "Pranešimai",
+    "title": "Pranešimai",
+    "markAllRead": "Žymėti visus kaip skaitytus",
+    "empty": "Pranešimų dar nėra",
+    "justNow": "Ką tik"
   },
   "language": {
     "label": "Kalba",

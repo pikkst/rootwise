@@ -293,7 +293,7 @@
     "proofApprove": "Genehmigen",
     "proofReject": "Ablehnen",
     "toastProofApproved": "Nachweis genehmigt und XP vergeben!",
-    "toastProofRejected": "Nachweis abgelehnt — Lernender kann erneut einreichen",
+    "toastProofRejected": "Nachweis zur Überarbeitung zurückgegeben",
     "toastVerifyFailed": "Nachweis konnte nicht verifiziert werden",
     "sidebarTitle": "Quest-Info",
     "sidebarJoin": "🚀 Quest beitreten",
@@ -348,7 +348,12 @@
     "filesDownload": "Herunterladen",
     "filesDelete": "Löschen",
     "proofSubmitting": "Einreichen...",
-    "defaultUser": "Benutzer"
+    "defaultUser": "Benutzer",
+    "proofAskChanges": "Änderungen anfordern",
+    "proofFeedbackRequired": "Was muss geändert werden?",
+    "proofFeedbackPlaceholder": "Erklären Sie, was verbessert werden soll...",
+    "proofFeedbackSubmit": "Feedback senden",
+    "cancel": "Abbrechen"
   },
   "questDiscovery": {
     "title": "Quests entdecken",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Abonnement aktiv: {{plan}}-Plan aktiviert.",
     "paymentSuccessful": "Zahlung erfolgreich. Die Aktualisierung des Plans kann einen Moment dauern – bei Bedarf aktualisieren Sie die Seite.",
     "newRequest": "Neue Anfrage",
-    "member": "Mitglied"
+    "member": "Mitglied",
+    "tabQuests": "Quests",
+    "trophyCase": "Trophäenvitrine",
+    "noQuestsYet": "Noch keine Quests abgeschlossen. Starte deine erste Quest!"
   },
   "publicProfile": {
     "notFound": "Profil nicht gefunden.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Das Community-Mitgliederlimit ist erreicht ({{limit}}).",
     "legacyComplete": "Über die Legacy-Schnittstelle als abgeschlossen markiert",
     "signInFailed": "Anmeldung fehlgeschlagen"
+  },
+  "notifications": {
+    "bell": "Benachrichtigungen",
+    "title": "Benachrichtigungen",
+    "markAllRead": "Alle als gelesen markieren",
+    "empty": "Noch keine Benachrichtigungen",
+    "justNow": "Gerade eben"
   },
   "language": {
     "label": "Sprache",

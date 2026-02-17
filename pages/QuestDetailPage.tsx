@@ -9,6 +9,20 @@ import { useTranslation } from 'react-i18next';
 import { DbQuest, QuestMember, QuestMessage, QuestFile, QuestMilestone, Profile } from '../types';
 import { formatTime, formatDateNumeric } from '../utils/formatDate';
 
+/** Privacy name: "Malle K." format */
+const privacyName = (fullName?: string | null): string => {
+  if (!fullName) return '?';
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[parts.length - 1][0]}.`;
+};
+
+/** Role emoji for quest member role */
+const roleEmoji = (role?: string): string => {
+  if (role === 'creator' || role === 'mentor') return '🦉';
+  return '⚡';
+};
+
 type Tab = 'overview' | 'chat' | 'files' | 'milestones' | 'members' | 'proof';
 
 interface MessageWithAuthor extends QuestMessage {
@@ -35,6 +49,9 @@ const QuestDetailPage: React.FC = () => {
   const [joiningQuest, setJoiningQuest] = useState(false);
   const [submittingProof, setSubmittingProof] = useState(false);
   const [proofText, setProofText] = useState('');
+  const [rejectingUserId, setRejectingUserId] = useState<string | null>(null);
+  const [rejectFeedback, setRejectFeedback] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -156,7 +173,7 @@ const QuestDetailPage: React.FC = () => {
       if (memberUserIds.length > 0) {
         const { data: profilesData } = await supabase
           .from('profiles')
-          .select('id, display_name, avatar_url')
+          .select('id, name, avatar_url, role')
           .in('id', memberUserIds);
         if (profilesData) {
           const profileMap: Record<string, Profile> = {};
@@ -294,6 +311,17 @@ const QuestDetailPage: React.FC = () => {
       if (error) {
         showToast('error', t('questDetail.toastProofFailed'));
       } else {
+        // Notify quest creator/mentors about new proof
+        const mentors = members.filter((m) => m.role === 'creator' || m.role === 'mentor');
+        for (const mentor of mentors) {
+          await supabase.from('notifications').insert({
+            user_id: mentor.user_id,
+            type: 'proof_submitted',
+            title: t('questDetail.toastProofSubmitted'),
+            body: `${profile.name} — ${quest?.title}`,
+            link: `/quests/${questId}`,
+          });
+        }
         setProofText('');
         await fetchQuestDetails();
         showToast('success', t('questDetail.toastProofSubmitted'));
@@ -305,7 +333,7 @@ const QuestDetailPage: React.FC = () => {
     }
   };
 
-  const handleVerifyProof = async (userId: string, approved: boolean) => {
+  const handleVerifyProof = async (userId: string, approved: boolean, feedback?: string) => {
     if (!questId || !profile?.id) return;
     try {
       if (approved) {
@@ -321,6 +349,7 @@ const QuestDetailPage: React.FC = () => {
           proof_verified_at: approved ? new Date().toISOString() : null,
           xp_awarded: approved,
           status: approved ? 'completed' : 'accepted',
+          ...((!approved && feedback) ? { proof_submitted: null } : {}),
         })
         .eq('quest_id', questId)
         .eq('user_id', userId);
@@ -328,6 +357,25 @@ const QuestDetailPage: React.FC = () => {
       if (error) {
         showToast('error', t('questDetail.toastVerifyFailed'));
       } else {
+        // Create notification for the learner
+        await supabase.from('notifications').insert({
+          user_id: userId,
+          type: approved ? 'proof_approved' : 'proof_rejected',
+          title: approved
+            ? t('questDetail.toastProofApproved')
+            : t('questDetail.toastProofRejected'),
+          body: approved
+            ? `+${quest?.reward_xp ?? 0} XP — ${quest?.title}`
+            : feedback || '',
+          link: `/quests/${questId}`,
+        }).then(() => {});
+
+        if (approved) {
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 3000);
+        }
+        setRejectingUserId(null);
+        setRejectFeedback('');
         await fetchQuestDetails();
         showToast('success', approved ? t('questDetail.toastProofApproved') : t('questDetail.toastProofRejected'));
       }
@@ -516,7 +564,29 @@ const QuestDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-32">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-32 relative">
+      {/* Confetti overlay */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden" aria-hidden="true">
+          {Array.from({ length: 60 }).map((_, i) => (
+            <span
+              key={i}
+              className="absolute animate-confetti"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: '-10px',
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${2 + Math.random() * 2}s`,
+                fontSize: `${12 + Math.random() * 16}px`,
+                color: ['#f43f5e', '#8b5cf6', '#06b6d4', '#f59e0b', '#10b981', '#3b82f6'][Math.floor(Math.random() * 6)],
+              }}
+            >
+              {['🎉', '⭐', '🏆', '✨', '🎊', '💎'][Math.floor(Math.random() * 6)]}
+            </span>
+          ))}
+        </div>
+      )}
+
       <SEOHead title={`${quest.title} - Rootwise`} description={quest.description ?? ''} path={`/quests/${questId}`} />
 
       {/* Header */}
@@ -738,7 +808,7 @@ const QuestDetailPage: React.FC = () => {
                                 <span className="font-semibold text-sm text-slate-800">
                                   {msg.user_id === profile?.id
                                     ? t('questDetail.chatYou')
-                                    : memberProfiles[msg.user_id]?.display_name || `${t('questDetail.chatUser')} ${msg.user_id.slice(0, 8)}`}
+                                    : <>{roleEmoji(members.find(mm => mm.user_id === msg.user_id)?.role)} {privacyName(memberProfiles[msg.user_id]?.name) || `${t('questDetail.chatUser')} ${msg.user_id.slice(0, 8)}`}</>}
                                 </span>
                                 <span className="text-xs text-slate-500">
                                   {formatTime(msg.created_at ?? '')}
@@ -941,12 +1011,12 @@ const QuestDetailPage: React.FC = () => {
                               <img src={memberProfiles[member.user_id].avatar_url!} alt="" className="w-8 h-8 rounded-full object-cover" />
                             ) : (
                               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                                {(memberProfiles[member.user_id]?.display_name || '?')[0].toUpperCase()}
+                                {(memberProfiles[member.user_id]?.name || '?')[0].toUpperCase()}
                               </div>
                             )}
                             <div>
                               <div className="font-semibold text-slate-800">
-                                {memberProfiles[member.user_id]?.display_name || member.user_id.slice(0, 8)}
+                                {roleEmoji(member.role)} {privacyName(memberProfiles[member.user_id]?.name) || member.user_id.slice(0, 8)}
                                 {member.user_id === profile?.id && ` (${t('questDetail.chatYou')})`}
                               </div>
                               <div className="text-xs text-slate-500 capitalize">{member.status}</div>
@@ -1036,12 +1106,12 @@ const QuestDetailPage: React.FC = () => {
                                     <img src={memberProfiles[m.user_id].avatar_url!} alt="" className="w-8 h-8 rounded-full object-cover" />
                                   ) : (
                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                                      {(memberProfiles[m.user_id]?.display_name || '?')[0].toUpperCase()}
+                                      {(memberProfiles[m.user_id]?.name || '?')[0].toUpperCase()}
                                     </div>
                                   )}
                                   <div>
                                     <p className="font-semibold text-slate-800">
-                                      {memberProfiles[m.user_id]?.display_name || m.user_id.slice(0, 8)}
+                                      {privacyName(memberProfiles[m.user_id]?.name) || m.user_id.slice(0, 8)}
                                     </p>
                                     <p className="text-xs text-slate-500">
                                       {m.proof_submitted_at ? formatDateNumeric(m.proof_submitted_at) : ''}
@@ -1065,20 +1135,56 @@ const QuestDetailPage: React.FC = () => {
                                     <p className="text-green-700 font-semibold text-sm">✅ {t('questDetail.proofVerified')}</p>
                                   </div>
                                 ) : (
-                                  <div className="flex gap-3">
-                                    <button
-                                      onClick={() => handleVerifyProof(m.user_id, true)}
-                                      className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-semibold text-sm"
-                                    >
-                                      ✅ {t('questDetail.proofApprove')}
-                                    </button>
-                                    <button
-                                      onClick={() => handleVerifyProof(m.user_id, false)}
-                                      className="flex-1 px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition font-semibold text-sm"
-                                    >
-                                      ❌ {t('questDetail.proofReject')}
-                                    </button>
-                                  </div>
+                                  <>
+                                    <div className="flex gap-3">
+                                      <button
+                                        onClick={() => handleVerifyProof(m.user_id, true)}
+                                        className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-semibold text-sm"
+                                      >
+                                        ✅ {t('questDetail.proofApprove')}
+                                      </button>
+                                      <button
+                                        onClick={() => setRejectingUserId(m.user_id)}
+                                        className="flex-1 px-4 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition font-semibold text-sm"
+                                      >
+                                        🔄 {t('questDetail.proofAskChanges')}
+                                      </button>
+                                    </div>
+
+                                    {/* Ask for Changes feedback panel */}
+                                    {rejectingUserId === m.user_id && (
+                                      <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                                        <label className="block text-sm font-semibold text-amber-800 mb-2">
+                                          {t('questDetail.proofFeedbackRequired')}
+                                        </label>
+                                        <textarea
+                                          value={rejectFeedback}
+                                          onChange={(e) => setRejectFeedback(e.target.value)}
+                                          className="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+                                          rows={3}
+                                          placeholder={t('questDetail.proofFeedbackPlaceholder')}
+                                        />
+                                        <div className="flex gap-2 mt-2">
+                                          <button
+                                            onClick={() => {
+                                              if (!rejectFeedback.trim()) return;
+                                              handleVerifyProof(m.user_id, false, rejectFeedback.trim());
+                                            }}
+                                            disabled={!rejectFeedback.trim()}
+                                            className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                          >
+                                            {t('questDetail.proofFeedbackSubmit')}
+                                          </button>
+                                          <button
+                                            onClick={() => { setRejectingUserId(null); setRejectFeedback(''); }}
+                                            className="px-4 py-2 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300 transition text-sm"
+                                          >
+                                            {t('questDetail.cancel')}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
                                 )}
                               </div>
                             ))}

@@ -293,7 +293,7 @@
     "proofApprove": "Goedkeuren",
     "proofReject": "Afwijzen",
     "toastProofApproved": "Bewijs goedgekeurd en XP toegekend!",
-    "toastProofRejected": "Bewijs afgewezen — leerling kan opnieuw indienen",
+    "toastProofRejected": "Bewijs teruggestuurd voor herziening",
     "toastVerifyFailed": "Verificatie van bewijs mislukt",
     "sidebarTitle": "Quest Info",
     "sidebarJoin": "🚀 Doe mee met Quest",
@@ -348,7 +348,12 @@
     "filesDownload": "Downloaden",
     "filesDelete": "Verwijderen",
     "proofSubmitting": "Indienen...",
-    "defaultUser": "Gebruiker"
+    "defaultUser": "Gebruiker",
+    "proofAskChanges": "Wijzigingen aanvragen",
+    "proofFeedbackRequired": "Wat moet er veranderen?",
+    "proofFeedbackPlaceholder": "Leg uit wat verbeterd moet worden...",
+    "proofFeedbackSubmit": "Feedback verzenden",
+    "cancel": "Annuleren"
   },
   "questDiscovery": {
     "title": "Ontdek Quests",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Abonnement actief: {{plan}}-abonnement ingeschakeld.",
     "paymentSuccessful": "Betaling succesvol. Het bijwerken van het abonnement kan even duren—ververs indien nodig.",
     "newRequest": "Nieuw verzoek",
-    "member": "Lid"
+    "member": "Lid",
+    "tabQuests": "Quests",
+    "trophyCase": "Prijzenkast",
+    "noQuestsYet": "Nog geen quests voltooid. Begin je eerste quest!"
   },
   "publicProfile": {
     "notFound": "Profiel niet gevonden.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "De limiet voor communityleden is bereikt ({{limit}}).",
     "legacyComplete": "Gemarkeerd als voltooid via de oude interface",
     "signInFailed": "Inloggen mislukt"
+  },
+  "notifications": {
+    "bell": "Meldingen",
+    "title": "Meldingen",
+    "markAllRead": "Alles als gelezen markeren",
+    "empty": "Nog geen meldingen",
+    "justNow": "Zojuist"
   },
   "language": {
     "label": "Taal",

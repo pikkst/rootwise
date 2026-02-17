@@ -48,7 +48,7 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onC
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/quests/${quest.id}`); }}
-      className={`bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-all cursor-pointer ${isCompleted ? 'opacity-75 grayscale-[0.5]' : ''}`}
+      className={`bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer ${isCompleted ? 'opacity-75 grayscale-[0.5]' : ''}`}
     >
       <div className="h-40 relative">
         {quest.imageUrl ? (

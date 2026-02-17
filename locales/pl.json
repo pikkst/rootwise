@@ -293,7 +293,7 @@
     "proofApprove": "Zatwierdź",
     "proofReject": "Odrzuć",
     "toastProofApproved": "Dowód zatwierdzony i XP przyznane!",
-    "toastProofRejected": "Dowód odrzucony — uczeń może przesłać ponownie",
+    "toastProofRejected": "Dowód zwrócony do poprawy",
     "toastVerifyFailed": "Nie udało się zweryfikować dowodu",
     "sidebarTitle": "Informacje o zadaniu",
     "sidebarJoin": "🚀 Dołącz do zadania",
@@ -348,7 +348,12 @@
     "filesDownload": "Pobierz",
     "filesDelete": "Usuń",
     "proofSubmitting": "Przesyłanie...",
-    "defaultUser": "Użytkownik"
+    "defaultUser": "Użytkownik",
+    "proofAskChanges": "Poproś o zmiany",
+    "proofFeedbackRequired": "Co należy zmienić?",
+    "proofFeedbackPlaceholder": "Wyjaśnij, co należy poprawić...",
+    "proofFeedbackSubmit": "Wyślij opinię",
+    "cancel": "Anuluj"
   },
   "questDiscovery": {
     "title": "Odkryj zadania",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Subskrypcja aktywna: plan {{plan}} włączony.",
     "paymentSuccessful": "Płatność zakończona pomyślnie. Aktualizacja planu może zająć chwilę – odśwież, jeśli to konieczne.",
     "newRequest": "Nowe zapytanie",
-    "member": "Członek"
+    "member": "Członek",
+    "tabQuests": "Zadania",
+    "trophyCase": "Gablota trofeów",
+    "noQuestsYet": "Nie ukończono jeszcze żadnych zadań. Rozpocznij swoje pierwsze zadanie!"
   },
   "publicProfile": {
     "notFound": "Profil nie został znaleziony.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Osiągnięto limit członków społeczności ({{limit}}).",
     "legacyComplete": "Oznaczono jako ukończone przez starszy interfejs",
     "signInFailed": "Logowanie nie powiodło się"
+  },
+  "notifications": {
+    "bell": "Powiadomienia",
+    "title": "Powiadomienia",
+    "markAllRead": "Oznacz wszystkie jako przeczytane",
+    "empty": "Brak powiadomień",
+    "justNow": "Właśnie teraz"
   },
   "language": {
     "label": "Język",

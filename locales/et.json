@@ -293,7 +293,7 @@
     "proofApprove": "Kinnita",
     "proofReject": "Lükka tagasi",
     "toastProofApproved": "Tõend kinnitatud ja XP lisatud!",
-    "toastProofRejected": "Tõend tagasi lükatud — õppija saab uuesti esitada",
+    "toastProofRejected": "Tõend tagastatud ülevaatamiseks",
     "toastVerifyFailed": "Tõendi kinnitamine ebaõnnestus",
     "sidebarTitle": "Questi info",
     "sidebarJoin": "🚀 Liitu questiga",
@@ -348,7 +348,12 @@
     "filesDownload": "Laadi alla",
     "filesDelete": "Kustuta",
     "proofSubmitting": "Esitan...",
-    "defaultUser": "Kasutaja"
+    "defaultUser": "Kasutaja",
+    "proofAskChanges": "Küsi muudatusi",
+    "proofFeedbackRequired": "Mis vajab muutmist?",
+    "proofFeedbackPlaceholder": "Selgita, mida tuleks parandada...",
+    "proofFeedbackSubmit": "Saada tagasiside",
+    "cancel": "Tühista"
   },
   "questDiscovery": {
     "title": "Avasta queste",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Tellimus aktiivne: {{plan}} plaan on aktiveeritud.",
     "paymentSuccessful": "Makse õnnestus. Plaani uuendamine võib võtta hetke – vajadusel värskenda.",
     "newRequest": "Uus taotlus",
-    "member": "Liige"
+    "member": "Liige",
+    "tabQuests": "Questid",
+    "trophyCase": "Auhinnakapp",
+    "noQuestsYet": "Ühtegi questi pole veel lõpetatud. Alusta oma esimest questi!"
   },
   "publicProfile": {
     "notFound": "Profiili ei leitud.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Kogukonna liikmete limiit on täis ({{limit}}).",
     "legacyComplete": "Märgitud lõpetatuks vana liidese kaudu",
     "signInFailed": "Sisselogimine ebaõnnestus"
+  },
+  "notifications": {
+    "bell": "Teavitused",
+    "title": "Teavitused",
+    "markAllRead": "Märgi kõik loetuks",
+    "empty": "Teavitusi pole veel",
+    "justNow": "Just praegu"
   },
   "language": {
     "label": "Keel",

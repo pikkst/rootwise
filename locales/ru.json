@@ -293,7 +293,7 @@
     "proofApprove": "Одобрить",
     "proofReject": "Отклонить",
     "toastProofApproved": "Доказательство одобрено и XP начислены!",
-    "toastProofRejected": "Доказательство отклонено — ученик может отправить снова",
+    "toastProofRejected": "Доказательство возвращено на доработку",
     "toastVerifyFailed": "Не удалось проверить доказательство",
     "sidebarTitle": "Информация о квесте",
     "sidebarJoin": "🚀 Присоединиться к квесту",
@@ -348,7 +348,12 @@
     "filesDownload": "Скачать",
     "filesDelete": "Удалить",
     "proofSubmitting": "Отправка...",
-    "defaultUser": "Пользователь"
+    "defaultUser": "Пользователь",
+    "proofAskChanges": "Запросить изменения",
+    "proofFeedbackRequired": "Что нужно изменить?",
+    "proofFeedbackPlaceholder": "Объясните, что нужно улучшить...",
+    "proofFeedbackSubmit": "Отправить отзыв",
+    "cancel": "Отмена"
   },
   "questDiscovery": {
     "title": "Откройте для себя квесты",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Активна подписка: включен план {{plan}}.",
     "paymentSuccessful": "Оплата прошла успешно. Обновление плана может занять некоторое время — при необходимости обновите страницу.",
     "newRequest": "Новый запрос",
-    "member": "Участник"
+    "member": "Участник",
+    "tabQuests": "Квесты",
+    "trophyCase": "Витрина наград",
+    "noQuestsYet": "Пока нет завершённых квестов. Начните свой первый квест!"
   },
   "publicProfile": {
     "notFound": "Профиль не найден.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Достигнут лимит участников сообщества ({{limit}}).",
     "legacyComplete": "Отмечено как завершенное через устаревший интерфейс",
     "signInFailed": "Ошибка входа"
+  },
+  "notifications": {
+    "bell": "Уведомления",
+    "title": "Уведомления",
+    "markAllRead": "Отметить все как прочитанные",
+    "empty": "Пока нет уведомлений",
+    "justNow": "Только что"
   },
   "language": {
     "label": "Язык",

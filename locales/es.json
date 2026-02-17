@@ -293,7 +293,7 @@
     "proofApprove": "Aprobar",
     "proofReject": "Rechazar",
     "toastProofApproved": "¡Prueba aprobada y XP otorgados!",
-    "toastProofRejected": "Prueba rechazada — el estudiante puede volver a enviar",
+    "toastProofRejected": "Prueba devuelta para revisión",
     "toastVerifyFailed": "No se pudo verificar la prueba",
     "sidebarTitle": "Información de la Misión",
     "sidebarJoin": "🚀 Unirse a la Misión",
@@ -348,7 +348,12 @@
     "filesDownload": "Descargar",
     "filesDelete": "Eliminar",
     "proofSubmitting": "Enviando...",
-    "defaultUser": "Usuario"
+    "defaultUser": "Usuario",
+    "proofAskChanges": "Solicitar cambios",
+    "proofFeedbackRequired": "¿Qué necesita cambiar?",
+    "proofFeedbackPlaceholder": "Explique qué debe mejorarse...",
+    "proofFeedbackSubmit": "Enviar comentarios",
+    "cancel": "Cancelar"
   },
   "questDiscovery": {
     "title": "Descubra Misiones",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Suscripción activa: plan {{plan}} habilitado.",
     "paymentSuccessful": "Pago realizado correctamente. La actualización del plan puede tardar un momento; actualice si es necesario.",
     "newRequest": "Nueva solicitud",
-    "member": "Miembro"
+    "member": "Miembro",
+    "tabQuests": "Misiones",
+    "trophyCase": "Vitrina de trofeos",
+    "noQuestsYet": "Aún no has completado ninguna misión. ¡Comienza tu primera misión!"
   },
   "publicProfile": {
     "notFound": "Perfil no encontrado.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Se ha alcanzado el límite de miembros de la comunidad ({{limit}}).",
     "legacyComplete": "Marcado como completo a través de la interfaz heredada",
     "signInFailed": "Error al iniciar sesión"
+  },
+  "notifications": {
+    "bell": "Notificaciones",
+    "title": "Notificaciones",
+    "markAllRead": "Marcar todo como leído",
+    "empty": "Aún no hay notificaciones",
+    "justNow": "Ahora mismo"
   },
   "language": {
     "label": "Idioma",

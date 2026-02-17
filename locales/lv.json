@@ -293,7 +293,7 @@
     "proofApprove": "Apstiprināt",
     "proofReject": "Noraidīt",
     "toastProofApproved": "Pierādījums apstiprināts un XP piešķirti!",
-    "toastProofRejected": "Pierādījums noraidīts — skolēns var iesniegt atkārtoti",
+    "toastProofRejected": "Pierādījums atgriezts pārskatīšanai",
     "toastVerifyFailed": "Neizdevās verificēt pierādījumu",
     "sidebarTitle": "Informācija par uzdevumu",
     "sidebarJoin": "🚀 Pievienoties uzdevumam",
@@ -348,7 +348,12 @@
     "filesDownload": "Lejupielādēt",
     "filesDelete": "Dzēst",
     "proofSubmitting": "Iesniedz...",
-    "defaultUser": "Lietotājs"
+    "defaultUser": "Lietotājs",
+    "proofAskChanges": "Pieprasīt izmaiņas",
+    "proofFeedbackRequired": "Kas jāmaina?",
+    "proofFeedbackPlaceholder": "Paskaidrojiet, kas jāuzlabo...",
+    "proofFeedbackSubmit": "Nosūtīt atsauksmi",
+    "cancel": "Atcelt"
   },
   "questDiscovery": {
     "title": "Atklājiet uzdevumus",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Abonements ir aktīvs: aktivizēts {{plan}} plāns.",
     "paymentSuccessful": "Maksājums veiksmīgs. Plāna atjaunināšana var aizņemt brīdi — atsvaidziniet, ja nepieciešams.",
     "newRequest": "Jauns pieprasījums",
-    "member": "Dalībnieks"
+    "member": "Dalībnieks",
+    "tabQuests": "Uzdevumi",
+    "trophyCase": "Trofeju vitrina",
+    "noQuestsYet": "Vēl nav izpildītu uzdevumu. Sāciet savu pirmo uzdevumu!"
   },
   "publicProfile": {
     "notFound": "Profils nav atrasts.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Ir sasniegts kopienas dalībnieku limits ({{limit}}).",
     "legacyComplete": "Atzīmēts kā pabeigts, izmantojot mantoto saskarni",
     "signInFailed": "Pieteikšanās neizdevās"
+  },
+  "notifications": {
+    "bell": "Paziņojumi",
+    "title": "Paziņojumi",
+    "markAllRead": "Atzīmēt visus kā izlasītus",
+    "empty": "Pagaidām nav paziņojumu",
+    "justNow": "Tikko"
   },
   "language": {
     "label": "Valoda",

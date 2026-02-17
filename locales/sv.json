@@ -293,7 +293,7 @@
     "proofApprove": "Godkänn",
     "proofReject": "Avvisa",
     "toastProofApproved": "Bevis godkänt och XP tilldelat!",
-    "toastProofRejected": "Bevis avvisat — eleven kan skicka in igen",
+    "toastProofRejected": "Bevis returnerat för revision",
     "toastVerifyFailed": "Misslyckades att verifiera bevis",
     "sidebarTitle": "Quest-info",
     "sidebarJoin": "🚀 Gå med i Quest",
@@ -348,7 +348,12 @@
     "filesDownload": "Ladda ner",
     "filesDelete": "Ta bort",
     "proofSubmitting": "Skickar in...",
-    "defaultUser": "Användare"
+    "defaultUser": "Användare",
+    "proofAskChanges": "Begär ändringar",
+    "proofFeedbackRequired": "Vad behöver ändras?",
+    "proofFeedbackPlaceholder": "Förklara vad som bör förbättras...",
+    "proofFeedbackSubmit": "Skicka feedback",
+    "cancel": "Avbryt"
   },
   "questDiscovery": {
     "title": "Upptäck Quests",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Prenumeration aktiv: {{plan}}-planen är aktiverad.",
     "paymentSuccessful": "Betalningen lyckades. Det kan ta en stund innan planen uppdateras – uppdatera sidan om det behövs.",
     "newRequest": "Ny förfrågan",
-    "member": "Medlem"
+    "member": "Medlem",
+    "tabQuests": "Uppdrag",
+    "trophyCase": "Prismonter",
+    "noQuestsYet": "Inga uppdrag slutförda ännu. Starta ditt första uppdrag!"
   },
   "publicProfile": {
     "notFound": "Profilen hittades inte.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Gemenskapens medlemsgräns har nåtts ({{limit}}).",
     "legacyComplete": "Markerad som slutförd via äldre gränssnitt",
     "signInFailed": "Inloggning misslyckades"
+  },
+  "notifications": {
+    "bell": "Aviseringar",
+    "title": "Aviseringar",
+    "markAllRead": "Markera alla som lästa",
+    "empty": "Inga aviseringar ännu",
+    "justNow": "Just nu"
   },
   "language": {
     "label": "Språk",

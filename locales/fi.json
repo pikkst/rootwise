@@ -293,7 +293,7 @@
     "proofApprove": "Hyväksy",
     "proofReject": "Hylkää",
     "toastProofApproved": "Todistus hyväksytty ja XP myönnetty!",
-    "toastProofRejected": "Todistus hylätty — oppija voi lähettää uudelleen",
+    "toastProofRejected": "Todistus palautettu tarkistettavaksi",
     "toastVerifyFailed": "Todistuksen vahvistus epäonnistui",
     "sidebarTitle": "Tehtävän tiedot",
     "sidebarJoin": "🚀 Liity tehtävään",
@@ -348,7 +348,12 @@
     "filesDownload": "Lataa",
     "filesDelete": "Poista",
     "proofSubmitting": "Lähetetään...",
-    "defaultUser": "Käyttäjä"
+    "defaultUser": "Käyttäjä",
+    "proofAskChanges": "Pyydä muutoksia",
+    "proofFeedbackRequired": "Mitä pitää muuttaa?",
+    "proofFeedbackPlaceholder": "Selitä mitä pitäisi parantaa...",
+    "proofFeedbackSubmit": "Lähetä palaute",
+    "cancel": "Peruuta"
   },
   "questDiscovery": {
     "title": "Löydä tehtäviä",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Tilaus on aktiivinen: {{plan}}-paketti käytössä.",
     "paymentSuccessful": "Maksu onnistui. Paketin päivittyminen voi kestää hetken – päivitä tarvittaessa.",
     "newRequest": "Uusi pyyntö",
-    "member": "Jäsen"
+    "member": "Jäsen",
+    "tabQuests": "Tehtävät",
+    "trophyCase": "Palkintokaappi",
+    "noQuestsYet": "Ei vielä suoritettuja tehtäviä. Aloita ensimmäinen tehtäväsi!"
   },
   "publicProfile": {
     "notFound": "Profiilia ei löytynyt.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Yhteisön jäsenraja on saavutettu ({{limit}}).",
     "legacyComplete": "Merkitty valmiiksi vanhan käyttöliittymän kautta",
     "signInFailed": "Sisäänkirjautuminen epäonnistui"
+  },
+  "notifications": {
+    "bell": "Ilmoitukset",
+    "title": "Ilmoitukset",
+    "markAllRead": "Merkitse kaikki luetuiksi",
+    "empty": "Ei ilmoituksia vielä",
+    "justNow": "Juuri nyt"
   },
   "language": {
     "label": "Kieli",

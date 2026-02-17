@@ -293,7 +293,7 @@
     "proofApprove": "Схвалити",
     "proofReject": "Відхилити",
     "toastProofApproved": "Доказ схвалено і XP нараховано!",
-    "toastProofRejected": "Доказ відхилено — учень може подати повторно",
+    "toastProofRejected": "Доказ повернено на доопрацювання",
     "toastVerifyFailed": "Не вдалося перевірити доказ",
     "sidebarTitle": "Інформація про квест",
     "sidebarJoin": "🚀 Приєднатися до квесту",
@@ -348,7 +348,12 @@
     "filesDownload": "Завантажити",
     "filesDelete": "Видалити",
     "proofSubmitting": "Надсилання...",
-    "defaultUser": "Користувач"
+    "defaultUser": "Користувач",
+    "proofAskChanges": "Запросити зміни",
+    "proofFeedbackRequired": "Що потрібно змінити?",
+    "proofFeedbackPlaceholder": "Поясніть, що слід покращити...",
+    "proofFeedbackSubmit": "Надіслати відгук",
+    "cancel": "Скасувати"
   },
   "questDiscovery": {
     "title": "Відкрийте для себе квести",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Активна підписка: активовано план {{plan}}.",
     "paymentSuccessful": "Оплата успішна. Оновлення плану може зайняти деякий час — оновіть сторінку, якщо потрібно.",
     "newRequest": "Новий запит",
-    "member": "Учасник"
+    "member": "Учасник",
+    "tabQuests": "Квести",
+    "trophyCase": "Вітрина нагород",
+    "noQuestsYet": "Ще немає завершених квестів. Почніть свій перший квест!"
   },
   "publicProfile": {
     "notFound": "Профіль не знайдено.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Досягнуто ліміту учасників спільноти ({{limit}}).",
     "legacyComplete": "Позначено як виконане через застарілий інтерфейс",
     "signInFailed": "Не вдалося увійти"
+  },
+  "notifications": {
+    "bell": "Сповіщення",
+    "title": "Сповіщення",
+    "markAllRead": "Позначити всі як прочитані",
+    "empty": "Сповіщень ще немає",
+    "justNow": "Щойно"
   },
   "language": {
     "label": "Мова",

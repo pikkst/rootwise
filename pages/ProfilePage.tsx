@@ -31,7 +31,7 @@ const ProfilePage: React.FC = () => {
   const planInfo = usePlan();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [billingLoading, setBillingLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'posts' | 'friends' | 'followers' | 'about' | 'photos'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'friends' | 'followers' | 'about' | 'photos' | 'quests'>('posts');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
 
@@ -117,9 +117,10 @@ const ProfilePage: React.FC = () => {
   );
 
   const currentUser = profileToUser(profile);
-  const completedQuests = quests.filter(
+  const completedQuestsArr = quests.filter(
     (q) => q.status === 'completed' && q.participants.includes(profile.id)
-  ).length;
+  );
+  const completedQuests = completedQuestsArr.length;
 
   const stats = {
     posts: posts.length,
@@ -749,6 +750,7 @@ const ProfilePage: React.FC = () => {
               { key: 'friends', label: t('profile.tabFriends') },
               { key: 'followers', label: t('profile.tabFollowers') },
               { key: 'about', label: t('profile.tabAbout') },
+              { key: 'quests', label: `🏆 ${t('profile.tabQuests')}` },
               { key: 'photos', label: t('profile.tabPhotos') },
             ].map((tab) => (
               <button
@@ -1530,6 +1532,53 @@ const ProfilePage: React.FC = () => {
                       )}
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Trophy Case – Completed Quests */}
+              {activeTab === 'quests' && (
+                <div className="space-y-4">
+                  <h4 className="font-bold text-lg flex items-center gap-2">
+                    🏆 {t('profile.trophyCase')}
+                    <span className="ml-auto text-sm font-normal text-slate-500">
+                      {completedQuests} {t('profile.questsCompleted').toLowerCase()}
+                    </span>
+                  </h4>
+
+                  {completedQuestsArr.length === 0 ? (
+                    <div className="text-center py-16 text-slate-400 bg-white rounded-2xl border border-slate-200">
+                      <p className="text-5xl mb-3">🌱</p>
+                      <p className="text-sm">{t('profile.noQuestsYet')}</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {completedQuestsArr.map((q) => (
+                        <div
+                          key={q.id}
+                          className="bg-gradient-to-br from-amber-50 via-white to-amber-50 border border-amber-200 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+                          onClick={() => window.location.href = `/quests/${q.id}`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className="text-3xl">🏆</span>
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-bold text-slate-800 truncate">{q.title}</h5>
+                              <p className="text-xs text-slate-500 mt-1 line-clamp-2">{q.description}</p>
+                              <div className="flex items-center gap-3 mt-3">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">
+                                  ⭐ +{q.reward_xp} XP
+                                </span>
+                                <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                                  q.type === 'solo' ? 'bg-sky-100 text-sky-700' : 'bg-purple-100 text-purple-700'
+                                }`}>
+                                  {q.type}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 

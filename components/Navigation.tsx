@@ -8,6 +8,7 @@ import { getInitials } from '../types';
 import { isPro, isOrg } from '../services/planService';
 import PlanBadge from './PlanBadge';
 import LanguageSelector from './LanguageSelector';
+import NotificationBell from './NotificationBell';
 
 const NAV_KEYS = [
   { path: '/dashboard', key: 'nav.dashboard', icon: '🏠' },
@@ -145,6 +146,7 @@ const Navigation: React.FC = () => {
         <div className="hidden md:flex items-center gap-3">
           <LanguageSelector compact />
           <PlanBadge plan={plan} size="sm" />
+          <NotificationBell />
           <button
             onClick={() => navigate(lp('/profile'))}
             className={`w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden border-2 transition-all ${

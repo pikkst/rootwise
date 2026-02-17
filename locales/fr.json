@@ -293,7 +293,7 @@
     "proofApprove": "Approuver",
     "proofReject": "Rejeter",
     "toastProofApproved": "Preuve approuvée et XP accordés !",
-    "toastProofRejected": "Preuve rejetée — l'apprenant peut resoumettre",
+    "toastProofRejected": "Preuve renvoyée pour révision",
     "toastVerifyFailed": "Échec de la vérification de la preuve",
     "sidebarTitle": "Infos sur la quête",
     "sidebarJoin": "🚀 Rejoindre la quête",
@@ -348,7 +348,12 @@
     "filesDownload": "Télécharger",
     "filesDelete": "Supprimer",
     "proofSubmitting": "Soumission...",
-    "defaultUser": "Utilisateur"
+    "defaultUser": "Utilisateur",
+    "proofAskChanges": "Demander des modifications",
+    "proofFeedbackRequired": "Qu'est-ce qui doit changer ?",
+    "proofFeedbackPlaceholder": "Expliquez ce qui devrait être amélioré...",
+    "proofFeedbackSubmit": "Envoyer le retour",
+    "cancel": "Annuler"
   },
   "questDiscovery": {
     "title": "Découvrez les quêtes",
@@ -592,7 +597,10 @@
     "subscriptionActive": "Abonnement actif : plan {{plan}} activé.",
     "paymentSuccessful": "Paiement réussi. La mise à jour du plan peut prendre un instant, veuillez actualiser si nécessaire.",
     "newRequest": "Nouvelle demande",
-    "member": "Membre"
+    "member": "Membre",
+    "tabQuests": "Quêtes",
+    "trophyCase": "Vitrine des trophées",
+    "noQuestsYet": "Aucune quête terminée pour le moment. Lancez votre première quête !"
   },
   "publicProfile": {
     "notFound": "Profil introuvable.",
@@ -982,6 +990,13 @@
     "communityMemberLimit": "Limite de membres de la communauté atteinte ({{limit}}).",
     "legacyComplete": "Marqué comme terminé via l'ancienne interface",
     "signInFailed": "La connexion a échoué"
+  },
+  "notifications": {
+    "bell": "Notifications",
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Pas encore de notifications",
+    "justNow": "À l'instant"
   },
   "language": {
     "label": "Langue",
