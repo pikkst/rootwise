@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "Kas jāmaina?",
     "proofFeedbackPlaceholder": "Paskaidrojiet, kas jāuzlabo...",
     "proofFeedbackSubmit": "Nosūtīt atsauksmi",
-    "cancel": "Atcelt"
+    "cancel": "Atcelt",
+    "translating": "Tulkošana..."
   },
   "questDiscovery": {
     "title": "Atklājiet uzdevumus",

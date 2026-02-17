@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "Что нужно изменить?",
     "proofFeedbackPlaceholder": "Объясните, что нужно улучшить...",
     "proofFeedbackSubmit": "Отправить отзыв",
-    "cancel": "Отмена"
+    "cancel": "Отмена",
+    "translating": "Перевод..."
   },
   "questDiscovery": {
     "title": "Откройте для себя квесты",

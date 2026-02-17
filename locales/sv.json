@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "Vad behöver ändras?",
     "proofFeedbackPlaceholder": "Förklara vad som bör förbättras...",
     "proofFeedbackSubmit": "Skicka feedback",
-    "cancel": "Avbryt"
+    "cancel": "Avbryt",
+    "translating": "Översätter..."
   },
   "questDiscovery": {
     "title": "Upptäck Quests",

@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "Wat moet er veranderen?",
     "proofFeedbackPlaceholder": "Leg uit wat verbeterd moet worden...",
     "proofFeedbackSubmit": "Feedback verzenden",
-    "cancel": "Annuleren"
+    "cancel": "Annuleren",
+    "translating": "Vertalen..."
   },
   "questDiscovery": {
     "title": "Ontdek Quests",

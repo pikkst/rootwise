@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "¿Qué necesita cambiar?",
     "proofFeedbackPlaceholder": "Explique qué debe mejorarse...",
     "proofFeedbackSubmit": "Enviar comentarios",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "translating": "Traduciendo..."
   },
   "questDiscovery": {
     "title": "Descubra Misiones",

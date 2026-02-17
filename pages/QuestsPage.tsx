@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import QuestCard from '../components/QuestCard';
@@ -13,11 +13,12 @@ import { RootwiseAIService } from '../services/geminiService';
 import type { UserQuestContext } from '../services/geminiService';
 import { supabase } from '../services/supabase';
 import { PLAN_LIMITS, isPro, getEffectivePlan } from '../services/planService';
+import { batchGetCachedTranslations, type QuestTranslation } from '../hooks/useQuestTranslation';
 
 const CATEGORY_KEYS = ['All', 'Technology', 'Environment', 'Finance', 'Arts', 'Lifestyle', 'Education', 'History'];
 
 const QuestsPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { showToast } = useToast();
@@ -27,7 +28,20 @@ const QuestsPage: React.FC = () => {
   const [completingQuestId, setCompletingQuestId] = useState<string | null>(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState('');
+  const [translations, setTranslations] = useState<Record<string, QuestTranslation>>({});
   const aiService = useRef(new RootwiseAIService());
+
+  const locale = i18n.language?.slice(0, 2) || 'en';
+
+  // Batch-fetch cached translations whenever quests or locale change
+  useEffect(() => {
+    if (locale === 'en' || quests.length === 0) {
+      setTranslations({});
+      return;
+    }
+    const ids = quests.map((q) => q.id);
+    batchGetCachedTranslations(ids, locale).then(setTranslations);
+  }, [quests, locale]);
 
   const plan = profile?.plan || 'free';
   const hasPro = isPro(plan);
@@ -279,6 +293,8 @@ const QuestsPage: React.FC = () => {
               isParticipant={!!profile && q.participants.includes(profile.id)}
               onJoin={handleJoinQuest}
               onComplete={handleCompleteQuest}
+              translatedTitle={translations[q.id]?.title}
+              translatedDescription={translations[q.id]?.description}
             />
           ))}
           {quests.length === 0 && (

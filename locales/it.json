@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "Cosa deve cambiare?",
     "proofFeedbackPlaceholder": "Spiega cosa dovrebbe essere migliorato...",
     "proofFeedbackSubmit": "Invia feedback",
-    "cancel": "Annulla"
+    "cancel": "Annulla",
+    "translating": "Traduzione..."
   },
   "questDiscovery": {
     "title": "Scopri le quest",

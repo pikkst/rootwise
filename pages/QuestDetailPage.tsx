@@ -8,6 +8,7 @@ import { supabase } from '../services/supabase';
 import { useTranslation } from 'react-i18next';
 import { DbQuest, QuestMember, QuestMessage, QuestFile, QuestMilestone, Profile } from '../types';
 import { formatTime, formatDateNumeric } from '../utils/formatDate';
+import { useQuestTranslation } from '../hooks/useQuestTranslation';
 
 /** Privacy name: "Malle K." format */
 const privacyName = (fullName?: string | null): string => {
@@ -58,6 +59,20 @@ const QuestDetailPage: React.FC = () => {
   const [showVideoCall, setShowVideoCall] = useState(false);
   const [activeCallUsers, setActiveCallUsers] = useState<any[]>([]);
   const [memberProfiles, setMemberProfiles] = useState<Record<string, Profile>>({});
+
+  // Auto-translate quest content to user's UI language
+  const {
+    title: tTitle,
+    description: tDescription,
+    steps: tSteps,
+    isTranslating,
+    isTranslated,
+  } = useQuestTranslation(
+    questId,
+    quest?.title ?? '',
+    quest?.description ?? '',
+    quest?.steps ?? []
+  );
   const callChannelRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -535,7 +550,7 @@ const QuestDetailPage: React.FC = () => {
   const isMember = !!currentMember;
 
   const questUrl = `https://rootwise.site/quests/${questId}`;
-  const shareText = `Check out this quest on Rootwise: "${quest.title}" — ${quest.description?.slice(0, 100) ?? ''}...`;
+  const shareText = `Check out this quest on Rootwise: "${tTitle}" — ${tDescription?.slice(0, 100) ?? ''}...`;
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(questUrl)}`,
@@ -556,7 +571,7 @@ const QuestDetailPage: React.FC = () => {
   const handleNativeShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: quest.title, text: shareText, url: questUrl });
+        await navigator.share({ title: tTitle, text: shareText, url: questUrl });
       } catch { /* user cancelled */ }
     } else {
       setShowShareMenu((v) => !v);
@@ -587,7 +602,7 @@ const QuestDetailPage: React.FC = () => {
         </div>
       )}
 
-      <SEOHead title={`${quest.title} - Rootwise`} description={quest.description ?? ''} path={`/quests/${questId}`} />
+      <SEOHead title={`${tTitle} - Rootwise`} description={tDescription} path={`/quests/${questId}`} />
 
       {/* Header */}
       <header className="mb-8">
@@ -601,11 +616,15 @@ const QuestDetailPage: React.FC = () => {
         {/* Quest image banner */}
         {quest.image_url && (
           <div className="w-full h-48 sm:h-64 rounded-2xl overflow-hidden mb-6">
-            <img src={quest.image_url} alt={quest.title} className="w-full h-full object-cover" />
+            <img src={quest.image_url} alt={tTitle} className="w-full h-full object-cover" />
           </div>
         )}
 
-        <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 leading-tight">{quest.title}</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 leading-tight">
+          {tTitle}
+          {isTranslating && <span className="ml-2 text-sm font-normal text-indigo-400 animate-pulse">🌐 {t('questDetail.translating')}</span>}
+          {isTranslated && <span className="ml-2 text-xs font-normal text-emerald-500">🌐</span>}
+        </h1>
         <div className="flex flex-wrap items-center gap-2 mt-3">
           {quest.quest_type && (
             <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full uppercase tracking-wide">
@@ -736,7 +755,7 @@ const QuestDetailPage: React.FC = () => {
               {activeTab === 'overview' && (
                 <div>
                   <h2 className="text-xl font-bold text-slate-800 mb-3">{t('questDetail.aboutTitle')}</h2>
-                  <p className="text-slate-600 leading-relaxed mb-6 text-[15px]">{quest.description}</p>
+                  <p className="text-slate-600 leading-relaxed mb-6 text-[15px]">{tDescription}</p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-xl p-4 border border-indigo-100">
@@ -762,11 +781,11 @@ const QuestDetailPage: React.FC = () => {
                     </div>
                   )}
 
-                  {quest.steps && quest.steps.length > 0 && (
+                  {tSteps && tSteps.length > 0 && (
                     <div>
                       <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">{t('questDetail.stepsTitle')}</h3>
                       <ol className="space-y-3">
-                        {quest.steps.map((step: string, idx: number) => (
+                        {tSteps.map((step: string, idx: number) => (
                           <li key={idx} className="flex gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100">
                             <span className="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-bold flex items-center justify-center mt-0.5">
                               {idx + 1}
@@ -1335,8 +1354,8 @@ const QuestDetailPage: React.FC = () => {
       {showVideoCall && quest && profile && (
         <QuestVideoCall
           questId={questId!}
-          questTitle={quest.title}
-          questSteps={quest.steps ?? []}
+          questTitle={tTitle}
+          questSteps={tSteps}
           userName={profile.name || t('questDetail.defaultUser')}
           userAvatar={profile.avatar_url ?? undefined}
           rewardXP={quest.reward_xp ?? 0}

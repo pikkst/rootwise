@@ -824,6 +824,134 @@ Return JSON with: title (catchy, team-oriented), description (compelling 2-3 sen
       });
     }
 
+    // ── translateQuest ─────────────────────────────────────────────
+    if (action === 'translateQuest') {
+      const { questId, targetLocale } = payload as {
+        questId: string;
+        targetLocale: string;
+      };
+
+      if (!questId || !targetLocale) {
+        return new Response(JSON.stringify({ error: 'questId and targetLocale required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // 1. Check cache first
+      const { data: cached } = await supabase
+        .from('quest_translations')
+        .select('title, description, steps')
+        .eq('quest_id', questId)
+        .eq('locale', targetLocale)
+        .maybeSingle();
+
+      if (cached) {
+        return new Response(JSON.stringify({ translation: cached, cached: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // 2. Fetch original quest
+      const { data: quest, error: questErr } = await supabase
+        .from('quests')
+        .select('title, description, steps')
+        .eq('id', questId)
+        .single();
+
+      if (questErr || !quest) {
+        return new Response(JSON.stringify({ error: 'Quest not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // 3. Build translation prompt
+      const LOCALE_NAMES: Record<string, string> = {
+        en: 'English', et: 'Estonian', de: 'German', es: 'Spanish', fi: 'Finnish',
+        fr: 'French', it: 'Italian', lt: 'Lithuanian', lv: 'Latvian', nl: 'Dutch',
+        pl: 'Polish', pt: 'Portuguese', ru: 'Russian', sv: 'Swedish', uk: 'Ukrainian',
+      };
+      const langName = LOCALE_NAMES[targetLocale] || targetLocale;
+
+      const sourceJson = JSON.stringify({
+        title: quest.title,
+        description: quest.description || '',
+        steps: quest.steps || [],
+      });
+
+      const translatePrompt = `You are a professional translator for an intergenerational learning platform called Rootwise.
+Translate the following quest content into ${langName} (locale code: ${targetLocale}).
+
+Rules:
+- Keep the same JSON structure
+- Preserve proper nouns, brand names (Rootwise, etc.), and technical terms
+- Use clear, age-appropriate language suitable for ages 11-100
+- Translate naturally, not word-for-word
+- Return ONLY valid JSON, no markdown, no explanation
+
+Source JSON:
+${sourceJson}`;
+
+      const geminiRes = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: translatePrompt }] }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 4096,
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: 'OBJECT',
+              properties: {
+                title: { type: 'STRING' },
+                description: { type: 'STRING' },
+                steps: { type: 'ARRAY', items: { type: 'STRING' } },
+              },
+              required: ['title', 'description', 'steps'],
+            },
+          },
+        }),
+      });
+
+      if (!geminiRes.ok) {
+        const errText = await geminiRes.text();
+        console.error('Gemini translate error:', errText);
+        return new Response(JSON.stringify({ error: 'Translation failed' }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const geminiData = await geminiRes.json();
+      const rawText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      let translation: { title: string; description: string; steps: string[] };
+      try {
+        translation = JSON.parse(rawText);
+      } catch {
+        console.error('Failed to parse translation JSON:', rawText);
+        return new Response(JSON.stringify({ error: 'Translation parse failed' }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // 4. Cache the translation
+      await supabase.from('quest_translations').upsert({
+        quest_id: questId,
+        locale: targetLocale,
+        title: translation.title,
+        description: translation.description,
+        steps: translation.steps,
+      }, { onConflict: 'quest_id,locale' });
+
+      return new Response(JSON.stringify({ translation, cached: false }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     return new Response(JSON.stringify({ error: 'Unknown action' }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "Mis vajab muutmist?",
     "proofFeedbackPlaceholder": "Selgita, mida tuleks parandada...",
     "proofFeedbackSubmit": "Saada tagasiside",
-    "cancel": "Tühista"
+    "cancel": "Tühista",
+    "translating": "Tõlkimine..."
   },
   "questDiscovery": {
     "title": "Avasta queste",

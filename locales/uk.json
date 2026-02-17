@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "Що потрібно змінити?",
     "proofFeedbackPlaceholder": "Поясніть, що слід покращити...",
     "proofFeedbackSubmit": "Надіслати відгук",
-    "cancel": "Скасувати"
+    "cancel": "Скасувати",
+    "translating": "Переклад..."
   },
   "questDiscovery": {
     "title": "Відкрийте для себе квести",

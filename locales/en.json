@@ -361,7 +361,8 @@
     "proofFeedbackRequired": "What needs to change?",
     "proofFeedbackPlaceholder": "Explain what should be improved...",
     "proofFeedbackSubmit": "Send Feedback",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "translating": "Translating..."
   },
 
   "questDiscovery": {

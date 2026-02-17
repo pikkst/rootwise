@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "Mitä pitää muuttaa?",
     "proofFeedbackPlaceholder": "Selitä mitä pitäisi parantaa...",
     "proofFeedbackSubmit": "Lähetä palaute",
-    "cancel": "Peruuta"
+    "cancel": "Peruuta",
+    "translating": "Käännetään..."
   },
   "questDiscovery": {
     "title": "Löydä tehtäviä",

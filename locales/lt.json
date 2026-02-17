@@ -353,7 +353,8 @@
     "proofFeedbackRequired": "Ką reikia pakeisti?",
     "proofFeedbackPlaceholder": "Paaiškinkite, ką reikia pagerinti...",
     "proofFeedbackSubmit": "Siųsti atsiliepimą",
-    "cancel": "Atšaukti"
+    "cancel": "Atšaukti",
+    "translating": "Verčiama..."
   },
   "questDiscovery": {
     "title": "Atraskite užduotis",

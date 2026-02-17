@@ -33,14 +33,21 @@ interface QuestCardProps {
   isParticipant?: boolean;
   onJoin?: (id: string) => void;
   onComplete?: (id: string) => void;
+  /** Override title with cached translation */
+  translatedTitle?: string;
+  /** Override description with cached translation */
+  translatedDescription?: string;
 }
 
-const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onComplete }) => {
+const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onComplete, translatedTitle, translatedDescription }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isCompleted = quest.status === 'completed';
   const emoji = categoryEmoji[quest.category] || '⚡';
   const gradient = categoryGradient[quest.category] || categoryGradient.General;
+
+  const displayTitle = translatedTitle || quest.title;
+  const displayDescription = translatedDescription || quest.description;
 
   return (
     <div
@@ -54,7 +61,7 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onC
         {quest.imageUrl ? (
           <img
             src={quest.imageUrl}
-            alt={quest.title}
+            alt={displayTitle}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -72,9 +79,9 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onC
             {quest.category}
           </span>
         </div>
-        <h3 className="font-bold text-lg text-slate-800 mb-2">{quest.title}</h3>
+        <h3 className="font-bold text-lg text-slate-800 mb-2">{displayTitle}</h3>
         <p className="text-sm text-slate-500 line-clamp-2 mb-4">
-          {quest.description}
+          {displayDescription}
         </p>
         <div className="flex items-center justify-between">
           <div className="flex -space-x-2 items-center">
