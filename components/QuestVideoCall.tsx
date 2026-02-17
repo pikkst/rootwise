@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../services/supabase';
 
 interface QuestVideoCallProps {
   questId: string;
@@ -8,6 +9,7 @@ interface QuestVideoCallProps {
   userName: string;
   userAvatar?: string;
   rewardXP: number;
+  isModerator?: boolean;
   onClose: () => void;
 }
 
@@ -50,6 +52,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   userName,
   userAvatar,
   rewardXP,
+  isModerator = false,
   onClose,
 }) => {
   const { t } = useTranslation();
@@ -74,7 +77,8 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   const JAAS_APP_ID = 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028';
 
   // Deterministic room name from quest ID (JaaS requires appId/roomName format)
-  const roomName = `${JAAS_APP_ID}/Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`;
+  const roomSuffix = `Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`;
+  const roomName = `${JAAS_APP_ID}/${roomSuffix}`;
 
   // Load Jitsi Meet External API and initialize
   useEffect(() => {
@@ -121,8 +125,31 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         await loadScript();
         if (!mounted || !containerRef.current) return;
 
+        // Fetch JaaS JWT token for authenticated video calls
+        let jwt: string | undefined;
+        try {
+          const { data, error: fnError } = await supabase.functions.invoke('jaas-token', {
+            body: {
+              roomName: roomSuffix,
+              userName,
+              userAvatar: userAvatar || '',
+              isModerator,
+            },
+          });
+          if (fnError) {
+            console.warn('JaaS token fetch failed, proceeding without JWT:', fnError);
+          } else {
+            jwt = data?.token;
+          }
+        } catch (tokenErr) {
+          console.warn('JaaS token fetch error, proceeding without JWT:', tokenErr);
+        }
+
+        if (!mounted || !containerRef.current) return;
+
         const api = new window.JitsiMeetExternalAPI('8x8.vc', {
           roomName,
+          jwt,
           parentNode: containerRef.current,
           width: '100%',
           height: '100%',
