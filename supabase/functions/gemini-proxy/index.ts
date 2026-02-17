@@ -332,9 +332,10 @@ Deno.serve(async (req: Request) => {
         });
       }
 
-      const { contents, systemInstruction, userProfile } = payload as {
+      const { contents, systemInstruction, userProfile, locale } = payload as {
         contents: ChatContent[];
         systemInstruction?: string;
+        locale?: string;
         userProfile?: {
           name: string;
           age?: number | null;
@@ -529,6 +530,7 @@ PRIVACY RULES (STRICT):
 • NEVER reveal internal scoring, algorithms, or JSON data to the user.
 • When suggesting a match, say something like: "I found [Name], who has experience with [skills] and is in [city]. You could connect through a quest!"
 • If the user asks about another user's private details, politely explain that privacy is important on the platform.
+• IMPORTANT: Names/skills/general locations from candidateContext are already privacy-safe for sharing. Do NOT refuse these with generic privacy disclaimers.
 
 MEMORY INSTRUCTIONS:
 At the END of your response, if the user shared any important personal fact (a goal, life event, preference, challenge, family info, career detail), append a hidden memory line in this exact format:
@@ -549,7 +551,7 @@ languageHint: ${JSON.stringify(languageHint)}
 skillHints: ${JSON.stringify(skillHints)}
 targetAge: ${JSON.stringify(targetAge)}
 
-If candidateContext contains suitable matches, briefly mention 1-2 by name naturally in your answer.
+If candidateContext contains suitable matches, you MUST mention 1-2 by name naturally in your answer and suggest that the user can open the profile cards to contact them.
 Do not reveal private details; the UI will show clickable profile cards separately.
 
 Always answer in the same language the user used.
@@ -574,6 +576,23 @@ Always answer in the same language the user used.
       let text =
         data?.candidates?.[0]?.content?.parts?.[0]?.text ??
         "I'm having trouble right now. Please try again.";
+
+      // If the model returned a generic/privacy-only refusal despite available matches,
+      // append a concise, localized nudge to use the visible match cards.
+      if (privacySafeCandidates.length > 0) {
+        const hasNameMention = privacySafeCandidates.some((candidate) => text.includes(candidate.name));
+        if (!hasNameMention) {
+          const candidateList = privacySafeCandidates
+            .slice(0, 2)
+            .map((candidate) => candidate.name)
+            .join(', ');
+          const lang = (locale || userProfile?.spokenLanguages?.[0] || 'en').toLowerCase();
+          const isEstonian = lang.startsWith('et');
+          text = `${text}\n\n${isEstonian
+            ? `Leidsin sulle sobivad kontaktid: ${candidateList}. Ava profiilikaardid allpool ja soovi korral saan AI-ga kohe tutvustuse algatada.`
+            : `I found relevant contacts for you: ${candidateList}. Open the profile cards below, and I can start an AI-assisted introduction right away.`}`;
+        }
+      }
 
       // ── 6. Extract and persist memory facts from AI response ──
       const memoryRegex = /<memory>(.+?):\s*(.+?)<\/memory>/g;
