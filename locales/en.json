@@ -929,7 +929,8 @@
     "noMicNotice": "No microphone detected — others won't hear you. Check your device settings.",
     "noDevicesNotice": "No camera or microphone detected — you've joined as a listener. Connect a device to participate.",
     "connectingNoCamera": "📷 No camera found — connecting with audio only...",
-    "connectingNoDevices": "⚠️ No camera or mic found — connecting as listener..."
+    "connectingNoDevices": "⚠️ No camera or mic found — connecting as listener...",
+    "skipLoading": "Skip — show call now"
   },
 
   "upgradeModal": {

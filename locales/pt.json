@@ -909,7 +909,8 @@
     "noMicNotice": "Nenhum microfone detectado — os outros não ouvirão você. Verifique as configurações do seu dispositivo.",
     "noDevicesNotice": "Nenhuma câmera ou microfone detectados — você entrou como ouvinte. Conecte um dispositivo para participar.",
     "connectingNoCamera": "📷 Nenhuma câmera encontrada — conectando apenas com áudio...",
-    "connectingNoDevices": "⚠️ Nenhuma câmera ou microfone encontrados — conectando como ouvinte..."
+    "connectingNoDevices": "⚠️ Nenhuma câmera ou microfone encontrados — conectando como ouvinte...",
+    "skipLoading": "Pular — mostrar chamada agora"
   },
   "upgradeModal": {
     "titlePro": "Atualizar para Pro",

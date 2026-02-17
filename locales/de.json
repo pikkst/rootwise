@@ -909,7 +909,8 @@
     "noMicNotice": "Kein Mikrofon erkannt — andere können Sie nicht hören. Überprüfen Sie Ihre Geräteeinstellungen.",
     "noDevicesNotice": "Keine Kamera oder Mikrofon erkannt — Sie nehmen als Zuhörer teil. Schließen Sie ein Gerät an, um teilzunehmen.",
     "connectingNoCamera": "📷 Keine Kamera gefunden — Verbindung nur mit Audio...",
-    "connectingNoDevices": "⚠️ Keine Kamera oder Mikrofon gefunden — Verbindung als Zuhörer..."
+    "connectingNoDevices": "⚠️ Keine Kamera oder Mikrofon gefunden — Verbindung als Zuhörer...",
+    "skipLoading": "Überspringen — Anruf jetzt anzeigen"
   },
   "upgradeModal": {
     "titlePro": "Upgrade auf Pro",

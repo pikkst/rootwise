@@ -909,7 +909,8 @@
     "noMicNotice": "Nessun microfono rilevato — gli altri non ti sentiranno. Controlla le impostazioni del dispositivo.",
     "noDevicesNotice": "Nessuna fotocamera o microfono rilevati — ti sei unito come ascoltatore. Collega un dispositivo per partecipare.",
     "connectingNoCamera": "📷 Nessuna fotocamera trovata — connessione solo audio...",
-    "connectingNoDevices": "⚠️ Nessuna fotocamera o microfono trovati — connessione come ascoltatore..."
+    "connectingNoDevices": "⚠️ Nessuna fotocamera o microfono trovati — connessione come ascoltatore...",
+    "skipLoading": "Salta — mostra la chiamata ora"
   },
   "upgradeModal": {
     "titlePro": "Passa a Pro",

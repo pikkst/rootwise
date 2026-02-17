@@ -909,7 +909,8 @@
     "noMicNotice": "Ingen mikrofon hittades — andra kan inte höra dig. Kontrollera dina enhetsinställningar.",
     "noDevicesNotice": "Ingen kamera eller mikrofon hittades — du anslöt som lyssnare. Anslut en enhet för att delta.",
     "connectingNoCamera": "📷 Ingen kamera hittades — ansluter med enbart ljud...",
-    "connectingNoDevices": "⚠️ Ingen kamera eller mikrofon hittades — ansluter som lyssnare..."
+    "connectingNoDevices": "⚠️ Ingen kamera eller mikrofon hittades — ansluter som lyssnare...",
+    "skipLoading": "Hoppa över — visa samtal nu"
   },
   "upgradeModal": {
     "titlePro": "Uppgradera till Pro",

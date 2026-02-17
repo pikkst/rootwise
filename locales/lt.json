@@ -909,7 +909,8 @@
     "noMicNotice": "Mikrofonas nerastas — kiti jūsų negirdės. Patikrinkite savo įrenginio nustatymus.",
     "noDevicesNotice": "Kamera ir mikrofonas nerasti — prisijungėte kaip klausytojas. Prijunkite įrenginį, kad galėtumėte dalyvauti.",
     "connectingNoCamera": "📷 Kamera nerasta — jungiamasi tik su garsu...",
-    "connectingNoDevices": "⚠️ Kamera ir mikrofonas nerasti — jungiamasi kaip klausytojas..."
+    "connectingNoDevices": "⚠️ Kamera ir mikrofonas nerasti — jungiamasi kaip klausytojas...",
+    "skipLoading": "Praleisti — rodyti skambutį dabar"
   },
   "upgradeModal": {
     "titlePro": "Atnaujinti į Pro",

@@ -909,7 +909,8 @@
     "noMicNotice": "Mikrofoni ei tuvastatud — teised ei kuule teid. Kontrollige oma seadme seadeid.",
     "noDevicesNotice": "Kaamerat ega mikrofoni ei tuvastatud — liitusite kuulajana. Ühendage seade, et osaleda.",
     "connectingNoCamera": "📷 Kaamerat ei leitud — ühendumine ainult heliga...",
-    "connectingNoDevices": "⚠️ Kaamerat ega mikrofoni ei leitud — ühendumine kuulajana..."
+    "connectingNoDevices": "⚠️ Kaamerat ega mikrofoni ei leitud — ühendumine kuulajana...",
+    "skipLoading": "Jäta vahele — näita kõnet kohe"
   },
   "upgradeModal": {
     "titlePro": "Pro versioonile üleminek",

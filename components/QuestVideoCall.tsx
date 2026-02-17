@@ -29,6 +29,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<any>(null);
   const startTimeRef = useRef(Date.now());
+  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -143,6 +144,16 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           startTimeRef.current = Date.now();
         });
 
+        // Fallback: if videoConferenceJoined never fires (e.g. Jitsi shows its own
+        // prejoin or permission dialog inside the iframe), hide our overlay after 6s
+        // so the user can interact with the Jitsi iframe directly.
+        fallbackTimerRef.current = setTimeout(() => {
+          if (mounted) {
+            setLoading(false);
+            startTimeRef.current = Date.now();
+          }
+        }, 6000);
+
         api.addEventListener('participantJoined', () => {
           if (mounted) setParticipantCount((p) => p + 1);
         });
@@ -163,6 +174,11 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         if (userAvatar) {
           api.executeCommand('avatarUrl', userAvatar);
         }
+
+        // Clean up fallback timer if conference joined normally
+        api.addEventListener('videoConferenceJoined', () => {
+          if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+        });
       } catch (err: any) {
         if (mounted) {
           setError(err.message || t('videoCall.startError'));
@@ -175,6 +191,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
 
     return () => {
       mounted = false;
+      if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
       if (apiRef.current) {
         apiRef.current.dispose();
         apiRef.current = null;
@@ -303,7 +320,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           )}
 
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/90 z-10 backdrop-blur-sm">
               <div className="text-center px-6">
                 <div className="w-14 h-14 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-5" />
                 <p className="text-white text-lg font-semibold mb-1">{t('videoCall.connecting')}</p>
@@ -315,6 +332,12 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
                     ? t('videoCall.connectingNoDevices')
                     : t('videoCall.cameraTip')}
                 </p>
+                <button
+                  onClick={() => { setLoading(false); startTimeRef.current = Date.now(); }}
+                  className="mt-6 px-4 py-2 text-xs text-slate-400 hover:text-white border border-slate-600 hover:border-slate-400 rounded-lg transition"
+                >
+                  {t('videoCall.skipLoading')}
+                </button>
               </div>
             </div>
           )}

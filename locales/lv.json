@@ -909,7 +909,8 @@
     "noMicNotice": "Mikrofons nav atrasts — citi jūs nedzirdēs. Pārbaudiet savas ierīces iestatījumus.",
     "noDevicesNotice": "Kamera vai mikrofons nav atrasts — jūs pievienojāties kā klausītājs. Pievienojiet ierīci, lai piedalītos.",
     "connectingNoCamera": "📷 Kamera nav atrasta — savienojums tikai ar audio...",
-    "connectingNoDevices": "⚠️ Kamera vai mikrofons nav atrasts — savienojums kā klausītājs..."
+    "connectingNoDevices": "⚠️ Kamera vai mikrofons nav atrasts — savienojums kā klausītājs...",
+    "skipLoading": "Izlaist — rādīt zvanu tagad"
   },
   "upgradeModal": {
     "titlePro": "Jauniniet uz Pro",

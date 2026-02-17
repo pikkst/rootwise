@@ -909,7 +909,8 @@
     "noMicNotice": "Aucun microphone détecté — les autres ne vous entendront pas. Vérifiez les paramètres de votre appareil.",
     "noDevicesNotice": "Aucune caméra ni microphone détectés — vous avez rejoint en tant qu'auditeur. Connectez un appareil pour participer.",
     "connectingNoCamera": "📷 Aucune caméra trouvée — connexion en audio uniquement...",
-    "connectingNoDevices": "⚠️ Aucune caméra ni micro trouvés — connexion en tant qu'auditeur..."
+    "connectingNoDevices": "⚠️ Aucune caméra ni micro trouvés — connexion en tant qu'auditeur...",
+    "skipLoading": "Passer — afficher l'appel maintenant"
   },
   "upgradeModal": {
     "titlePro": "Passer à Pro",

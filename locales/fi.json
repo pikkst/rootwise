@@ -909,7 +909,8 @@
     "noMicNotice": "Mikrofonia ei havaittu — muut eivät kuule sinua. Tarkista laiteasetuksesi.",
     "noDevicesNotice": "Kameraa tai mikrofonia ei havaittu — liityit kuuntelijana. Yhdistä laite osallistuaksesi.",
     "connectingNoCamera": "📷 Kameraa ei löytynyt — yhdistetään vain äänellä...",
-    "connectingNoDevices": "⚠️ Kameraa tai mikrofonia ei löytynyt — yhdistetään kuuntelijana..."
+    "connectingNoDevices": "⚠️ Kameraa tai mikrofonia ei löytynyt — yhdistetään kuuntelijana...",
+    "skipLoading": "Ohita — näytä puhelu nyt"
   },
   "upgradeModal": {
     "titlePro": "Päivitä Pro-versioon",

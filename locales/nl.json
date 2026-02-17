@@ -909,7 +909,8 @@
     "noMicNotice": "Geen microfoon gedetecteerd — anderen kunnen u niet horen. Controleer uw apparaatinstellingen.",
     "noDevicesNotice": "Geen camera of microfoon gedetecteerd — u bent als luisteraar verbonden. Sluit een apparaat aan om deel te nemen.",
     "connectingNoCamera": "📷 Geen camera gevonden — verbinding maken met alleen audio...",
-    "connectingNoDevices": "⚠️ Geen camera of microfoon gevonden — verbinding maken als luisteraar..."
+    "connectingNoDevices": "⚠️ Geen camera of microfoon gevonden — verbinding maken als luisteraar...",
+    "skipLoading": "Overslaan — gesprek nu tonen"
   },
   "upgradeModal": {
     "titlePro": "Upgrade naar Pro",
