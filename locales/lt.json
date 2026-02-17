@@ -945,7 +945,12 @@
     "freeTimeUp": "Nemokamo skambučio laikas baigėsi!",
     "upgradePro": "Atnaujinti į Pro",
     "freeCallEnded": "Nemokamo skambučio limitas pasiektas",
-    "upgradeForUnlimited": "Atnaujinkite į Pro neribotiems vaizdo skambučiams be laiko limito."
+    "upgradeForUnlimited": "Atnaujinkite į Pro neribotiems vaizdo skambučiams be laiko limito.",
+    "toast60s": "Nemokamam skambučiui liko 1 minutė!",
+    "toast10s": "10 sekundžių! Skambutis baigiasi dabar.",
+    "timesUpTitle": "Laikas baigėsi!",
+    "timesUpDesc": "Jūsų nemokamas 5 minučių skambutis baigėsi. Tęskite su Pro neribotiems skambučiams be laiko limito.",
+    "timesUpViewSummary": "Peržiūrėti skambučio santrauką"
   },
   "upgradeModal": {
     "titlePro": "Atnaujinti į Pro",

@@ -945,7 +945,12 @@
     "freeTimeUp": "Gratis samtalstid är slut!",
     "upgradePro": "Uppgradera till Pro",
     "freeCallEnded": "Gratis samtalsgräns nådd",
-    "upgradeForUnlimited": "Uppgradera till Pro för obegränsade videosamtal utan tidsgräns."
+    "upgradeForUnlimited": "Uppgradera till Pro för obegränsade videosamtal utan tidsgräns.",
+    "toast60s": "1 minut kvar på ditt gratissamtal!",
+    "toast10s": "10 sekunder! Samtalet avslutas nu.",
+    "timesUpTitle": "Tiden är slut!",
+    "timesUpDesc": "Ditt gratis 5-minuterssamtal är avslutat. Fortsätt med Pro för obegränsade samtal utan tidsgräns.",
+    "timesUpViewSummary": "Visa samtalssammanfattning"
   },
   "upgradeModal": {
     "titlePro": "Uppgradera till Pro",

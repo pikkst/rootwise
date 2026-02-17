@@ -945,7 +945,12 @@
     "freeTimeUp": "Gratis beltijd is op!",
     "upgradePro": "Upgraden naar Pro",
     "freeCallEnded": "Gratis bellimiet bereikt",
-    "upgradeForUnlimited": "Upgrade naar Pro voor onbeperkte videogesprekken zonder tijdslimiet."
+    "upgradeForUnlimited": "Upgrade naar Pro voor onbeperkte videogesprekken zonder tijdslimiet.",
+    "toast60s": "Nog 1 minuut over in je gratis gesprek!",
+    "toast10s": "10 seconden! Het gesprek eindigt nu.",
+    "timesUpTitle": "Tijd is om!",
+    "timesUpDesc": "Je gratis gesprek van 5 minuten is afgelopen. Ga verder met Pro voor onbeperkte gesprekken zonder tijdslimiet.",
+    "timesUpViewSummary": "Gespreksoverzicht bekijken"
   },
   "upgradeModal": {
     "titlePro": "Upgrade naar Pro",

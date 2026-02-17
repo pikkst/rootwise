@@ -945,7 +945,12 @@
     "freeTimeUp": "Czas darmowego połączenia się skończył!",
     "upgradePro": "Ulepsz do Pro",
     "freeCallEnded": "Limit darmowego połączenia osiągnięty",
-    "upgradeForUnlimited": "Ulepsz do Pro, aby korzystać z nieograniczonych rozmów wideo bez limitu czasu."
+    "upgradeForUnlimited": "Ulepsz do Pro, aby korzystać z nieograniczonych rozmów wideo bez limitu czasu.",
+    "toast60s": "Pozostała 1 minuta bezpłatnej rozmowy!",
+    "toast10s": "10 sekund! Rozmowa kończy się teraz.",
+    "timesUpTitle": "Czas minął!",
+    "timesUpDesc": "Twoja bezpłatna rozmowa 5-minutowa dobiegła końca. Kontynuuj z Pro, aby rozmawiać bez limitu czasu.",
+    "timesUpViewSummary": "Zobacz podsumowanie rozmowy"
   },
   "upgradeModal": {
     "titlePro": "Uaktualnij do Pro",

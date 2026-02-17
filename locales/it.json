@@ -945,7 +945,12 @@
     "freeTimeUp": "Il tempo della chiamata gratuita è scaduto!",
     "upgradePro": "Passa a Pro",
     "freeCallEnded": "Limite chiamata gratuita raggiunto",
-    "upgradeForUnlimited": "Passa a Pro per videochiamate illimitate senza limiti di tempo."
+    "upgradeForUnlimited": "Passa a Pro per videochiamate illimitate senza limiti di tempo.",
+    "toast60s": "1 minuto rimanente nella tua chiamata gratuita!",
+    "toast10s": "10 secondi! La chiamata termina ora.",
+    "timesUpTitle": "Tempo scaduto!",
+    "timesUpDesc": "La tua chiamata gratuita di 5 minuti è terminata. Continua con Pro per chiamate illimitate senza limiti di tempo.",
+    "timesUpViewSummary": "Visualizza il riepilogo della chiamata"
   },
   "upgradeModal": {
     "titlePro": "Passa a Pro",

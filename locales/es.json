@@ -945,7 +945,12 @@
     "freeTimeUp": "¡Se acabó el tiempo de llamada gratuita!",
     "upgradePro": "Actualizar a Pro",
     "freeCallEnded": "Límite de llamada gratuita alcanzado",
-    "upgradeForUnlimited": "Actualiza a Pro para videollamadas ilimitadas sin límite de tiempo."
+    "upgradeForUnlimited": "Actualiza a Pro para videollamadas ilimitadas sin límite de tiempo.",
+    "toast60s": "¡1 minuto restante en tu llamada gratuita!",
+    "toast10s": "¡10 segundos! La llamada termina ahora.",
+    "timesUpTitle": "¡Se acabó el tiempo!",
+    "timesUpDesc": "Tu llamada gratuita de 5 minutos ha terminado. Continúa con Pro para llamadas ilimitadas sin límite de tiempo.",
+    "timesUpViewSummary": "Ver resumen de la llamada"
   },
   "upgradeModal": {
     "titlePro": "Actualizar a Pro",

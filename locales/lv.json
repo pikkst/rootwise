@@ -945,7 +945,12 @@
     "freeTimeUp": "Bezmaksas zvana laiks ir beidzies!",
     "upgradePro": "Jaunināt uz Pro",
     "freeCallEnded": "Bezmaksas zvanu limits sasniegts",
-    "upgradeForUnlimited": "Jauniniet uz Pro neierobežotiem videozvaniem bez laika ierobežojuma."
+    "upgradeForUnlimited": "Jauniniet uz Pro neierobežotiem videozvaniem bez laika ierobežojuma.",
+    "toast60s": "Bezmaksas zvana atlicis 1 minūte!",
+    "toast10s": "10 sekundes! Zvans beidzas tagad.",
+    "timesUpTitle": "Laiks beidzies!",
+    "timesUpDesc": "Jūsu bezmaksas 5 minūšu zvans ir beidzies. Turpiniet ar Pro neierobežotiem zvaniem bez laika ierobežojuma.",
+    "timesUpViewSummary": "Skatīt zvana kopsavilkumu"
   },
   "upgradeModal": {
     "titlePro": "Jauniniet uz Pro",

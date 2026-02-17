@@ -945,7 +945,12 @@
     "freeTimeUp": "Ilmainen puheluaika on loppu!",
     "upgradePro": "Päivitä Pro:ksi",
     "freeCallEnded": "Ilmaisen puhelun raja saavutettu",
-    "upgradeForUnlimited": "Päivitä Pro-tilaukseen rajattomiin videopuheluihin ilman aikarajaa."
+    "upgradeForUnlimited": "Päivitä Pro-tilaukseen rajattomiin videopuheluihin ilman aikarajaa.",
+    "toast60s": "1 minuutti jäljellä maksuttomassa puhelussa!",
+    "toast10s": "10 sekuntia! Puhelu päättyy nyt.",
+    "timesUpTitle": "Aika loppui!",
+    "timesUpDesc": "Maksuton 5 minuutin puhelusi on päättynyt. Jatka Pro-tilauksella rajattomia puheluita ilman aikarajaa.",
+    "timesUpViewSummary": "Näytä puhelun yhteenveto"
   },
   "upgradeModal": {
     "titlePro": "Päivitä Pro-versioon",

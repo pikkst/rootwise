@@ -945,7 +945,12 @@
     "freeTimeUp": "Le temps d'appel gratuit est écoulé !",
     "upgradePro": "Passer à Pro",
     "freeCallEnded": "Limite d'appel gratuit atteinte",
-    "upgradeForUnlimited": "Passez à Pro pour des appels vidéo illimités sans limite de temps."
+    "upgradeForUnlimited": "Passez à Pro pour des appels vidéo illimités sans limite de temps.",
+    "toast60s": "1 minute restante sur votre appel gratuit !",
+    "toast10s": "10 secondes ! L'appel se termine maintenant.",
+    "timesUpTitle": "Temps écoulé !",
+    "timesUpDesc": "Votre appel gratuit de 5 minutes est terminé. Continuez avec Pro pour des appels illimités sans limite de temps.",
+    "timesUpViewSummary": "Voir le résumé de l'appel"
   },
   "upgradeModal": {
     "titlePro": "Passer à Pro",

@@ -945,7 +945,12 @@
     "freeTimeUp": "Kostenlose Anrufzeit ist abgelaufen!",
     "upgradePro": "Auf Pro upgraden",
     "freeCallEnded": "Kostenlose Anruflimit erreicht",
-    "upgradeForUnlimited": "Upgrade auf Pro für unbegrenzte Videoanrufe ohne Zeitlimit."
+    "upgradeForUnlimited": "Upgrade auf Pro für unbegrenzte Videoanrufe ohne Zeitlimit.",
+    "toast60s": "Noch 1 Minute im kostenlosen Gespräch!",
+    "toast10s": "10 Sekunden! Das Gespräch wird jetzt beendet.",
+    "timesUpTitle": "Zeit abgelaufen!",
+    "timesUpDesc": "Dein kostenloses 5-minütiges Gespräch ist beendet. Mit Pro erhältst du unbegrenzte Anrufe ohne Zeitlimit.",
+    "timesUpViewSummary": "Gesprächszusammenfassung ansehen"
   },
   "upgradeModal": {
     "titlePro": "Upgrade auf Pro",
