@@ -30,7 +30,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   const currentLang = i18n.language || 'en';
   const langPrefix = currentLang === 'en' ? '' : `/${currentLang}`;
   const fullUrl = `${siteUrl}${langPrefix}${path}`;
-  const ogImage = imageUrl || `${siteUrl}/og-image.png`;
+  const ogImage = imageUrl || `${siteUrl}/images/og-image.png`;
 
   // Normalise structured data to array for multiple LD+JSON blocks
   const ldJsonItems: object[] = structuredData
