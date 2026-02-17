@@ -81,7 +81,7 @@ export const PLAN_FEATURES = {
     { label: 'AI mentor (5 msgs/day)', included: true },
     { label: 'Basic profile & XP', included: true },
     { label: 'Quest generation (1/day)', included: true },
-    { label: 'Video calls', included: false },
+    { label: 'Video calls (5 min)', included: true },
   ],
   pro: [
     { label: 'Unlimited quests', included: true },
