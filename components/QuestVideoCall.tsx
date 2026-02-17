@@ -57,6 +57,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   const apiRef = useRef<any>(null);
   const startTimeRef = useRef(Date.now());
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasJoinedRef = useRef(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -173,19 +174,20 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
 
         api.addEventListener('videoConferenceJoined', () => {
           if (!mounted) return;
+          hasJoinedRef.current = true;
           setLoading(false);
           startTimeRef.current = Date.now();
+          if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
         });
 
         // Fallback: if videoConferenceJoined never fires (e.g. Jitsi shows its own
-        // prejoin or permission dialog inside the iframe), hide our overlay after 6s
+        // lobby or permission dialog inside the iframe), hide our overlay after 8s
         // so the user can interact with the Jitsi iframe directly.
         fallbackTimerRef.current = setTimeout(() => {
           if (mounted) {
             setLoading(false);
-            startTimeRef.current = Date.now();
           }
-        }, 6000);
+        }, 8000);
 
         api.addEventListener('participantJoined', () => {
           if (mounted) setParticipantCount((p) => p + 1);
@@ -195,17 +197,26 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           if (mounted) setParticipantCount((p) => Math.max(1, p - 1));
         });
 
+        // Only show summary if user actually joined a conference.
+        // Jitsi fires videoConferenceLeft during lobby/moderator auth transitions
+        // (e.g. clicking "I am the host") — we must ignore those.
         api.addEventListener('videoConferenceLeft', () => {
-          if (mounted) {
+          if (!mounted) return;
+          if (hasJoinedRef.current) {
             setFinalDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
             setShowSummary(true);
           }
+          // If not joined yet, it's a lobby transition — ignore it
         });
 
         api.addEventListener('readyToClose', () => {
-          if (mounted) {
+          if (!mounted) return;
+          if (hasJoinedRef.current) {
             setFinalDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
             setShowSummary(true);
+          } else {
+            // User closed Jitsi before joining — just close the overlay
+            onClose();
           }
         });
 
@@ -213,11 +224,6 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         if (userAvatar) {
           api.executeCommand('avatarUrl', userAvatar);
         }
-
-        // Clean up fallback timer if conference joined normally
-        api.addEventListener('videoConferenceJoined', () => {
-          if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
-        });
       } catch (err: any) {
         if (mounted) {
           setError(err.message || t('videoCall.startError'));
