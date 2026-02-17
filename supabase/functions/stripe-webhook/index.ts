@@ -100,24 +100,33 @@ Deno.serve(async (req: Request) => {
           headers: { 'Authorization': `Bearer ${STRIPE_SECRET_KEY}` },
         });
         const subscription = await subRes.json();
+        console.log(`Stripe subscription response status: ${subRes.status}, current_period_end: ${subscription.current_period_end}`);
         const priceId = subscription.items?.data?.[0]?.price?.id;
 
         // Determine plan
         const plan = priceId === Deno.env.get('STRIPE_ORG_PRICE_ID') ? 'org' : 'pro';
         console.log(`Resolved plan: ${plan}, priceId: ${priceId}`);
 
+        // Safely convert period end timestamp
+        const periodEnd = subscription.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : null;
+
         // Upsert subscription record
-        await supabase.from('subscriptions').upsert({
+        const { error: upsertErr } = await supabase.from('subscriptions').upsert({
           user_id: userId,
           stripe_subscription_id: subscriptionId,
           stripe_customer_id: session.customer,
           plan,
           status: 'active',
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          current_period_end: periodEnd,
         }, { onConflict: 'user_id' });
+        if (upsertErr) console.error('Subscription upsert error:', upsertErr);
 
         // Update profile plan
-        await supabase.from('profiles').update({ plan }).eq('id', userId);
+        const { error: profileErr } = await supabase.from('profiles').update({ plan }).eq('id', userId);
+        if (profileErr) console.error('Profile update error:', profileErr);
+        console.log(`Successfully upgraded user ${userId} to ${plan}`);
         break;
       }
 
@@ -128,9 +137,13 @@ Deno.serve(async (req: Request) => {
 
         const status = subscription.cancel_at_period_end ? 'cancelling' : subscription.status;
 
+        const subPeriodEnd = subscription.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : null;
+
         await supabase.from('subscriptions').update({
           status,
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          current_period_end: subPeriodEnd,
         }).eq('stripe_subscription_id', subscription.id);
 
         if (subscription.status === 'active') {

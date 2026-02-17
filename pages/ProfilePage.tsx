@@ -72,9 +72,13 @@ const ProfilePage: React.FC = () => {
   const [socialLoading, setSocialLoading] = useState(false);
   const [isDraggingBanner, setIsDraggingBanner] = useState(false);
 
+  // Track if checkout toast has already been shown to prevent duplicates
+  const checkoutHandledRef = useRef(false);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('checkout') !== 'success' || !profile?.id) return;
+    if (checkoutHandledRef.current) return;
 
     let cancelled = false;
     const startedAt = Date.now();
@@ -91,7 +95,15 @@ const ProfilePage: React.FC = () => {
           .maybeSingle();
 
         if (data?.plan && data.plan !== 'free') {
+          checkoutHandledRef.current = true;
           showToast('success', t('profile.subscriptionActive', { plan: data.plan.toUpperCase() }));
+          // Remove checkout param from URL to prevent re-triggering
+          const newParams = new URLSearchParams(location.search);
+          newParams.delete('checkout');
+          const newUrl = newParams.toString()
+            ? `${location.pathname}?${newParams.toString()}`
+            : location.pathname;
+          window.history.replaceState({}, '', newUrl);
           return;
         }
 
@@ -99,7 +111,14 @@ const ProfilePage: React.FC = () => {
       }
 
       if (!cancelled) {
+        checkoutHandledRef.current = true;
         showToast('info', t('profile.paymentSuccessful'));
+        const newParams = new URLSearchParams(location.search);
+        newParams.delete('checkout');
+        const newUrl = newParams.toString()
+          ? `${location.pathname}?${newParams.toString()}`
+          : location.pathname;
+        window.history.replaceState({}, '', newUrl);
       }
     };
 
@@ -108,7 +127,7 @@ const ProfilePage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [location.search, profile?.id, refreshProfile, showToast]);
+  }, [location.search, profile?.id]);
 
   if (!profile) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
