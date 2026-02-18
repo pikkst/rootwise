@@ -778,7 +778,9 @@
     "proPrice": "€9.99",
     "orgPrice": "€49",
     "status": "Tila",
-    "updatePaymentMethod": "Päivitä maksutapa"
+    "updatePaymentMethod": "Päivitä maksutapa",
+    "compOrganizerToolkit": "Organizer Toolkit",
+    "compJoinLinks": "Shareable Join Links"
   },
   "admin": {
     "authWallTitle": "Organisaation hallintapaneeli",
@@ -882,7 +884,18 @@
     "orgReportFullDesc": "Täydellinen yleiskatsaus jäsenistä, yhteisöistä, tehtävistä ja XP:stä koko organisaatiossasi.",
     "membersLabel": "Jäsenet",
     "membersCount_one": "{{count}} jäsen",
-    "membersCount_other": "{{count}} jäsentä"
+    "membersCount_other": "{{count}} jäsentä",
+    "organizerToolkitTitle": "Organizer Toolkit",
+    "organizerToolkitDesc": "Launch ready-to-run group programs in one click for care homes and larger communities.",
+    "copyJoinLinkBtn": "Copy Community Join Link",
+    "createStarterProgramBtn": "Create 4-Quest Starter Program",
+    "createWeeklyPlanBtn": "Generate 7-Day Activity Plan",
+    "organizerToolkitHint": "Creates published team quests inside your selected community so staff can run sessions immediately.",
+    "selectCommunityFirst": "Select a community first.",
+    "joinLinkCopied": "Community join link copied.",
+    "copyLinkFailed": "Could not copy link. Please copy it manually from the address bar.",
+    "toolkitCreated": "Created {{count}} organizer quests for {{community}}.",
+    "toolkitCreateFailed": "Failed to create organizer quests."
   },
   "reports": {
     "seoTitle": "Lähetä raportti - Rootwise",

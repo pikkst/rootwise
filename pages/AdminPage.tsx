@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatChartDate, formatDateNumeric, formatDateTime } from '../utils/formatDate';
 import {
@@ -11,6 +12,7 @@ import { isOrg, canAddOrgMember, remainingOrgSlots, PLAN_LIMITS } from '../servi
 import { redirectToCheckout } from '../services/stripeService';
 import { supabase } from '../services/supabase';
 import { Profile, UserReport, getInitials } from '../types';
+import { SUPPORTED_LANGUAGES } from '../i18n';
 
 interface CommunityWithMembers {
   id: string;
@@ -83,8 +85,65 @@ interface UserReportWithReporter extends UserReport {
   reporterName?: string;
 }
 
+interface OrganizerQuestTemplate {
+  title: string;
+  description: string;
+  category: string;
+  reward_xp: number;
+  steps: string[];
+  skills_required: string[];
+}
+
+const ORG_STARTER_TEMPLATES: OrganizerQuestTemplate[] = [
+  {
+    title: 'Memory Circle: Stories That Connect',
+    description: 'Small group storytelling session where residents and volunteers share one life story and one practical lesson learned.',
+    category: 'History',
+    reward_xp: 120,
+    steps: ['Choose theme of the day', 'Pair storytellers and listeners', 'Capture one key memory per person'],
+    skills_required: ['storytelling', 'active listening', 'empathy'],
+  },
+  {
+    title: 'Digital Basics Clinic',
+    description: 'Hands-on support session for phone basics, scam awareness, and safe messaging with family.',
+    category: 'Technology',
+    reward_xp: 140,
+    steps: ['Collect top 3 digital pain points', 'Run 1:1 mini support rounds', 'Create take-home checklist'],
+    skills_required: ['digital literacy', 'patience', 'communication'],
+  },
+  {
+    title: 'Gentle Movement Together',
+    description: 'Low-impact guided movement activity designed for mixed ability levels in a care-home setting.',
+    category: 'Lifestyle',
+    reward_xp: 110,
+    steps: ['Set safe movement goals', 'Run 20-minute guided activity', 'Log attendance and mood'],
+    skills_required: ['wellbeing', 'facilitation', 'safety awareness'],
+  },
+  {
+    title: 'Recipe & Traditions Exchange',
+    description: 'Intergenerational mini workshop to share one recipe and the story behind it.',
+    category: 'Arts',
+    reward_xp: 130,
+    steps: ['Pick recipe/theme', 'Host exchange session', 'Save shared tips in notes'],
+    skills_required: ['cooking', 'culture sharing', 'collaboration'],
+  },
+];
+
+const WEEKLY_PLAN_TOPICS = [
+  'Memory Monday',
+  'Tech Tuesday',
+  'Wellbeing Wednesday',
+  'Talent Thursday',
+  'Family Friday',
+  'Social Saturday',
+  'Story Sunday',
+];
+
+const LANG_CODES = new Set(SUPPORTED_LANGUAGES.map((lang) => lang.code));
+
 const AdminPage: React.FC = () => {
   const { t } = useTranslation();
+  const location = useLocation();
   const { profile } = useAuth();
   const { showToast } = useToast();
   const [communities, setCommunities] = useState<CommunityWithMembers[]>([]);
@@ -102,6 +161,7 @@ const AdminPage: React.FC = () => {
   const [reportStatusFilter, setReportStatusFilter] = useState<UserReport['status'] | 'all'>('all');
   const [reportNoteDrafts, setReportNoteDrafts] = useState<Record<string, string>>({});
   const [inviteEmail, setInviteEmail] = useState('');
+  const [toolkitLoading, setToolkitLoading] = useState<'starter' | 'weekly' | null>(null);
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null);
 
   // Community creation form
@@ -605,6 +665,103 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  const getSelectedCommunity = () => communities.find((community) => community.id === selectedCommunity);
+
+  const buildLocalePath = (path: string) => {
+    const match = location.pathname.match(/^\/([a-z]{2})(?:\/|$)/i);
+    const lang = match?.[1]?.toLowerCase();
+    if (lang && LANG_CODES.has(lang) && lang !== 'en') {
+      return `/${lang}${path}`;
+    }
+    return path;
+  };
+
+  const handleCopyCommunityJoinLink = async () => {
+    const selected = getSelectedCommunity();
+    if (!selected) {
+      showToast('error', t('admin.selectCommunityFirst'));
+      return;
+    }
+
+    const inviteUrl = `${window.location.origin}${buildLocalePath(`/community/${selected.id}`)}`;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      showToast('success', t('admin.joinLinkCopied'));
+    } catch {
+      showToast('error', t('admin.copyLinkFailed'));
+    }
+  };
+
+  const insertOrganizerQuests = async (templates: OrganizerQuestTemplate[], mode: 'starter' | 'weekly') => {
+    if (!profile?.id) return;
+
+    const selected = getSelectedCommunity();
+    if (!selected) {
+      showToast('error', t('admin.selectCommunityFirst'));
+      return;
+    }
+
+    setToolkitLoading(mode);
+    try {
+      const payload = templates.map((template, index) => ({
+        title: template.title,
+        description: template.description,
+        category: template.category,
+        community_id: selected.id,
+        status: 'published',
+        quest_type: 'team',
+        is_virtual: true,
+        location: selected.name,
+        skills_required: template.skills_required,
+        reward_xp: template.reward_xp,
+        steps: template.steps,
+        created_by: profile.id,
+        age_range_min: 14,
+        age_range_max: 95,
+        image_url: null,
+      }));
+
+      const { data, error } = await supabase
+        .from('quests')
+        .insert(payload)
+        .select('id');
+
+      if (error) throw error;
+
+      const createdCount = data?.length ?? payload.length;
+      showToast('success', t('admin.toolkitCreated', { count: createdCount, community: selected.name }));
+      await fetchAdminData();
+    } catch (err: any) {
+      showToast('error', err?.message || t('admin.toolkitCreateFailed'));
+    } finally {
+      setToolkitLoading(null);
+    }
+  };
+
+  const handleCreateStarterProgram = async () => {
+    await insertOrganizerQuests(ORG_STARTER_TEMPLATES, 'starter');
+  };
+
+  const handleCreateWeeklyPlan = async () => {
+    const today = new Date();
+    const weeklyTemplates: OrganizerQuestTemplate[] = WEEKLY_PLAN_TOPICS.map((topic, index) => {
+      const eventDate = new Date(today);
+      eventDate.setDate(today.getDate() + index);
+      const label = formatDateNumeric(eventDate);
+
+      return {
+        title: `${topic} — ${label}`,
+        description: `Structured organizer-led session for ${topic.toLowerCase()} with clear facilitation prompts and outcomes.`,
+        category: index % 2 === 0 ? 'Lifestyle' : 'Education',
+        reward_xp: 100,
+        steps: ['Prepare room and materials', 'Run 30-45 minute guided session', 'Log attendance and one key takeaway'],
+        skills_required: ['facilitation', 'group coordination', 'engagement'],
+      };
+    });
+
+    await insertOrganizerQuests(weeklyTemplates, 'weekly');
+  };
+
   const handleExportReport = () => {
     if (!stats || !communities.length) return;
 
@@ -967,35 +1124,71 @@ const AdminPage: React.FC = () => {
           {activeTab === 'members' && (
             <div className="space-y-6">
               {!isPlatformAdmin && (
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                  <h3 className="font-bold mb-4">{t('admin.inviteTitle')}</h3>
-                  <div className="flex gap-3">
-                    <input
-                      type="email"
-                      placeholder={t('admin.invitePlaceholder')}
-                      value={inviteEmail}
-                      onChange={(e) => setInviteEmail(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
-                      className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    />
-                    <button
-                      onClick={handleInvite}
-                      className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all"
-                    >
-                      {t('admin.inviteBtn')}
-                    </button>
+                <div className="space-y-6">
+                  <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 className="font-bold mb-4">{t('admin.inviteTitle')}</h3>
+                    <div className="flex gap-3">
+                      <input
+                        type="email"
+                        placeholder={t('admin.invitePlaceholder')}
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
+                        className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                      />
+                      <button
+                        onClick={handleInvite}
+                        className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all"
+                      >
+                        {t('admin.inviteBtn')}
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-2">
+                      {t('admin.inviteHint')}
+                      {stats && (
+                        <span className={`font-medium ${
+                          remainingOrgSlots(stats.totalMembers) <= 5 ? 'text-amber-600' : ''
+                        }`}>
+                          {' '}{t('admin.seatsUsed', { used: stats.totalMembers, max: PLAN_LIMITS.org.maxOrgMembers })}
+                          {remainingOrgSlots(stats.totalMembers) <= 5 && ` ${t('admin.seatsRemaining', { count: remainingOrgSlots(stats.totalMembers) })}`}
+                        </span>
+                      )}
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-400 mt-2">
-                    {t('admin.inviteHint')}
-                    {stats && (
-                      <span className={`font-medium ${
-                        remainingOrgSlots(stats.totalMembers) <= 5 ? 'text-amber-600' : ''
-                      }`}>
-                        {' '}{t('admin.seatsUsed', { used: stats.totalMembers, max: PLAN_LIMITS.org.maxOrgMembers })}
-                        {remainingOrgSlots(stats.totalMembers) <= 5 && ` ${t('admin.seatsRemaining', { count: remainingOrgSlots(stats.totalMembers) })}`}
-                      </span>
-                    )}
-                  </p>
+
+                  <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                      <div>
+                        <h3 className="font-bold">{t('admin.organizerToolkitTitle')}</h3>
+                        <p className="text-sm text-slate-500 mt-1">{t('admin.organizerToolkitDesc')}</p>
+                      </div>
+                      <button
+                        onClick={handleCopyCommunityJoinLink}
+                        className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:border-indigo-300 hover:text-indigo-600 transition-all"
+                      >
+                        {t('admin.copyJoinLinkBtn')}
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <button
+                        onClick={() => void handleCreateStarterProgram()}
+                        disabled={toolkitLoading !== null}
+                        className="px-4 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-all disabled:opacity-50"
+                      >
+                        {toolkitLoading === 'starter' ? t('common.creating') : t('admin.createStarterProgramBtn')}
+                      </button>
+                      <button
+                        onClick={() => void handleCreateWeeklyPlan()}
+                        disabled={toolkitLoading !== null}
+                        className="px-4 py-3 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition-all disabled:opacity-50"
+                      >
+                        {toolkitLoading === 'weekly' ? t('common.creating') : t('admin.createWeeklyPlanBtn')}
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-slate-400 mt-3">{t('admin.organizerToolkitHint')}</p>
+                  </div>
                 </div>
               )}
 

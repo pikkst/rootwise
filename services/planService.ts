@@ -96,7 +96,8 @@ export const PLAN_FEATURES = {
     { label: 'Up to 50 members', included: true },
     { label: 'Admin dashboard', included: true },
     { label: 'Branded communities', included: true },
+    { label: 'Organizer toolkit (starter + weekly plans)', included: true },
+    { label: 'Shareable community join links', included: true },
     { label: 'Reporting & analytics', included: true },
-    { label: 'Org-level analytics', included: true },
   ],
 } as const;

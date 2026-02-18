@@ -778,7 +778,9 @@
     "proPrice": "€9.99",
     "orgPrice": "€49",
     "status": "Statuss",
-    "updatePaymentMethod": "Atjaunināt maksājuma veidu"
+    "updatePaymentMethod": "Atjaunināt maksājuma veidu",
+    "compOrganizerToolkit": "Organizer Toolkit",
+    "compJoinLinks": "Shareable Join Links"
   },
   "admin": {
     "authWallTitle": "Organizācijas informācijas panelis",
@@ -882,7 +884,18 @@
     "orgReportFullDesc": "Pilnīgs pārskats par dalībniekiem, kopienām, uzdevumiem un XP jūsu organizācijā.",
     "membersLabel": "Dalībnieki",
     "membersCount_one": "{{count}} dalībnieks",
-    "membersCount_other": "{{count}} dalībnieki"
+    "membersCount_other": "{{count}} dalībnieki",
+    "organizerToolkitTitle": "Organizer Toolkit",
+    "organizerToolkitDesc": "Launch ready-to-run group programs in one click for care homes and larger communities.",
+    "copyJoinLinkBtn": "Copy Community Join Link",
+    "createStarterProgramBtn": "Create 4-Quest Starter Program",
+    "createWeeklyPlanBtn": "Generate 7-Day Activity Plan",
+    "organizerToolkitHint": "Creates published team quests inside your selected community so staff can run sessions immediately.",
+    "selectCommunityFirst": "Select a community first.",
+    "joinLinkCopied": "Community join link copied.",
+    "copyLinkFailed": "Could not copy link. Please copy it manually from the address bar.",
+    "toolkitCreated": "Created {{count}} organizer quests for {{community}}.",
+    "toolkitCreateFailed": "Failed to create organizer quests."
   },
   "reports": {
     "seoTitle": "Iesniegt ziņojumu - Rootwise",

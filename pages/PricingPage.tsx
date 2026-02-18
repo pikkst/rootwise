@@ -307,6 +307,8 @@ const PricingPage: React.FC = () => {
                 { feature: t('pricing.compTeam'), free: '—', pro: '—', org: t('pricing.compUpTo50') },
                 { feature: t('pricing.compAdminDash'), free: '—', pro: '—', org: '✓' },
                 { feature: t('pricing.compBranded'), free: '—', pro: '—', org: '✓' },
+                { feature: t('pricing.compOrganizerToolkit'), free: '—', pro: '—', org: '✓' },
+                { feature: t('pricing.compJoinLinks'), free: '—', pro: '—', org: '✓' },
                 { feature: t('pricing.compReports'), free: '—', pro: '—', org: '✓' },
               ].map((row, i) => (
                 <tr key={i} className="border-b border-slate-100 last:border-0">

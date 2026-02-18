@@ -778,7 +778,9 @@
     "proPrice": "€9.99",
     "orgPrice": "€49",
     "status": "Status",
-    "updatePaymentMethod": "Zahlungsmethode aktualisieren"
+    "updatePaymentMethod": "Zahlungsmethode aktualisieren",
+    "compOrganizerToolkit": "Organizer Toolkit",
+    "compJoinLinks": "Shareable Join Links"
   },
   "admin": {
     "authWallTitle": "Organisations-Dashboard",
@@ -882,7 +884,18 @@
     "orgReportFullDesc": "Vollständige Übersicht über Mitglieder, Communities, Quests und XP in Ihrer Organisation.",
     "membersLabel": "Mitglieder",
     "membersCount_one": "{{count}} Mitglied",
-    "membersCount_other": "{{count}} Mitglieder"
+    "membersCount_other": "{{count}} Mitglieder",
+    "organizerToolkitTitle": "Organizer Toolkit",
+    "organizerToolkitDesc": "Launch ready-to-run group programs in one click for care homes and larger communities.",
+    "copyJoinLinkBtn": "Copy Community Join Link",
+    "createStarterProgramBtn": "Create 4-Quest Starter Program",
+    "createWeeklyPlanBtn": "Generate 7-Day Activity Plan",
+    "organizerToolkitHint": "Creates published team quests inside your selected community so staff can run sessions immediately.",
+    "selectCommunityFirst": "Select a community first.",
+    "joinLinkCopied": "Community join link copied.",
+    "copyLinkFailed": "Could not copy link. Please copy it manually from the address bar.",
+    "toolkitCreated": "Created {{count}} organizer quests for {{community}}.",
+    "toolkitCreateFailed": "Failed to create organizer quests."
   },
   "reports": {
     "seoTitle": "Bericht einreichen - Rootwise",

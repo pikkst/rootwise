@@ -778,7 +778,9 @@
     "proPrice": "€9.99",
     "orgPrice": "€49",
     "status": "Статус",
-    "updatePaymentMethod": "Обновить способ оплаты"
+    "updatePaymentMethod": "Обновить способ оплаты",
+    "compOrganizerToolkit": "Organizer Toolkit",
+    "compJoinLinks": "Shareable Join Links"
   },
   "admin": {
     "authWallTitle": "Панель управления организацией",
@@ -882,7 +884,18 @@
     "orgReportFullDesc": "Полный обзор участников, сообществ, квестов и XP в вашей организации.",
     "membersLabel": "Участники",
     "membersCount_one": "{{count}} участник",
-    "membersCount_other": "{{count}} участников"
+    "membersCount_other": "{{count}} участников",
+    "organizerToolkitTitle": "Organizer Toolkit",
+    "organizerToolkitDesc": "Launch ready-to-run group programs in one click for care homes and larger communities.",
+    "copyJoinLinkBtn": "Copy Community Join Link",
+    "createStarterProgramBtn": "Create 4-Quest Starter Program",
+    "createWeeklyPlanBtn": "Generate 7-Day Activity Plan",
+    "organizerToolkitHint": "Creates published team quests inside your selected community so staff can run sessions immediately.",
+    "selectCommunityFirst": "Select a community first.",
+    "joinLinkCopied": "Community join link copied.",
+    "copyLinkFailed": "Could not copy link. Please copy it manually from the address bar.",
+    "toolkitCreated": "Created {{count}} organizer quests for {{community}}.",
+    "toolkitCreateFailed": "Failed to create organizer quests."
   },
   "reports": {
     "seoTitle": "Отправить отчет - Rootwise",
