@@ -89,26 +89,4 @@
     <xhtml:link rel="alternate" hreflang="uk" href="https://rootwise.site/uk/community" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://rootwise.site/community" />
   </url>
-  <url>
-    <loc>https://rootwise.site/auth</loc>
-    <lastmod>2026-02-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://rootwise.site/auth" />
-    <xhtml:link rel="alternate" hreflang="et" href="https://rootwise.site/et/auth" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://rootwise.site/de/auth" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://rootwise.site/fr/auth" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://rootwise.site/es/auth" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://rootwise.site/it/auth" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://rootwise.site/ru/auth" />
-    <xhtml:link rel="alternate" hreflang="fi" href="https://rootwise.site/fi/auth" />
-    <xhtml:link rel="alternate" hreflang="sv" href="https://rootwise.site/sv/auth" />
-    <xhtml:link rel="alternate" hreflang="lv" href="https://rootwise.site/lv/auth" />
-    <xhtml:link rel="alternate" hreflang="lt" href="https://rootwise.site/lt/auth" />
-    <xhtml:link rel="alternate" hreflang="pl" href="https://rootwise.site/pl/auth" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://rootwise.site/pt/auth" />
-    <xhtml:link rel="alternate" hreflang="nl" href="https://rootwise.site/nl/auth" />
-    <xhtml:link rel="alternate" hreflang="uk" href="https://rootwise.site/uk/auth" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://rootwise.site/auth" />
-  </url>
 </urlset>

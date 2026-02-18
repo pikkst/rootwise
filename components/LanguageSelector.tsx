@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SUPPORTED_LANGUAGES, type LanguageCode } from '../i18n';
@@ -12,6 +13,10 @@ interface Props {
 const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false, upward = false }) => {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 640;
+  });
   const ref = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -40,6 +45,16 @@ const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false, up
     if (open) document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [open]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const onResize = () => setIsMobile(window.innerWidth < 640);
+    onResize();
+
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const changeLanguage = (code: LanguageCode) => {
     i18n.changeLanguage(code);
@@ -84,63 +99,92 @@ const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false, up
       {/* Language panel */}
       {open && (
         <>
-          {/* Mobile: full-screen overlay */}
-          <div className="fixed inset-0 bg-black/30 z-40 sm:hidden" onClick={() => setOpen(false)} />
+          {isMobile && createPortal(
+            <>
+              <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setOpen(false)} />
+              <div
+                role="listbox"
+                aria-label="Languages"
+                className="fixed bottom-0 left-0 right-0 z-50 bg-white border border-slate-200 shadow-2xl overflow-hidden rounded-t-3xl p-4 pb-8"
+              >
+                <div className="flex justify-center mb-3">
+                  <div className="w-10 h-1 rounded-full bg-slate-300" />
+                </div>
+                <p className="text-center text-sm font-semibold text-slate-500 mb-3">
+                  🌐 Choose language
+                </p>
+                <div className="grid grid-cols-2 gap-1">
+                  {SUPPORTED_LANGUAGES.map(lang => {
+                    const isActive = currentLang.code === lang.code;
+                    return (
+                      <button
+                        key={lang.code}
+                        role="option"
+                        aria-selected={isActive}
+                        onClick={() => changeLanguage(lang.code)}
+                        className={`
+                          flex items-center gap-2 px-3 py-3 rounded-xl text-left transition-all
+                          ${isActive
+                            ? 'bg-indigo-50 text-indigo-700 ring-2 ring-indigo-200 font-bold'
+                            : 'text-slate-700 hover:bg-slate-50 active:bg-indigo-50'
+                          }
+                        `}
+                      >
+                        <span className="text-xl" role="img" aria-hidden="true">{lang.flag}</span>
+                        <span className="text-sm font-medium truncate">{lang.name}</span>
+                        {isActive && (
+                          <span className="ml-auto text-indigo-500 text-sm">✓</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>,
+            document.body
+          )}
 
-          {/* Panel */}
-          <div
-            role="listbox"
-            aria-label="Languages"
-            className={`
-              z-50 bg-white border border-slate-200 shadow-2xl overflow-hidden
-              /* Mobile: centered bottom sheet */
-              fixed bottom-0 left-0 right-0 rounded-t-3xl p-4 pb-8
-              sm:absolute sm:rounded-2xl sm:p-2
-              ${openUpward
-                ? 'sm:bottom-full sm:mb-2 sm:top-auto sm:left-auto sm:right-0'
-                : 'sm:top-full sm:mt-2 sm:bottom-auto sm:left-auto sm:right-0'
-              }
-              sm:w-[340px]
-            `}
-          >
-            {/* Mobile handle bar */}
-            <div className="flex justify-center mb-3 sm:hidden">
-              <div className="w-10 h-1 rounded-full bg-slate-300" />
+          {!isMobile && (
+            <div
+              role="listbox"
+              aria-label="Languages"
+              className={`
+                z-50 bg-white border border-slate-200 shadow-2xl overflow-hidden
+                absolute rounded-2xl p-2 w-[340px]
+                ${openUpward
+                  ? 'bottom-full mb-2 top-auto left-auto right-0'
+                  : 'top-full mt-2 bottom-auto left-auto right-0'
+                }
+              `}
+            >
+              <div className="grid grid-cols-3 gap-1">
+                {SUPPORTED_LANGUAGES.map(lang => {
+                  const isActive = currentLang.code === lang.code;
+                  return (
+                    <button
+                      key={lang.code}
+                      role="option"
+                      aria-selected={isActive}
+                      onClick={() => changeLanguage(lang.code)}
+                      className={`
+                        flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all
+                        ${isActive
+                          ? 'bg-indigo-50 text-indigo-700 ring-2 ring-indigo-200 font-bold'
+                          : 'text-slate-700 hover:bg-slate-50 active:bg-indigo-50'
+                        }
+                      `}
+                    >
+                      <span className="text-lg" role="img" aria-hidden="true">{lang.flag}</span>
+                      <span className="text-xs font-medium truncate">{lang.name}</span>
+                      {isActive && (
+                        <span className="ml-auto text-indigo-500 text-sm">✓</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-
-            {/* Title (mobile only) */}
-            <p className="text-center text-sm font-semibold text-slate-500 mb-3 sm:hidden">
-              🌐 Choose language
-            </p>
-
-            {/* Grid of languages */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
-              {SUPPORTED_LANGUAGES.map(lang => {
-                const isActive = currentLang.code === lang.code;
-                return (
-                  <button
-                    key={lang.code}
-                    role="option"
-                    aria-selected={isActive}
-                    onClick={() => changeLanguage(lang.code)}
-                    className={`
-                      flex items-center gap-2 px-3 py-3 sm:py-2.5 rounded-xl text-left transition-all
-                      ${isActive
-                        ? 'bg-indigo-50 text-indigo-700 ring-2 ring-indigo-200 font-bold'
-                        : 'text-slate-700 hover:bg-slate-50 active:bg-indigo-50'
-                      }
-                    `}
-                  >
-                    <span className="text-xl sm:text-lg" role="img" aria-hidden="true">{lang.flag}</span>
-                    <span className="text-sm sm:text-xs font-medium truncate">{lang.name}</span>
-                    {isActive && (
-                      <span className="ml-auto text-indigo-500 text-sm">✓</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          )}
         </>
       )}
     </div>
