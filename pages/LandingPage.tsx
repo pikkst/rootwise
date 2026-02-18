@@ -54,7 +54,7 @@ const LandingPage: React.FC = () => {
             {t('common.brand')}
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-            <a href="#how-it-works" className="hover:text-indigo-600 transition-colors">{t('landing.navHowItWorks')}</a>
+            <button onClick={() => navigate('/how-it-works')} className="hover:text-indigo-600 transition-colors">{t('landing.navHowItWorks')}</button>
             <a href="#features" className="hover:text-indigo-600 transition-colors">{t('landing.navFeatures')}</a>
             <a href="#proof" className="hover:text-indigo-600 transition-colors">{t('landing.navCommunity')}</a>
             <button
@@ -68,7 +68,7 @@ const LandingPage: React.FC = () => {
             </button>
           </div>
           <div className="flex items-center gap-3">
-            <LanguageSelector compact upward />
+            <LanguageSelector compact />
             <button
               onClick={() => {
                 void trackEvent('landing_cta_clicked', { source: 'nav_sign_in', variant: ctaVariant });
@@ -122,7 +122,7 @@ const LandingPage: React.FC = () => {
                 </button>
                 <button 
                   onClick={() => {
-                    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                    navigate('/how-it-works');
                   }}
                   className="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-2xl font-bold text-lg hover:bg-white/20 transition-all"
                 >

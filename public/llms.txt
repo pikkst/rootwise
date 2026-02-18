@@ -49,6 +49,7 @@ https://rootwise.site
 ## Key Pages
 
 - Homepage: https://rootwise.site/
+- How It Works: https://rootwise.site/how-it-works
 - Quest Discovery: https://rootwise.site/quests
 - Community: https://rootwise.site/community
 - Pricing: https://rootwise.site/pricing

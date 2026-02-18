@@ -89,4 +89,26 @@
     <xhtml:link rel="alternate" hreflang="uk" href="https://rootwise.site/uk/community" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://rootwise.site/community" />
   </url>
+  <url>
+    <loc>https://rootwise.site/how-it-works</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://rootwise.site/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="et" href="https://rootwise.site/et/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://rootwise.site/de/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://rootwise.site/fr/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://rootwise.site/es/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="it" href="https://rootwise.site/it/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://rootwise.site/ru/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="fi" href="https://rootwise.site/fi/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="sv" href="https://rootwise.site/sv/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="lv" href="https://rootwise.site/lv/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="lt" href="https://rootwise.site/lt/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://rootwise.site/pl/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://rootwise.site/pt/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="nl" href="https://rootwise.site/nl/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="uk" href="https://rootwise.site/uk/how-it-works" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://rootwise.site/how-it-works" />
+  </url>
 </urlset>

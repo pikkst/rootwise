@@ -30,7 +30,7 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="font-bold text-slate-800 mb-4">{t('footer.company')}</h4>
             <ul className="space-y-2 text-sm text-slate-500">
-              <li><a href="#how-it-works" className="hover:text-indigo-600 transition-colors">{t('footer.howItWorks')}</a></li>
+              <li><button onClick={() => navigate('/how-it-works')} className="hover:text-indigo-600 transition-colors">{t('footer.howItWorks')}</button></li>
               <li><button onClick={() => navigate('/auth')} className="hover:text-indigo-600 transition-colors">{t('footer.createAccount')}</button></li>
               <li><a href="mailto:villu@mail.eventnexus.eu" className="hover:text-indigo-600 transition-colors">{t('footer.contact')}</a></li>
             </ul>

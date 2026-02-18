@@ -23,12 +23,13 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import MatchingPage from './pages/MatchingPage';
 import AdminPage from './pages/AdminPage';
 import PricingPage from './pages/PricingPage';
+import HowItWorksPage from './pages/HowItWorksPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import ReportsPage from './pages/ReportsPage';
 import { trackEvent } from './services/analyticsService';
 
-const LANG_CODES = new Set(SUPPORTED_LANGUAGES.map(l => l.code));
+const LANG_CODES = new Set<string>(SUPPORTED_LANGUAGES.map(l => l.code));
 
 /** Syncs the URL /:lang prefix with i18next language */
 const LocaleLayout: React.FC = () => {
@@ -90,6 +91,7 @@ const pageRoutes = (
     <Route index element={<LandingPage />} />
     <Route path="auth" element={<AuthPage />} />
     <Route path="pricing" element={<PricingPage />} />
+    <Route path="how-it-works" element={<HowItWorksPage />} />
     <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
     <Route path="terms-of-service" element={<TermsOfServicePage />} />
     <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
