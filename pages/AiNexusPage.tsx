@@ -150,7 +150,15 @@ const AiNexusPage: React.FC = () => {
   };
 
   const handleAiStartIntro = async (match: AiMatchSuggestion) => {
-    if (!match?.id) return;
+    if (!match?.id || !profile?.id) return;
+
+    const consent = window.confirm(
+      t('ai.introConsent', {
+        defaultValue: 'Allow AI to send a first intro message on your behalf to this user?',
+      })
+    );
+    if (!consent) return;
+
     setPendingIntroUserId(match.id);
 
     void trackEvent('ai_intro_requested', {
@@ -171,7 +179,32 @@ const AiNexusPage: React.FC = () => {
       await addMessage('ai', result.introPreview);
     }
 
-    showToast('success', t('common.success'));
+    const introMessage = result.introPreview?.trim() || t('ai.fallback');
+    const { error: dmError } = await supabase.from('direct_messages').insert({
+      sender_id: profile.id,
+      recipient_id: match.id,
+      body: introMessage,
+    });
+
+    if (dmError) {
+      showToast('error', dmError.message);
+      setPendingIntroUserId(null);
+      return;
+    }
+
+    await supabase.from('notifications').insert({
+      user_id: match.id,
+      type: 'direct_message',
+      title: t('messages.notificationTitle', { defaultValue: 'New message' }),
+      body: t('messages.notificationBody', {
+        defaultValue: '{{name}} sent you a message',
+        name: profile.name,
+      }),
+      link: `/messages?user=${profile.id}`,
+      read: false,
+    });
+
+    showToast('success', t('ai.introSent', { defaultValue: 'AI sent your intro message.' }));
     setPendingIntroUserId(null);
   };
 

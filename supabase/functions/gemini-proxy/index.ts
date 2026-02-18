@@ -95,6 +95,20 @@ function shouldCreateQuest(message: string): boolean {
   return /(loo\s+quest|tee\s+quest|create\s+quest|make\s+a\s+quest)/i.test(message);
 }
 
+async function getUserPlan(supabase: any, userId: string): Promise<string> {
+  try {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', userId)
+      .single();
+
+    return (profile?.plan || 'free').toLowerCase();
+  } catch {
+    return 'free';
+  }
+}
+
 function buildSkillBlob(profile: CandidateProfile): string {
   return [
     ...(profile.skills ?? []),
@@ -749,6 +763,82 @@ Always answer in the same language the user used.
       ]);
 
       return new Response(JSON.stringify({ ok: true, introPreview }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (action === 'mediateMessage') {
+      const { request, systemInstruction, userPrompt, locale } = payload as {
+        request?: {
+          senderName?: string;
+          senderLanguage?: string | null;
+          recipientName?: string;
+          recipientLanguage?: string | null;
+          draft?: string;
+          recentConversation?: Array<{ from: 'me' | 'them'; text: string }>;
+        };
+        systemInstruction?: string;
+        userPrompt?: string;
+        locale?: string;
+      };
+
+      const userPlan = await getUserPlan(supabase, user.id);
+      const isPaidTier = userPlan === 'pro' || userPlan === 'org' || userPlan === 'admin';
+      if (!isPaidTier) {
+        return new Response(JSON.stringify({ ok: false, error: 'AI auto-translate is available on Pro, Org, and Admin plans.' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: chatUsage } = await supabase.rpc('check_ai_usage', {
+        p_user_id: user.id,
+        p_type: 'chat',
+      });
+      if (chatUsage && !chatUsage.allowed) {
+        return new Response(JSON.stringify({ ok: false, error: `Daily message limit reached (${chatUsage.limit}/day).` }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const draft = (request?.draft || '').trim();
+      if (!draft) {
+        return new Response(JSON.stringify({ ok: false, error: 'Draft is required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const mediatedSystemInstruction = systemInstruction ||
+        'You are Rootwise AI mediator for private messages between users who may have different languages and cultures. Rewrite and translate clearly while preserving intent. Return only final message text.';
+
+      const mediatedPrompt = userPrompt || `Sender: ${request?.senderName || 'User'}\nRecipient: ${request?.recipientName || 'User'}\nDraft:\n${draft}`;
+
+      const geminiRes = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: `${mediatedSystemInstruction}\nLanguage locale: ${locale || 'en'}` }],
+          },
+          contents: [{ role: 'user', parts: [{ text: mediatedPrompt }] }],
+        }),
+      });
+
+      if (!geminiRes.ok) {
+        const errText = await geminiRes.text();
+        console.error('Gemini mediateMessage error:', errText);
+        return new Response(JSON.stringify({ ok: false, error: 'Mediation failed' }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const geminiData = await geminiRes.json();
+      const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+      return new Response(JSON.stringify({ ok: true, text: text || draft }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

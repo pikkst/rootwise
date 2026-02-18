@@ -33,6 +33,15 @@ export interface AiChatReply {
   createdQuest?: { id: string; title: string } | null;
 }
 
+export interface AiMediatedMessageRequest {
+  senderName: string;
+  senderLanguage?: string | null;
+  recipientName: string;
+  recipientLanguage?: string | null;
+  draft: string;
+  recentConversation?: Array<{ from: 'me' | 'them'; text: string }>;
+}
+
 /** Context about a community for group quest generation */
 export interface CommunityQuestContext {
   communityName: string;
@@ -201,6 +210,64 @@ export class RootwiseAIService {
     } catch (error) {
       console.error('AI intro request error:', error);
       return { ok: false, error: i18next.t('common.error') };
+    }
+  }
+
+  async generateMediatedMessage(request: AiMediatedMessageRequest): Promise<{ text: string; error?: string }> {
+    try {
+      const { data: usage } = await supabase.rpc('check_ai_usage', {
+        p_user_id: (await supabase.auth.getUser()).data.user?.id,
+        p_type: 'chat',
+      });
+      if (usage && !usage.allowed) {
+        return { text: '', error: i18next.t('ai.rateLimitChat', { limit: usage.limit }) };
+      }
+
+      const conversationContext = (request.recentConversation ?? [])
+        .slice(-6)
+        .map((line) => `${line.from === 'me' ? request.senderName : request.recipientName}: ${line.text}`)
+        .join('\n');
+
+      const systemInstruction = [
+        'You are Rootwise AI mediator for private messages between users who may have different languages and cultures.',
+        'Rewrite and translate the user draft so it is clear, respectful, warm, and culturally neutral.',
+        'Keep the original intent exactly; do not add promises, commitments, or facts not present in the draft.',
+        'Output only the final message text, no explanations and no labels.',
+      ].join(' ');
+
+      const userPrompt = [
+        `Sender name: ${request.senderName}`,
+        `Sender language: ${request.senderLanguage || 'unknown'}`,
+        `Recipient name: ${request.recipientName}`,
+        `Recipient preferred language: ${request.recipientLanguage || 'unknown'}`,
+        `UI language: ${i18next.language || 'en'}`,
+        conversationContext ? `Recent conversation context:\n${conversationContext}` : '',
+        `Draft to mediate:\n${request.draft}`,
+      ].filter(Boolean).join('\n\n');
+
+      const result = await this.callProxy('mediateMessage', {
+        request: {
+          ...request,
+          recentConversation: request.recentConversation ?? [],
+        },
+        systemInstruction,
+        userPrompt,
+        locale: i18next.language || 'en',
+      });
+
+      if (!result?.ok) {
+        return { text: request.draft, error: result?.error || i18next.t('common.error') };
+      }
+
+      const text = (result?.text || '').trim();
+      if (!text) {
+        return { text: request.draft };
+      }
+
+      return { text };
+    } catch (error) {
+      console.error('AI mediation error:', error);
+      return { text: request.draft, error: i18next.t('common.error') };
     }
   }
 

@@ -101,6 +101,12 @@ const HowItWorksPage: React.FC = () => {
       benefit: t('howWorks.featureNotificationsBenefit'),
       usage: t('howWorks.featureNotificationsUsage'),
     },
+    {
+      icon: '🌍',
+      title: t('howWorks.featureAiTranslateTitle', { defaultValue: 'AI Auto-Sync Translate (Inbox)' }),
+      benefit: t('howWorks.featureAiTranslateBenefit', { defaultValue: 'Lets people from different languages and cultures communicate naturally without losing context.' }),
+      usage: t('howWorks.featureAiTranslateUsage', { defaultValue: 'Turn on AI Mediator in messages to translate incoming text and send culture-aware replies. Available on Pro, Org, and Admin plans.' }),
+    },
   ];
 
   const examples = [
@@ -118,6 +124,16 @@ const HowItWorksPage: React.FC = () => {
       title: t('howWorks.exampleCareHomeTitle'),
       text: t('howWorks.exampleCareHomeText'),
       emoji: '🏡',
+    },
+    {
+      title: t('howWorks.exampleTranslate1Title', { defaultValue: 'Estonian ↔ Spanish mentoring chat' }),
+      text: t('howWorks.exampleTranslate1Text', { defaultValue: 'A learner writes in Spanish, mentor reads in Estonian, and AI Mediator keeps tone friendly and clear for both sides.' }),
+      emoji: '🇪🇪🇪🇸',
+    },
+    {
+      title: t('howWorks.exampleTranslate2Title', { defaultValue: 'Cross-culture first contact' }),
+      text: t('howWorks.exampleTranslate2Text', { defaultValue: 'AI helps shape the first message respectfully, so new contacts feel safe and understood from the start.' }),
+      emoji: '🤝',
     },
   ];
 
@@ -185,6 +201,13 @@ const HowItWorksPage: React.FC = () => {
               </article>
             ))}
           </div>
+
+          <div className="mt-6 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+            {t('howWorks.aiTierNote', {
+              defaultValue:
+                'Friendly note: AI Nexus contact starter remains available on Free plans, while AI auto-sync translate in inbox is available on Pro, Org, and Admin plans to keep API costs sustainable.',
+            })}
+          </div>
         </div>
       </section>
 
@@ -195,7 +218,7 @@ const HowItWorksPage: React.FC = () => {
             <p className="text-slate-500 text-lg">{t('howWorks.examplesSubtitle')}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {examples.map((example) => (
               <div key={example.title} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
                 <div className="text-4xl mb-3">{example.emoji}</div>

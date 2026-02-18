@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { useLocalePath } from '../hooks/useLocalePath';
 import { Follower, Friendship, Post, PostComment, PostLike, Profile, getInitials } from '../types';
 import { supabase } from '../services/supabase';
+import { RootwiseAIService } from '../services/geminiService';
 import { formatDateTime } from '../utils/formatDate';
 
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'avatar_url' | 'role'>;
@@ -38,7 +39,10 @@ const PublicProfilePage: React.FC = () => {
   const [messageSubject, setMessageSubject] = useState('');
   const [messageBody, setMessageBody] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [aiConsentToSend, setAiConsentToSend] = useState(false);
+  const [aiSendingMessage, setAiSendingMessage] = useState(false);
   const supabaseAny = supabase as any;
+  const aiService = useRef(new RootwiseAIService());
 
   const viewerLite = useMemo<ProfileLite | null>(() => {
     if (!profile) return null;
@@ -268,12 +272,44 @@ const PublicProfilePage: React.FC = () => {
       navigate(lp('/auth'));
       return;
     }
+    setAiConsentToSend(false);
     setShowMessageModal(true);
   };
 
   const closeMessageModal = () => {
-    if (sendingMessage) return;
+    if (sendingMessage || aiSendingMessage) return;
     setShowMessageModal(false);
+  };
+
+  const sendDirectMessageWithNotification = async (subjectText: string, bodyText: string) => {
+    if (!profile?.id || !viewedProfile?.id) return false;
+
+    const composedBody = `📌 ${subjectText}\n\n${bodyText}`;
+
+    const { error } = await supabase.from('direct_messages').insert({
+      sender_id: profile.id,
+      recipient_id: viewedProfile.id,
+      body: composedBody,
+    });
+
+    if (error) {
+      showToast('error', error.message);
+      return false;
+    }
+
+    await supabase.from('notifications').insert({
+      user_id: viewedProfile.id,
+      type: 'direct_message',
+      title: t('messages.notificationTitle', { defaultValue: 'New message' }),
+      body: t('messages.notificationBody', {
+        defaultValue: '{{name}} sent you a message',
+        name: profile.name,
+      }),
+      link: `/messages?user=${profile.id}`,
+      read: false,
+    });
+
+    return true;
   };
 
   const handleSendDirectMessage = async () => {
@@ -288,34 +324,46 @@ const PublicProfilePage: React.FC = () => {
     }
 
     setSendingMessage(true);
-    const composedBody = `📌 ${subject}\n\n${body}`;
+    const ok = await sendDirectMessageWithNotification(subject, body);
+    setSendingMessage(false);
 
-    const { error } = await supabase.from('direct_messages').insert({
-      sender_id: profile.id,
-      recipient_id: viewedProfile.id,
-      body: composedBody,
-    });
+    if (!ok) return;
 
-    if (error) {
-      showToast('error', error.message);
-      setSendingMessage(false);
+    showToast('success', t('messages.sentToast', { defaultValue: 'Message sent.' }));
+    setShowMessageModal(false);
+  };
+
+  const handleAiSendOnBehalf = async () => {
+    if (!profile?.id || !viewedProfile?.id || aiSendingMessage || sendingMessage) return;
+
+    if (!aiConsentToSend) {
+      showToast('error', t('messages.aiConsentRequired', { defaultValue: 'Please confirm AI permission before sending on your behalf.' }));
       return;
     }
 
-    await supabase.from('notifications').insert({
-      user_id: viewedProfile.id,
-      type: 'direct_message',
-      title: t('messages.notificationTitle', { defaultValue: 'Uus sõnum' }),
-      body: t('messages.notificationBody', {
-        defaultValue: '{{name}} saatis sulle sõnumi',
-        name: profile.name,
-      }),
-      link: `/messages?user=${profile.id}`,
-      read: false,
-    });
+    const requestText = [messageSubject.trim(), messageBody.trim()].filter(Boolean).join('\n\n');
+    if (!requestText) {
+      showToast('error', t('messages.requiredFields', { defaultValue: 'Please fill in subject and message content.' }));
+      return;
+    }
 
-    showToast('success', t('messages.sentToast', { defaultValue: 'Sõnum saadetud.' }));
-    setSendingMessage(false);
+    setAiSendingMessage(true);
+    const introResult = await aiService.current.requestAiIntroduction(viewedProfile.id, requestText);
+
+    if (!introResult.ok) {
+      showToast('error', introResult.error || t('common.error'));
+      setAiSendingMessage(false);
+      return;
+    }
+
+    const subject = messageSubject.trim() || t('messages.aiDefaultSubject', { defaultValue: 'Quick intro' });
+    const aiBody = introResult.introPreview?.trim() || messageBody.trim();
+    const ok = await sendDirectMessageWithNotification(subject, aiBody);
+    setAiSendingMessage(false);
+
+    if (!ok) return;
+
+    showToast('success', t('messages.aiSentToast', { defaultValue: 'AI sent your first message.' }));
     setShowMessageModal(false);
   };
 
@@ -623,19 +671,41 @@ const PublicProfilePage: React.FC = () => {
                   className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
+
+              <label className="flex items-start gap-2 text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <input
+                  type="checkbox"
+                  checked={aiConsentToSend}
+                  onChange={(e) => setAiConsentToSend(e.target.checked)}
+                  className="mt-0.5"
+                  disabled={sendingMessage || aiSendingMessage}
+                />
+                <span>
+                  {t('messages.aiConsent', { defaultValue: 'I agree that AI can send the first message on my behalf using my provided context.' })}
+                </span>
+              </label>
             </div>
 
             <div className="mt-5 flex items-center justify-end gap-2">
               <button
+                onClick={() => void handleAiSendOnBehalf()}
+                disabled={sendingMessage || aiSendingMessage}
+                className="px-4 py-2 rounded-xl bg-violet-600 text-white font-bold text-sm disabled:opacity-50"
+              >
+                {aiSendingMessage
+                  ? t('common.processing')
+                  : t('messages.aiSendOnBehalf', { defaultValue: 'AI send on my behalf' })}
+              </button>
+              <button
                 onClick={closeMessageModal}
-                disabled={sendingMessage}
+                disabled={sendingMessage || aiSendingMessage}
                 className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm disabled:opacity-50"
               >
                 {t('common.back')}
               </button>
               <button
                 onClick={() => void handleSendDirectMessage()}
-                disabled={sendingMessage}
+                disabled={sendingMessage || aiSendingMessage}
                 className="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-sm disabled:opacity-50"
               >
                 {sendingMessage ? t('common.sending') : t('common.send')}

@@ -100,6 +100,8 @@ const PricingPage: React.FC = () => {
             <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> {t('pricing.freeFeature4')}</li>
             <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> {t('pricing.freeFeature5')}</li>
             <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> {t('pricing.freeFeature6')}</li>
+            <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> {t('pricing.compAiConnect', { defaultValue: 'AI Nexus contact starter' })}</li>
+            <li className="flex items-start gap-2 text-sm text-slate-400"><span className="text-slate-300 mt-0.5">—</span> {t('pricing.compAiTranslate', { defaultValue: 'AI auto-sync translate (inbox)' })}</li>
           </ul>
           {currentPlan === 'free' ? (
             <button disabled className="w-full py-3 border-2 border-slate-200 text-slate-400 rounded-xl font-bold cursor-default">
@@ -132,6 +134,8 @@ const PricingPage: React.FC = () => {
             <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> {t('pricing.proFeature4')}</li>
             <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> {t('pricing.proFeature5')}</li>
             <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> {t('pricing.proFeature6')}</li>
+            <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> {t('pricing.compAiConnect', { defaultValue: 'AI Nexus contact starter' })}</li>
+            <li className="flex items-start gap-2 text-sm"><span className="text-amber-300 mt-0.5">✓</span> {t('pricing.compAiTranslate', { defaultValue: 'AI auto-sync translate (inbox)' })}</li>
           </ul>
           {currentPlan === 'pro' ? (
             <div className="space-y-2">
@@ -179,6 +183,8 @@ const PricingPage: React.FC = () => {
             <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> {t('pricing.orgFeature4')}</li>
             <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> {t('pricing.orgFeature5')}</li>
             <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> {t('pricing.orgFeature6')}</li>
+            <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> {t('pricing.compAiConnect', { defaultValue: 'AI Nexus contact starter' })}</li>
+            <li className="flex items-start gap-2 text-sm text-slate-600"><span className="text-emerald-500 mt-0.5">✓</span> {t('pricing.compAiTranslate', { defaultValue: 'AI auto-sync translate (inbox)' })}</li>
           </ul>
           {currentPlan === 'org' ? (
             <div className="space-y-2">
@@ -299,6 +305,8 @@ const PricingPage: React.FC = () => {
                 { feature: t('pricing.compActiveQuests'), free: t('pricing.compUpTo3'), pro: t('common.unlimited'), org: t('common.unlimited') },
                 { feature: t('pricing.compAiMentor'), free: t('pricing.comp5Day'), pro: t('common.unlimited'), org: t('common.unlimited') },
                 { feature: t('pricing.compAiQuest'), free: t('pricing.comp1Day'), pro: t('common.unlimited'), org: t('common.unlimited') },
+                { feature: t('pricing.compAiConnect', { defaultValue: 'AI Nexus contact starter' }), free: '✓', pro: '✓', org: '✓' },
+                { feature: t('pricing.compAiTranslate', { defaultValue: 'AI auto-sync translate (inbox)' }), free: '—', pro: '✓', org: '✓' },
                 { feature: t('pricing.compVideoCalls'), free: t('pricing.comp5Min'), pro: t('common.unlimited'), org: t('common.unlimited') },
                 { feature: t('pricing.compCommunity'), free: '✓', pro: '✓', org: '✓' },
                 { feature: t('pricing.compXpLevels'), free: '✓', pro: '✓', org: '✓' },
