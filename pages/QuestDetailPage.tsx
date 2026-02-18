@@ -125,7 +125,7 @@ const QuestDetailPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!questId || !profile?.id) return;
+    if (!questId) return;
     fetchQuestDetails();
   }, [questId, profile?.id]);
 
@@ -164,7 +164,7 @@ const QuestDetailPage: React.FC = () => {
   }, [questId, profile?.id]);
 
   const fetchQuestDetails = async () => {
-    if (!questId || !profile?.id) return;
+    if (!questId) return;
     setLoading(true);
 
     try {
@@ -183,7 +183,9 @@ const QuestDetailPage: React.FC = () => {
       setMembers((membersData as QuestMember[]) ?? []);
 
       // Set current member info
-      const myMembership = (membersData as QuestMember[])?.find((m) => m.user_id === profile.id);
+      const myMembership = profile?.id
+        ? (membersData as QuestMember[])?.find((m) => m.user_id === profile.id)
+        : null;
       setCurrentMember(myMembership ?? null);
 
       // Fetch profile names for all members

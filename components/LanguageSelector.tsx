@@ -56,8 +56,8 @@ const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false, up
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  const changeLanguage = (code: LanguageCode) => {
-    i18n.changeLanguage(code);
+  const changeLanguage = async (code: LanguageCode) => {
+    await i18n.changeLanguage(code);
     localStorage.setItem('rootwise_language', code);
     document.documentElement.lang = code;
     setOpen(false);

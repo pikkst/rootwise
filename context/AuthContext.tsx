@@ -18,6 +18,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const SAFE_PROFILE_COLUMNS =
+  'id, name, age, role, preferred_language, spoken_languages, skills, interests, avatar_url, banner_url, banner_position_x, banner_position_y, bio, xp, level, plan, created_at, updated_at, last_seen_at';
+
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
@@ -65,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name: authUser.user_metadata?.name ?? authUser.email ?? t('common.user'),
         avatar_url: authUser.user_metadata?.avatar_url ?? null,
       })
-      .select('*')
+      .select(SAFE_PROFILE_COLUMNS)
       .single();
 
     if (error) {
@@ -79,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(SAFE_PROFILE_COLUMNS)
         .eq('id', authUser.id)
         .single();
       if (error) {
@@ -195,7 +198,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .from('profiles')
       .update(updates)
       .eq('id', user.id)
-      .select()
+      .select(SAFE_PROFILE_COLUMNS)
       .single();
     if (data) setProfile(data as Profile);
   };

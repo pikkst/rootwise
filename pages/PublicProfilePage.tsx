@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useLocalePath } from '../hooks/useLocalePath';
 import { Follower, Friendship, Post, PostComment, PostLike, Profile, getInitials } from '../types';
 import { supabase } from '../services/supabase';
 import { formatDateTime } from '../utils/formatDate';
@@ -23,6 +24,7 @@ const PublicProfilePage: React.FC = () => {
   const { t } = useTranslation();
   const { user, profile } = useAuth();
   const { showToast } = useToast();
+  const lp = useLocalePath();
   const [viewedProfile, setViewedProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<PostWithMeta[]>([]);
@@ -32,6 +34,10 @@ const PublicProfilePage: React.FC = () => {
   const [friendsCount, setFriendsCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [friendStatus, setFriendStatus] = useState<'none' | 'pending' | 'accepted'>('none');
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [messageSubject, setMessageSubject] = useState('');
+  const [messageBody, setMessageBody] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
   const supabaseAny = supabase as any;
 
   const viewerLite = useMemo<ProfileLite | null>(() => {
@@ -51,7 +57,7 @@ const PublicProfilePage: React.FC = () => {
       // Only select public-safe fields — never expose stripe_customer_id or internal fields
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, age, role, bio, avatar_url, banner_url, banner_position_x, banner_position_y, skills, interests, preferred_language, spoken_languages, xp, level, plan, created_at, updated_at')
+        .select('id, name, age, role, bio, avatar_url, banner_url, banner_position_x, banner_position_y, skills, interests, preferred_language, spoken_languages, xp, level, created_at, updated_at')
         .eq('id', id)
         .single();
       if (error || !data) {
@@ -257,6 +263,62 @@ const PublicProfilePage: React.FC = () => {
     await loadViewerRelations();
   };
 
+  const openMessageModal = () => {
+    if (!user) {
+      navigate(lp('/auth'));
+      return;
+    }
+    setShowMessageModal(true);
+  };
+
+  const closeMessageModal = () => {
+    if (sendingMessage) return;
+    setShowMessageModal(false);
+  };
+
+  const handleSendDirectMessage = async () => {
+    if (!profile?.id || !viewedProfile?.id || sendingMessage) return;
+
+    const subject = messageSubject.trim();
+    const body = messageBody.trim();
+
+    if (!subject || !body) {
+      showToast('error', t('messages.requiredFields', { defaultValue: 'Palun täida pealkiri ja sõnumi sisu.' }));
+      return;
+    }
+
+    setSendingMessage(true);
+    const composedBody = `📌 ${subject}\n\n${body}`;
+
+    const { error } = await supabase.from('direct_messages').insert({
+      sender_id: profile.id,
+      recipient_id: viewedProfile.id,
+      body: composedBody,
+    });
+
+    if (error) {
+      showToast('error', error.message);
+      setSendingMessage(false);
+      return;
+    }
+
+    await supabase.from('notifications').insert({
+      user_id: viewedProfile.id,
+      type: 'direct_message',
+      title: t('messages.notificationTitle', { defaultValue: 'Uus sõnum' }),
+      body: t('messages.notificationBody', {
+        defaultValue: '{{name}} saatis sulle sõnumi',
+        name: profile.name,
+      }),
+      link: `/messages?user=${profile.id}`,
+      read: false,
+    });
+
+    showToast('success', t('messages.sentToast', { defaultValue: 'Sõnum saadetud.' }));
+    setSendingMessage(false);
+    setShowMessageModal(false);
+  };
+
   const handleLikeToggle = async (postId: string, liked: boolean) => {
     if (!user) {
       navigate('/auth');
@@ -332,8 +394,8 @@ const PublicProfilePage: React.FC = () => {
         </div>
 
         <div className="px-4 sm:px-8 pb-8">
-          <div className="-mt-14 flex flex-col lg:flex-row lg:items-end gap-6">
-            <div className="relative">
+          <div className="pt-3 sm:pt-4 flex flex-col lg:flex-row lg:items-end gap-6">
+            <div className="relative -mt-14 sm:-mt-16 lg:-mt-20">
               {viewedProfile.avatar_url ? (
                 <img
                   src={viewedProfile.avatar_url}
@@ -347,8 +409,8 @@ const PublicProfilePage: React.FC = () => {
               )}
             </div>
 
-            <div className="flex-1">
-              <h2 className="text-3xl font-bold text-slate-800">{viewedProfile.name}</h2>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-3xl font-bold text-slate-800 break-words leading-tight">{viewedProfile.name}</h2>
               <p className="text-slate-500">{viewedProfile.role} • {viewedProfile.age ?? t('publicProfile.ageNotSet')}</p>
               {viewedProfile.bio && (
                 <p className="mt-3 text-sm text-slate-600 max-w-2xl">{viewedProfile.bio}</p>
@@ -370,6 +432,12 @@ const PublicProfilePage: React.FC = () => {
                     className={`px-5 py-2 rounded-xl font-bold ${isFollowing ? 'bg-slate-100 text-slate-700' : 'bg-indigo-600 text-white'}`}
                   >
                     {isFollowing ? t('publicProfile.following') : t('publicProfile.follow')}
+                  </button>
+                  <button
+                    onClick={openMessageModal}
+                    className="px-5 py-2 bg-indigo-50 text-indigo-700 rounded-xl font-bold"
+                  >
+                    {t('messages.sendBtn', { defaultValue: 'Saada sõnum' })}
                   </button>
                   <button
                     onClick={handleFriendRequest}
@@ -516,6 +584,66 @@ const PublicProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {showMessageModal && (
+        <div className="fixed inset-0 z-[70] bg-slate-900/45 backdrop-blur-[1px] flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white rounded-3xl border border-slate-200 shadow-2xl p-6">
+            <h3 className="text-xl font-black text-slate-900 mb-1">
+              {t('messages.composeTitle', { defaultValue: 'Saada sõnum' })}
+            </h3>
+            <p className="text-sm text-slate-500 mb-4">
+              {t('messages.toUser', { defaultValue: 'Saaja: {{name}}', name: viewedProfile.name })}
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1">
+                  {t('messages.subject', { defaultValue: 'Pealkiri' })}
+                </label>
+                <input
+                  type="text"
+                  value={messageSubject}
+                  onChange={(e) => setMessageSubject(e.target.value)}
+                  placeholder={t('messages.subjectPlaceholder', { defaultValue: 'Sisesta pealkiri...' })}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  maxLength={120}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1">
+                  {t('messages.message', { defaultValue: 'Sõnumi sisu' })}
+                </label>
+                <textarea
+                  value={messageBody}
+                  onChange={(e) => setMessageBody(e.target.value)}
+                  placeholder={t('messages.messagePlaceholder', { defaultValue: 'Kirjuta oma sõnum...' })}
+                  rows={6}
+                  maxLength={4000}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button
+                onClick={closeMessageModal}
+                disabled={sendingMessage}
+                className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm disabled:opacity-50"
+              >
+                {t('common.back')}
+              </button>
+              <button
+                onClick={() => void handleSendDirectMessage()}
+                disabled={sendingMessage}
+                className="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-sm disabled:opacity-50"
+              >
+                {sendingMessage ? t('common.sending') : t('common.send')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

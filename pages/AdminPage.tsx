@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatChartDate, formatDateNumeric, formatDateTime } from '../utils/formatDate';
 import {
@@ -154,6 +154,7 @@ const AdminPage: React.FC = () => {
   const [topSources, setTopSources] = useState<CountStat[]>([]);
   const [topEvents, setTopEvents] = useState<CountStat[]>([]);
   const [hotLeads, setHotLeads] = useState<HotLead[]>([]);
+  const [platformMembers, setPlatformMembers] = useState<Profile[]>([]);
   const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'traffic' | 'members' | 'communities' | 'reports'>('overview');
@@ -206,6 +207,9 @@ const AdminPage: React.FC = () => {
       setLoading(false);
       return;
     }
+
+    // Ensure platform-only datasets are never shown for organizer admins
+    setPlatformMembers([]);
 
     if (hasOrg) {
       await fetchAdminData();
@@ -266,6 +270,13 @@ const AdminPage: React.FC = () => {
       supabase.from('quests').select('created_at').gte('created_at', iso),
       supabase.from('posts').select('created_at').gte('created_at', iso),
     ]);
+
+    const { data: allProfiles } = await supabase
+      .from('profiles')
+      .select('id, name, age, role, preferred_language, spoken_languages, skills, interests, avatar_url, banner_url, banner_position_x, banner_position_y, bio, xp, level, plan, created_at, updated_at, last_seen_at')
+      .order('created_at', { ascending: false });
+
+    setPlatformMembers((allProfiles as Profile[] | null) ?? []);
 
     setPlatformStats({
       totalUsers: usersCount.count ?? 0,
@@ -551,7 +562,10 @@ const AdminPage: React.FC = () => {
 
     // Fetch member profiles
     const { data: profiles } = memberUserIds.length > 0
-      ? await supabase.from('profiles').select('*').in('id', memberUserIds)
+      ? await supabase
+          .from('profiles')
+          .select('id, name, age, role, preferred_language, spoken_languages, skills, interests, avatar_url, banner_url, banner_position_x, banner_position_y, bio, xp, level, plan, created_at, updated_at, last_seen_at')
+          .in('id', memberUserIds)
       : { data: [] };
 
     const profileMap: Record<string, Profile> = {};
@@ -666,6 +680,44 @@ const AdminPage: React.FC = () => {
   };
 
   const getSelectedCommunity = () => communities.find((community) => community.id === selectedCommunity);
+
+  const uniqueMembers = useMemo(() => {
+    const byId: Record<string, { member: Profile; communities: string[] }> = {};
+
+    communities.forEach((community) => {
+      const communityLabel = `${community.icon} ${community.name}`;
+      community.members.forEach((member) => {
+        if (!byId[member.id]) {
+          byId[member.id] = {
+            member,
+            communities: [communityLabel],
+          };
+          return;
+        }
+
+        if (!byId[member.id].communities.includes(communityLabel)) {
+          byId[member.id].communities.push(communityLabel);
+        }
+      });
+    });
+
+    if (isPlatformAdmin) {
+      platformMembers.forEach((member) => {
+        if (!byId[member.id]) {
+          byId[member.id] = {
+            member,
+            communities: [],
+          };
+        }
+      });
+    }
+
+    return Object.values(byId);
+  }, [communities, isPlatformAdmin, platformMembers]);
+
+  const memberScopeLabel = isPlatformAdmin
+    ? t('admin.memberScopePlatform', { defaultValue: 'Platvormi vaade' })
+    : t('admin.memberScopeOrg', { defaultValue: 'Organisatsiooni vaade' });
 
   const buildLocalePath = (path: string) => {
     const match = location.pathname.match(/^\/([a-z]{2})(?:\/|$)/i);
@@ -1194,13 +1246,15 @@ const AdminPage: React.FC = () => {
 
               {/* Member list */}
               <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-100">
-                  <h3 className="font-bold">{t('admin.allMembers', { count: communities.reduce((s, c) => s + c.memberCount, 0) })}</h3>
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between gap-3">
+                  <h3 className="font-bold">{t('admin.allMembers', { count: uniqueMembers.length })}</h3>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${isPlatformAdmin ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                    {memberScopeLabel}
+                  </span>
                 </div>
                 <div className="divide-y divide-slate-100">
-                  {communities.flatMap((c) =>
-                    c.members.map((m) => (
-                      <div key={`${c.id}-${m.id}`} className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 hover:bg-slate-50 transition-colors gap-2">
+                  {uniqueMembers.map(({ member: m, communities: memberCommunities }) => (
+                      <div key={m.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-4 hover:bg-slate-50 transition-colors gap-2">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
                             {m.avatar_url ? (
@@ -1210,8 +1264,17 @@ const AdminPage: React.FC = () => {
                             )}
                           </div>
                           <div>
-                            <p className="font-bold text-slate-800 text-sm">{m.name}</p>
-                            <p className="text-xs text-slate-400">{c.icon} {c.name}</p>
+                            <Link
+                              to={buildLocalePath(`/users/${m.id}`)}
+                              className="font-bold text-slate-800 text-sm hover:text-indigo-600 hover:underline underline-offset-2"
+                            >
+                              {m.name}
+                            </Link>
+                            <p className="text-xs text-slate-400">
+                              {memberCommunities.length > 0
+                                ? memberCommunities.join(' · ')
+                                : t('admin.memberNoCommunity', { defaultValue: 'Ilma kogukonnata' })}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -1224,9 +1287,8 @@ const AdminPage: React.FC = () => {
                           <span className="text-xs font-medium text-indigo-600">{m.xp} XP</span>
                         </div>
                       </div>
-                    ))
-                  )}
-                  {communities.length === 0 && (
+                    ))}
+                  {uniqueMembers.length === 0 && (
                     <div className="p-10 text-center text-slate-400">
                       <p>{t('admin.noMembers')}</p>
                     </div>

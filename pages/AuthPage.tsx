@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext';
 import SEOHead from '../components/SEOHead';
 import LanguageSelector from '../components/LanguageSelector';
 import { trackEvent } from '../services/analyticsService';
+import { useLocalePath } from '../hooks/useLocalePath';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,22 +17,55 @@ const AuthPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
+  const [nowTs, setNowTs] = useState(Date.now());
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const lp = useLocalePath();
+
+  const mapAuthError = (message: string) => {
+    const lower = message.toLowerCase();
+    if (lower.includes('invalid login credentials')) return t('auth.invalidCredentials');
+    if (lower.includes('too many requests') || lower.includes('over_email_send_rate_limit') || lower.includes('rate limit')) {
+      return t('auth.rateLimited');
+    }
+    if (lower.includes('invalid email') || lower.includes('email address is invalid')) {
+      return t('auth.validationEmail');
+    }
+    return message;
+  };
+
+  const cooldownSeconds = cooldownUntil && cooldownUntil > nowTs
+    ? Math.ceil((cooldownUntil - nowTs) / 1000)
+    : 0;
+  const isCooldownActive = cooldownSeconds > 0;
+
+  useEffect(() => {
+    if (!isCooldownActive) return;
+    const timer = window.setInterval(() => setNowTs(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [isCooldownActive]);
 
   // Redirect to dashboard once user state is confirmed after login
   useEffect(() => {
     if (user) {
-      navigate('/dashboard', { replace: true });
+      navigate(lp('/dashboard'), { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, lp]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+
+    if (isCooldownActive) {
+      setError(t('auth.cooldown', { seconds: cooldownSeconds }));
+      return;
+    }
+
     setLoading(true);
 
     void trackEvent('auth_submitted', {
@@ -37,18 +73,40 @@ const AuthPage: React.FC = () => {
     });
 
     try {
+      if (!EMAIL_REGEX.test(email.trim())) {
+        setError(t('auth.validationEmail'));
+        setLoading(false);
+        return;
+      }
+
       if (isLogin) {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(email.trim(), password);
         if (error) {
+          const safeError = mapAuthError(error);
           void trackEvent('auth_failed', {
             mode: 'sign_in',
-            reason: error,
+            reason: safeError,
           });
-          setError(error);
+          setError(safeError);
+
+          const lower = error.toLowerCase();
+          if (lower.includes('too many requests') || lower.includes('over_email_send_rate_limit') || lower.includes('rate limit')) {
+            setCooldownUntil(Date.now() + 60_000);
+            setFailedAttempts(0);
+          } else if (lower.includes('invalid login credentials')) {
+            const nextAttempts = failedAttempts + 1;
+            setFailedAttempts(nextAttempts);
+            if (nextAttempts >= 3) {
+              setCooldownUntil(Date.now() + 30_000);
+              setFailedAttempts(0);
+            }
+          }
         } else {
           void trackEvent('auth_success', {
             mode: 'sign_in',
           });
+          setFailedAttempts(0);
+          setCooldownUntil(null);
         }
         // Don't navigate here — the useEffect above will handle it
         // once onAuthStateChange sets the user
@@ -62,19 +120,22 @@ const AuthPage: React.FC = () => {
           setLoading(false);
           return;
         }
-        const { error } = await signUp(email, password, name);
+        const { error } = await signUp(email.trim(), password, name);
         if (error) {
+          const safeError = mapAuthError(error);
           void trackEvent('auth_failed', {
             mode: 'sign_up',
-            reason: error,
+            reason: safeError,
           });
-          setError(error);
+          setError(safeError);
         } else {
           void trackEvent('auth_success', {
             mode: 'sign_up',
           });
           setSuccess(t('auth.successCreated'));
           setIsLogin(true);
+          setFailedAttempts(0);
+          setCooldownUntil(null);
         }
       }
     } catch (err: unknown) {
@@ -105,7 +166,7 @@ const AuthPage: React.FC = () => {
         <div className="text-center mb-10">
           <div
             className="inline-flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate('/')}
+            onClick={() => navigate(lp('/'))}
           >
             <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">
               R
@@ -198,7 +259,7 @@ const AuthPage: React.FC = () => {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isCooldownActive}
               className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
@@ -206,6 +267,8 @@ const AuthPage: React.FC = () => {
                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                   {t('common.processing')}
                 </span>
+              ) : isCooldownActive ? (
+                t('auth.cooldown', { seconds: cooldownSeconds })
               ) : isLogin ? (
                 t('auth.btnSignIn')
               ) : (
@@ -217,9 +280,9 @@ const AuthPage: React.FC = () => {
 
         <p className="text-center text-sm text-slate-400 mt-6">
           {t('auth.legalAgree')}{' '}
-          <a href="/terms" className="underline">{t('footer.termsOfService')}</a>{' '}
+          <a href={lp('/terms-of-service')} className="underline">{t('footer.termsOfService')}</a>{' '}
           {t('auth.legalAnd')}{' '}
-          <a href="/privacy" className="underline">{t('footer.privacyPolicy')}</a>
+          <a href={lp('/privacy-policy')} className="underline">{t('footer.privacyPolicy')}</a>
         </p>
       </div>
     </div>

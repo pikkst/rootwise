@@ -54,11 +54,12 @@ const Navigation: React.FC = () => {
 
   // Pro/Org nav items for "More" menu
   const moreItems = [
-    { path: '/analytics', key: 'nav.analytics', icon: '📊', requiresPro: true },
-    { path: '/matching', key: 'nav.matching', icon: '🔗', requiresPro: true },
-    { path: '/admin', key: 'nav.admin', icon: '👑', requiresOrg: true },
-    { path: '/reports', key: 'nav.report', icon: '🚩', requiresPro: false, requiresOrg: false },
-    { path: '/pricing', key: 'nav.pricing', icon: '💎', requiresPro: false, requiresOrg: false },
+    { path: '/messages', key: 'nav.messages', fallback: 'Messages', icon: '💬', requiresPro: false, requiresOrg: false },
+    { path: '/analytics', key: 'nav.analytics', fallback: 'Analytics', icon: '📊', requiresPro: true },
+    { path: '/matching', key: 'nav.matching', fallback: 'Matching', icon: '🔗', requiresPro: true },
+    { path: '/admin', key: 'nav.admin', fallback: 'Admin', icon: '👑', requiresOrg: true },
+    { path: '/reports', key: 'nav.report', fallback: 'Report', icon: '🚩', requiresPro: false, requiresOrg: false },
+    { path: '/pricing', key: 'nav.pricing', fallback: 'Pricing', icon: '💎', requiresPro: false, requiresOrg: false },
   ];
 
   return (
@@ -66,7 +67,7 @@ const Navigation: React.FC = () => {
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <div
           className="hidden md:flex items-center gap-2 font-bold text-indigo-600 text-xl cursor-pointer"
-          onClick={() => navigate(lp('/dashboard'))}
+          onClick={() => navigate(lp('/'))}
         >
           <span>ROOTWISE</span>
         </div>
@@ -91,7 +92,7 @@ const Navigation: React.FC = () => {
             <button
               onClick={() => setShowMore(!showMore)}
               className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
-                ['/analytics', '/matching', '/admin', '/reports'].includes(activePath)
+                ['/messages', '/analytics', '/matching', '/admin', '/reports'].includes(activePath)
                   ? 'text-indigo-600 bg-indigo-50 font-semibold'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
@@ -117,7 +118,7 @@ const Navigation: React.FC = () => {
                       }`}
                     >
                       <span>{item.icon}</span>
-                      <span>{t(item.key)}</span>
+                      <span>{t(item.key, { defaultValue: item.fallback })}</span>
                       {locked && (
                         <span className="ml-auto text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-400 rounded-full font-bold">
                           {item.requiresOrg ? t('nav.orgBadge') : t('nav.proBadge')}

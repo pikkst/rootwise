@@ -27,6 +27,7 @@ import HowItWorksPage from './pages/HowItWorksPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import ReportsPage from './pages/ReportsPage';
+import MessagesPage from './pages/MessagesPage';
 import { trackEvent } from './services/analyticsService';
 
 const LANG_CODES = new Set<string>(SUPPORTED_LANGUAGES.map(l => l.code));
@@ -107,6 +108,7 @@ const pageRoutes = (
     <Route path="matching" element={<ProtectedRoute><MatchingPage /></ProtectedRoute>} />
     <Route path="admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
     <Route path="reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+    <Route path="messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
   </>
 );
 

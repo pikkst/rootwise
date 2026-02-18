@@ -29,6 +29,7 @@ const NotificationBell: React.FC = () => {
       case 'proof_rejected': return '🔄';
       case 'proof_submitted': return '📝';
       case 'quest_completed': return '🏆';
+      case 'direct_message': return '💬';
       default: return '🔔';
     }
   };

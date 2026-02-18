@@ -438,7 +438,12 @@ const CommunityDetailPage: React.FC = () => {
   };
 
   const handleJoinCommunity = async () => {
-    if (!profile?.id || !communityId) return;
+    if (!communityId) return;
+    if (!profile?.id) {
+      showToast('info', t('quests.loginRequired'));
+      navigate('/auth');
+      return;
+    }
 
     setJoiningCommunity(true);
     try {
@@ -496,7 +501,11 @@ const CommunityDetailPage: React.FC = () => {
   };
 
   const handleFollowMember = async (userId: string) => {
-    if (!profile?.id) return;
+    if (!profile?.id) {
+      showToast('info', t('quests.loginRequired'));
+      navigate('/auth');
+      return;
+    }
 
     try {
       const { error } = await supabaseAny.from('followers').insert({
@@ -541,7 +550,11 @@ const CommunityDetailPage: React.FC = () => {
   };
 
   const handleAddFriend = async (userId: string) => {
-    if (!profile?.id) return;
+    if (!profile?.id) {
+      showToast('info', t('quests.loginRequired'));
+      navigate('/auth');
+      return;
+    }
 
     try {
       const { error } = await supabaseAny.from('friendships').insert({
