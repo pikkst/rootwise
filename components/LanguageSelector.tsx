@@ -6,9 +6,10 @@ import { SUPPORTED_LANGUAGES, type LanguageCode } from '../i18n';
 interface Props {
   compact?: boolean;   // navbar mode — smaller trigger
   footer?: boolean;    // footer mode — upward dropdown
+  upward?: boolean;    // force upward dropdown on desktop
 }
 
-const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false }) => {
+const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false, upward = false }) => {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -16,6 +17,7 @@ const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false }) 
   const navigate = useNavigate();
 
   const LANG_CODES = new Set(SUPPORTED_LANGUAGES.map(l => l.code));
+  const openUpward = footer || upward;
 
   const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === i18n.language) 
     || SUPPORTED_LANGUAGES.find(l => i18n.language.startsWith(l.code))
@@ -94,7 +96,7 @@ const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false }) 
               /* Mobile: centered bottom sheet */
               fixed bottom-0 left-0 right-0 rounded-t-3xl p-4 pb-8
               sm:absolute sm:rounded-2xl sm:p-2
-              ${footer
+              ${openUpward
                 ? 'sm:bottom-full sm:mb-2 sm:top-auto sm:left-auto sm:right-0'
                 : 'sm:top-full sm:mt-2 sm:bottom-auto sm:left-auto sm:right-0'
               }

@@ -68,7 +68,7 @@ const LandingPage: React.FC = () => {
             </button>
           </div>
           <div className="flex items-center gap-3">
-            <LanguageSelector compact />
+            <LanguageSelector compact upward />
             <button
               onClick={() => {
                 void trackEvent('landing_cta_clicked', { source: 'nav_sign_in', variant: ctaVariant });
@@ -203,6 +203,27 @@ const LandingPage: React.FC = () => {
               <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-2xl font-black mx-auto mb-6 group-hover:scale-110 transition-transform">3</div>
               <h3 className="text-xl font-bold mb-3 text-slate-800">{t('landing.step3Title')}</h3>
               <p className="text-slate-500 text-sm leading-relaxed">{t('landing.step3Desc')}</p>
+            </div>
+          </div>
+
+          <div className="mt-14">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-3 font-display">{t('landing.examplesTitle')}</h3>
+              <p className="text-slate-500 text-base max-w-2xl mx-auto">{t('landing.examplesSubtitle')}</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                <h4 className="text-lg font-bold text-slate-800 mb-2">{t('landing.exampleCookingTitle')}</h4>
+                <p className="text-sm text-slate-600 leading-relaxed">{t('landing.exampleCookingDesc')}</p>
+              </div>
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                <h4 className="text-lg font-bold text-slate-800 mb-2">{t('landing.exampleTechTitle')}</h4>
+                <p className="text-sm text-slate-600 leading-relaxed">{t('landing.exampleTechDesc')}</p>
+              </div>
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                <h4 className="text-lg font-bold text-slate-800 mb-2">{t('landing.exampleHistoryTitle')}</h4>
+                <p className="text-sm text-slate-600 leading-relaxed">{t('landing.exampleHistoryDesc')}</p>
+              </div>
             </div>
           </div>
         </div>

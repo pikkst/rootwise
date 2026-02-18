@@ -144,7 +144,7 @@ const Navigation: React.FC = () => {
           </button>
         </div>
         <div className="hidden md:flex items-center gap-3">
-          <LanguageSelector compact />
+          <LanguageSelector compact upward />
           <PlanBadge plan={plan} size="sm" />
           <NotificationBell />
           <button

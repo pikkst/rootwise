@@ -97,7 +97,7 @@ const AuthPage: React.FC = () => {
       />
 
       <div className="absolute top-5 right-6 z-10">
-        <LanguageSelector compact />
+        <LanguageSelector compact upward />
       </div>
 
       <div className="max-w-md w-full">
