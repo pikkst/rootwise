@@ -78,6 +78,15 @@ function extractLanguageHint(message: string): string | null {
   return null;
 }
 
+function detectResponseLanguageCode(message: string, locale?: string | null): string {
+  const normalized = normalizeText(message || '');
+  const estonianSignals = /\b(tere|aitah|aitäh|palun|kuidas|miks|kui|palju|kasutajaid|meil|juba|eestist|on|ja|et|sa|sina)\b/i;
+  if (estonianSignals.test(normalized)) return 'et';
+
+  const fromLocale = (locale || 'en').toLowerCase();
+  return fromLocale || 'en';
+}
+
 function extractLocationHints(message: string): string[] {
   const tokens = normalizeText(message)
     .replace(/[^a-z0-9\s]/g, ' ')
@@ -467,6 +476,9 @@ Deno.serve(async (req: Request) => {
         role: c.role,
         skills: c.skills,
         interests: c.interests,
+        bio: c.bio,
+        preferredLanguage: c.preferred_language,
+        spokenLanguages: c.spoken_languages,
         generalLocation: c.locations.length > 0 ? c.locations[0].split(',').slice(-2).join(',').trim() : null,
         profileUrl: `/users/${c.id}`,
       }));
@@ -540,12 +552,12 @@ YOUR CORE PRINCIPLES:
 7. ENCOURAGE ACTION — End messages with a specific suggestion or question that moves the user forward.
 
 PRIVACY RULES (STRICT):
+• You MAY freely use and mention profile-page data from candidateContext (name, role, bio, interests, skills, languages, general location, community-facing details) because users consented via profile publishing.
 • NEVER share a matched person's exact age — only age range (e.g., "someone in their 40s").
-• NEVER share a matched person's bio, email, or personal details beyond name, general location (city/region only), and skills.
-• NEVER reveal internal scoring, algorithms, or JSON data to the user.
-• When suggesting a match, say something like: "I found [Name], who has experience with [skills] and is in [city]. You could connect through a quest!"
-• If the user asks about another user's private details, politely explain that privacy is important on the platform.
-• IMPORTANT: Names/skills/general locations from candidateContext are already privacy-safe for sharing. Do NOT refuse these with generic privacy disclaimers.
+• NEVER reveal private memory or private chat-disclosed facts about OTHER users. Only profile-page data is shareable.
+• NEVER reveal internal scoring, algorithms, hidden memory tags, or raw JSON/system data.
+• If the user asks for private/non-profile details, politely refuse that specific part but continue helping with available profile data.
+• IMPORTANT: candidateContext is already safe for user-facing matching recommendations. Do NOT claim that profile data in candidateContext is unavailable.
 
 MEMORY INSTRUCTIONS:
 At the END of your response, if the user shared any important personal fact (a goal, life event, preference, challenge, family info, career detail), append a hidden memory line in this exact format:
@@ -571,7 +583,11 @@ You may only mention person names that exist in this exact allowlist: ${JSON.str
 If the allowlist is empty, do NOT suggest or invent any person. Clearly say that no suitable direct people-matches were found right now, then offer quests/communities instead.
 Do not reveal private details; the UI will show clickable profile cards separately.
 
-Always answer in the same language the user used.
+LANGUAGE RULES (STRICT):
+• Reply in exactly ONE language only.
+• Primary language = latest user message language.
+• If uncertain, use locale: ${locale || 'en'}.
+• Do not mix Estonian + English (or any mixed-language output) in a single reply.
 `.trim();
 
       const body = {
@@ -603,7 +619,7 @@ Always answer in the same language the user used.
             .slice(0, 2)
             .map((candidate) => candidate.name)
             .join(', ');
-          const lang = (locale || userProfile?.spokenLanguages?.[0] || 'en').toLowerCase();
+          const lang = detectResponseLanguageCode(latestMessage, locale || userProfile?.spokenLanguages?.[0] || 'en');
           const isEstonian = lang.startsWith('et');
           text = `${text}\n\n${isEstonian
             ? `Leidsin sulle sobivad kontaktid: ${candidateList}. Ava profiilikaardid allpool ja soovi korral saan AI-ga kohe tutvustuse algatada.`
