@@ -29,7 +29,9 @@ const AiNexusPage: React.FC = () => {
   const [matchSuggestions, setMatchSuggestions] = useState<AiMatchSuggestion[]>([]);
   const [pendingIntroUserId, setPendingIntroUserId] = useState<string | null>(null);
   const aiService = useRef(new RootwiseAIService());
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+  const isChatAtBottomRef = useRef(true);
+  const chatBottomThreshold = 80;
 
   const plan = profile?.plan || 'free';
   const hasPro = isPro(plan);
@@ -98,9 +100,20 @@ const AiNexusPage: React.FC = () => {
     if (profile?.id) fetchMessages();
   }, [profile?.id, fetchMessages]);
 
+  const updateChatBottomState = useCallback(() => {
+    if (!chatScrollRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = chatScrollRef.current;
+    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+    isChatAtBottomRef.current = distanceFromBottom <= chatBottomThreshold;
+  }, [chatBottomThreshold]);
+
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (!chatScrollRef.current || !isChatAtBottomRef.current) return;
+    chatScrollRef.current.scrollTo({
+      top: chatScrollRef.current.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, [messages, isAiLoading]);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !profile) return;
@@ -237,7 +250,11 @@ const AiNexusPage: React.FC = () => {
       )}
 
       <div className="flex-1 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col mb-4">
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div
+          ref={chatScrollRef}
+          onScroll={updateChatBottomState}
+          className="flex-1 overflow-y-auto p-6 space-y-6"
+        >
           {messages.length === 0 && (
             <div className="text-center py-20">
               <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">
@@ -328,8 +345,6 @@ const AiNexusPage: React.FC = () => {
               ))}
             </div>
           )}
-
-          <div ref={chatEndRef} />
         </div>
 
         <div className="p-4 bg-slate-50 border-t border-slate-200">
