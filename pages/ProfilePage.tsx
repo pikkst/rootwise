@@ -216,25 +216,21 @@ const ProfilePage: React.FC = () => {
     }
 
     const normalized = normalizeLocationName(locationValue);
-    const { data: locationRow, error: locationError } = await (supabase as any)
-      .from('locations')
-      .upsert({
-        normalized_name: normalized,
-        country: 'Estonia',
-        city: locationValue,
-      }, { onConflict: 'normalized_name' })
-      .select('id')
-      .single();
+    const { data: locationId, error: locationRpcError } = await (supabase as any).rpc('get_or_create_location', {
+      p_normalized_name: normalized,
+      p_country: 'Estonia',
+      p_city: locationValue,
+    });
 
-    if (locationError || !locationRow?.id) {
-      throw new Error(locationError?.message || 'Failed to save location');
+    if (locationRpcError || !locationId) {
+      throw new Error(locationRpcError?.message || 'Failed to save location');
     }
 
     await supabase.from('profile_locations').delete().eq('profile_id', profile.id);
 
     const { error: profileLocationError } = await supabase.from('profile_locations').insert({
       profile_id: profile.id,
-      location_id: locationRow.id,
+      location_id: locationId,
       is_primary: true,
       visibility: 'public',
     });

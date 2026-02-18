@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import SEOHead from '../components/SEOHead';
+import LanguageSelector from '../components/LanguageSelector';
 import { trackEvent } from '../services/analyticsService';
 
 const AuthPage: React.FC = () => {
@@ -88,12 +89,16 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-6 relative">
       <SEOHead
         title={isLogin ? t('auth.seoSignIn') : t('auth.seoSignUp')}
         description={isLogin ? t('auth.seoSignInDesc') : t('auth.seoSignUpDesc')}
         path="/auth"
       />
+
+      <div className="absolute top-5 right-6 z-10">
+        <LanguageSelector compact />
+      </div>
 
       <div className="max-w-md w-full">
         {/* Logo */}

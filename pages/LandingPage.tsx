@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
+import LanguageSelector from '../components/LanguageSelector';
 import { trackEvent } from '../services/analyticsService';
 
 const LandingPage: React.FC = () => {
@@ -67,6 +68,7 @@ const LandingPage: React.FC = () => {
             </button>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSelector compact />
             <button
               onClick={() => {
                 void trackEvent('landing_cta_clicked', { source: 'nav_sign_in', variant: ctaVariant });
