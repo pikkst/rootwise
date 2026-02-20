@@ -24,6 +24,7 @@ const Navigation: React.FC = () => {
   const lp = useLocalePath();
   const { user, profile, signOut } = useAuth();
   const [showMore, setShowMore] = useState(false);
+  const [showMobileMore, setShowMobileMore] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -36,6 +37,10 @@ const Navigation: React.FC = () => {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  useEffect(() => {
+    setShowMobileMore(false);
+  }, [location.pathname]);
 
   // Strip locale prefix from pathname for route matching
   const rawPath = location.pathname.replace(/^\/(en|et|de|fr|es|it|ru|fi|sv|lv|lt|pl|pt|nl|uk)(\/|$)/, '/');
@@ -133,15 +138,17 @@ const Navigation: React.FC = () => {
 
           {/* Mobile profile + more */}
           <button
-            onClick={() => navigate(lp('/profile'))}
+            onClick={() => setShowMobileMore((prev) => !prev)}
             className={`flex flex-col items-center gap-1 px-3 py-1 rounded-full transition-all md:hidden ${
-              activePath === '/profile'
+              activePath === '/profile' || ['/messages', '/analytics', '/matching', '/admin', '/reports', '/pricing'].includes(activePath) || showMobileMore
                 ? 'text-indigo-600 bg-indigo-50 font-semibold'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
+            aria-label={t('nav.more')}
+            aria-expanded={showMobileMore}
           >
-            <span className="text-xl">👤</span>
-            <span className="text-[10px]">More</span>
+            <span className="text-xl">⋯</span>
+            <span className="text-[10px]">{t('nav.more')}</span>
           </button>
         </div>
         <div className="hidden md:flex items-center gap-3">
@@ -176,6 +183,83 @@ const Navigation: React.FC = () => {
           )}
         </div>
       </div>
+
+      {showMobileMore && (
+        <div className="md:hidden fixed inset-0 z-[60]">
+          <button
+            type="button"
+            className="absolute inset-0 bg-slate-900/40"
+            onClick={() => setShowMobileMore(false)}
+            aria-label={t('common.back')}
+          />
+          <div className="absolute left-4 right-4 bottom-20 rounded-2xl border border-slate-200 bg-white shadow-2xl p-2">
+            <button
+              onClick={() => {
+                navigate(lp('/profile'));
+                setShowMobileMore(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50 transition"
+            >
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs overflow-hidden">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
+              </div>
+              <div className="text-left min-w-0">
+                <div className="text-sm font-bold text-slate-800 truncate">{userName}</div>
+                <div className="text-xs text-slate-500">{t('nav.profile', { defaultValue: 'Profile' })}</div>
+              </div>
+            </button>
+
+            <div className="my-1 h-px bg-slate-100" />
+
+            {moreItems.map((item) => {
+              const locked = (item.requiresPro && !hasPro) || (item.requiresOrg && !hasOrg);
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => {
+                    navigate(lp(item.path));
+                    setShowMobileMore(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-colors ${
+                    activePath === item.path
+                      ? 'bg-indigo-50 text-indigo-600 font-bold'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <span>{item.icon}</span>
+                  <span>{t(item.key, { defaultValue: item.fallback })}</span>
+                  {locked && (
+                    <span className="ml-auto text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-400 rounded-full font-bold">
+                      {item.requiresOrg ? t('nav.orgBadge') : t('nav.proBadge')}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+
+            {user && (
+              <>
+                <div className="my-1 h-px bg-slate-100" />
+                <button
+                  onClick={async () => {
+                    await signOut();
+                    setShowMobileMore(false);
+                    navigate(lp('/'));
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                >
+                  <span>↩</span>
+                  <span>{t('common.signOut')}</span>
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
