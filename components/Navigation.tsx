@@ -44,6 +44,15 @@ const Navigation: React.FC = () => {
   }, [location.pathname]);
 
   useEffect(() => {
+    if (!showMobileMore) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showMobileMore]);
+
+  useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setShowMobileMore(false);
@@ -94,7 +103,10 @@ const Navigation: React.FC = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 py-3 px-6 md:top-0 md:bottom-auto md:border-b md:border-t-0 z-50">
+    <nav
+      className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 py-3 px-6 md:top-0 md:bottom-auto md:border-b md:border-t-0 z-50"
+      style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+    >
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <div
           className="hidden md:flex items-center gap-2 font-bold text-indigo-600 text-xl cursor-pointer"
@@ -111,7 +123,7 @@ const Navigation: React.FC = () => {
                 activePath === item.path
                   ? 'text-indigo-600 bg-indigo-50 font-semibold'
                   : 'text-slate-500 hover:text-slate-800'
-              }`}
+              } min-h-[44px] min-w-[56px] md:min-h-0 md:min-w-0`}
             >
               <span className="text-xl md:text-base">{item.icon}</span>
               <span className="text-[10px] md:text-sm">{t(item.key)}</span>
@@ -169,7 +181,7 @@ const Navigation: React.FC = () => {
               activePath === '/profile' || ['/messages', '/analytics', '/matching', '/admin', '/reports', '/pricing'].includes(activePath) || showMobileMore
                 ? 'text-indigo-600 bg-indigo-50 font-semibold'
                 : 'text-slate-500 hover:text-slate-800'
-            }`}
+            } min-h-[44px] min-w-[56px]`}
             aria-label={t('nav.more')}
             aria-expanded={showMobileMore}
           >
@@ -219,7 +231,8 @@ const Navigation: React.FC = () => {
             aria-label={t('common.back')}
           />
           <div
-            className="absolute left-4 right-4 bottom-20 rounded-2xl border border-slate-200 bg-white shadow-2xl p-2"
+            className="absolute left-4 right-4 rounded-2xl border border-slate-200 bg-white shadow-2xl p-2"
+            style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
             onTouchStart={handleMobileMoreTouchStart}
             onTouchEnd={handleMobileMoreTouchEnd}
           >
