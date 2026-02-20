@@ -124,7 +124,7 @@ const CommunityDetailPage: React.FC = () => {
     try {
       // Fetch community
       const { data: communityData } = await supabase
-        .from('communities')
+        .from('public_communities')
         .select('*')
         .eq('id', communityId)
         .single();
@@ -223,7 +223,7 @@ const CommunityDetailPage: React.FC = () => {
 
       // Fetch community quests
       const { data: questsData } = await supabase
-        .from('quests')
+        .from('public_quests')
         .select('*')
         .eq('community_id', communityId)
         .order('created_at', { ascending: false });

@@ -60,7 +60,7 @@ const PublicProfilePage: React.FC = () => {
       setLoading(true);
       // Only select public-safe fields — never expose stripe_customer_id or internal fields
       const { data, error } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('id, name, age, role, bio, avatar_url, banner_url, banner_position_x, banner_position_y, skills, interests, preferred_language, spoken_languages, xp, level, created_at, updated_at')
         .eq('id', id)
         .single();
@@ -78,7 +78,7 @@ const PublicProfilePage: React.FC = () => {
   const fetchProfilesByIds = async (ids: string[]) => {
     if (ids.length === 0) return [];
     const { data, error } = await supabase
-      .from('profiles')
+      .from('public_profiles')
       .select('id, name, avatar_url, role')
       .in('id', ids);
     if (error) return [];
@@ -115,7 +115,7 @@ const PublicProfilePage: React.FC = () => {
   const loadPosts = async () => {
     if (!id || !viewedProfile) return;
     const { data, error } = await supabase
-      .from('posts')
+      .from('public_posts')
       .select('id, user_id, content, created_at')
       .eq('user_id', id)
       .order('created_at', { ascending: false });

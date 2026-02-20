@@ -169,7 +169,7 @@ const QuestDetailPage: React.FC = () => {
 
     try {
       // Fetch quest
-      const { data: questData } = await supabase.from('quests').select('*').eq('id', questId).single();
+      const { data: questData } = await supabase.from('public_quests').select('*').eq('id', questId).single();
 
       if (questData) {
         setQuest(questData as DbQuest);
@@ -192,7 +192,7 @@ const QuestDetailPage: React.FC = () => {
       const memberUserIds = (membersData as QuestMember[])?.map((m) => m.user_id) ?? [];
       if (memberUserIds.length > 0) {
         const { data: profilesData } = await supabase
-          .from('profiles')
+          .from('public_profiles')
           .select('id, name, avatar_url, role')
           .in('id', memberUserIds);
         if (profilesData) {

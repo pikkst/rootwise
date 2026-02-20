@@ -13,7 +13,7 @@ export function useCommunities() {
     setLoading(true);
 
     const { data } = await supabase
-      .from('community_with_member_count')
+      .from('public_communities')
       .select('*');
 
     if (data) {

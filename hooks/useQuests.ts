@@ -15,7 +15,7 @@ export function useQuests() {
   const fetchQuests = useCallback(async () => {
     setLoading(true);
 
-    let query = supabase.from('quests').select('*');
+    let query = supabase.from('public_quests').select('*');
     if (filter !== 'All') {
       query = query.eq('category', filter);
     }

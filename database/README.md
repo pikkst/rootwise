@@ -15,6 +15,7 @@ SQL migration scripts to run in Supabase SQL editor in order when setting up or 
 | supabase-migration-notifications.sql | In-app notifications |
 | supabase-migration-quest-translations.sql | Multilingual quest content |
 | supabase-migration-video-calls.sql | Quest video call support |
+| supabase-migration-public-views-hardening.sql | Base tables private for anon; safe public read via views |
 
 ## `scripts/`
 One-off utility scripts — not part of the standard migration sequence.
