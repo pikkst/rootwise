@@ -25,6 +25,7 @@ const Navigation: React.FC = () => {
   const { user, profile, signOut } = useAuth();
   const [showMore, setShowMore] = useState(false);
   const [showMobileMore, setShowMobileMore] = useState(false);
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
   const moreRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -41,6 +42,31 @@ const Navigation: React.FC = () => {
   useEffect(() => {
     setShowMobileMore(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowMobileMore(false);
+        setShowMore(false);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  const handleMobileMoreTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setTouchStartY(e.touches[0]?.clientY ?? null);
+  };
+
+  const handleMobileMoreTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartY === null) return;
+    const endY = e.changedTouches[0]?.clientY ?? touchStartY;
+    const deltaY = endY - touchStartY;
+    if (deltaY > 60) {
+      setShowMobileMore(false);
+    }
+    setTouchStartY(null);
+  };
 
   // Strip locale prefix from pathname for route matching
   const rawPath = location.pathname.replace(/^\/(en|et|de|fr|es|it|ru|fi|sv|lv|lt|pl|pt|nl|uk)(\/|$)/, '/');
@@ -192,7 +218,11 @@ const Navigation: React.FC = () => {
             onClick={() => setShowMobileMore(false)}
             aria-label={t('common.back')}
           />
-          <div className="absolute left-4 right-4 bottom-20 rounded-2xl border border-slate-200 bg-white shadow-2xl p-2">
+          <div
+            className="absolute left-4 right-4 bottom-20 rounded-2xl border border-slate-200 bg-white shadow-2xl p-2"
+            onTouchStart={handleMobileMoreTouchStart}
+            onTouchEnd={handleMobileMoreTouchEnd}
+          >
             <button
               onClick={() => {
                 navigate(lp('/profile'));
