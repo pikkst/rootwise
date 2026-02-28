@@ -5,10 +5,10 @@ import { Plan } from './stripeService';
 // ============================================================
 
 export const PLAN_LIMITS = {
-  free: { maxActiveQuests: 3, aiChatPerDay: 5, questGenPerDay: 1, maxOrgMembers: 0 },
-  pro:  { maxActiveQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: 0 },
-  org:  { maxActiveQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: 50 },
-  admin: { maxActiveQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: Infinity },
+  free:  { maxActiveQuests: 3, maxUserCreatedQuests: 2, aiChatPerDay: 5, questGenPerDay: 1, maxOrgMembers: 0 },
+  pro:   { maxActiveQuests: Infinity, maxUserCreatedQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: 0 },
+  org:   { maxActiveQuests: Infinity, maxUserCreatedQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: 50 },
+  admin: { maxActiveQuests: Infinity, maxUserCreatedQuests: Infinity, aiChatPerDay: Infinity, questGenPerDay: Infinity, maxOrgMembers: Infinity },
 } as const;
 
 /** Does this plan include Pro-level features? */
@@ -52,6 +52,14 @@ export function canAddOrgMember(plan: Plan, currentMemberCount: number): boolean
 /** Get remaining org member slots */
 export function remainingOrgSlots(currentMemberCount: number): number {
   return Math.max(0, PLAN_LIMITS.org.maxOrgMembers - currentMemberCount);
+}
+
+/** Can the user create another custom quest? */
+export function canCreateUserQuest(plan: Plan, createdCount: number): boolean {
+  const effectivePlan = getEffectivePlan(plan);
+  const max = PLAN_LIMITS[effectivePlan].maxUserCreatedQuests;
+  if (max === Infinity) return true;
+  return createdCount < max;
 }
 
 /** Get a human label for the plan */

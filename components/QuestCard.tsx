@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { Quest, QuestRarity } from '../types';
 
@@ -56,6 +57,8 @@ interface QuestCardProps {
 const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onComplete, translatedTitle, translatedDescription }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const isOwner = !!profile && quest.createdBy === profile.id;
   const isCompleted = quest.status === 'completed';
   const emoji = categoryEmoji[quest.category] || '⚡';
   const gradient = categoryGradient[quest.category] || categoryGradient.General;
@@ -94,10 +97,15 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onC
         )}
       </div>
       <div className="p-5">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
           <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-wider rounded">
             {quest.category}
           </span>
+          {isOwner && (
+            <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider rounded border border-amber-200">
+              ✏️ {t('quests.yourQuest')}
+            </span>
+          )}
         </div>
         <h3 className="font-bold text-lg text-slate-800 mb-2">{displayTitle}</h3>
         <p className="text-sm text-slate-500 line-clamp-2 mb-4">

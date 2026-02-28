@@ -271,7 +271,7 @@ const QuestsPage: React.FC = () => {
             </p>
           )}
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center flex-wrap">
           {!hasPro && (
             <div className="hidden md:block">
               <AiUsageBadge
@@ -281,6 +281,14 @@ const QuestsPage: React.FC = () => {
                 compact
               />
             </div>
+          )}
+          {profile && (
+            <button
+              onClick={() => navigate('/quests/create')}
+              className="px-6 py-3 bg-white border-2 border-indigo-300 text-indigo-700 font-bold rounded-2xl hover:bg-indigo-50 hover:border-indigo-500 transition-all flex items-center gap-2"
+            >
+              ✏️ {t('quests.createOwn')}
+            </button>
           )}
           <button
             onClick={handleGenerateQuest}

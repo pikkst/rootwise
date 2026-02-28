@@ -28,6 +28,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import ReportsPage from './pages/ReportsPage';
 import MessagesPage from './pages/MessagesPage';
+import CreateQuestPage from './pages/CreateQuestPage';
 import { trackEvent } from './services/analyticsService';
 
 const LANG_CODES = new Set<string>(SUPPORTED_LANGUAGES.map(l => l.code));
@@ -134,6 +135,7 @@ const pageRoutes = (
     <Route path="terms-of-service" element={<TermsOfServicePage />} />
     <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
     <Route path="quests" element={<QuestsPage />} />
+    <Route path="quests/create" element={<ProtectedRoute><CreateQuestPage /></ProtectedRoute>} />
     <Route path="quests/:questId" element={<QuestDetailPage />} />
     <Route path="quest-discovery" element={<QuestDiscoveryPage />} />
     <Route path="community" element={<CommunityPage />} />

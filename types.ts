@@ -213,6 +213,7 @@ export interface DbQuest {
   image_url: string | null;
   steps: string[];
   created_by: string | null;
+  is_user_created?: boolean;
   created_at: string;
   updated_at: string;
 }
