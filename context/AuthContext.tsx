@@ -194,9 +194,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return;
+    // Strip server-managed fields that must never be set directly from the client.
+    // plan is managed by Stripe webhook, xp/level by server RPCs,
+    // stripe_customer_id is already column-REVOKE'd but we defend in depth here.
+    const {
+      stripe_customer_id: _sc,
+      plan: _plan,
+      xp: _xp,
+      level: _level,
+      ...safeUpdates
+    } = updates;
     const { data } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(safeUpdates)
       .eq('id', user.id)
       .select(SAFE_PROFILE_COLUMNS)
       .single();

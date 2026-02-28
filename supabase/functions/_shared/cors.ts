@@ -18,9 +18,5 @@ export function getCorsHeaders(req: Request) {
   };
 }
 
-// Legacy export for files that haven't been updated yet
-export const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+// NOTE: Do NOT add a wildcard '*' CORS export here.
+// All Edge Functions must use getCorsHeaders(req) for origin-specific headers.

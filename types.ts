@@ -111,6 +111,11 @@ export interface Database {
         Insert: Omit<UserReport, 'id' | 'created_at' | 'updated_at' | 'reviewed_at'>;
         Update: Partial<UserReport>;
       };
+      platform_events: {
+        Row: PlatformEvent;
+        Insert: Omit<PlatformEvent, 'id' | 'created_at'>;
+        Update: Partial<PlatformEvent>;
+      };
     };
     Views: {
       community_with_member_count: {
@@ -428,6 +433,15 @@ export interface UserReport {
   reviewed_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface PlatformEvent {
+  id: string;
+  name: string;
+  user_id: string | null;
+  properties: Record<string, string | number | boolean | null | undefined> | null;
+  url: string | null;
+  created_at: string;
 }
 
 /** Generate initials from a name */

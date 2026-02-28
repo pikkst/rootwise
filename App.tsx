@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Component, ErrorInfo } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +31,43 @@ import MessagesPage from './pages/MessagesPage';
 import { trackEvent } from './services/analyticsService';
 
 const LANG_CODES = new Set<string>(SUPPORTED_LANGUAGES.map(l => l.code));
+
+// ─── Global Error Boundary ──────────────────────────────────────────────────
+// Catches unhandled render errors anywhere in the tree and shows a recovery
+// screen instead of a blank white page.
+interface ErrorBoundaryState { hasError: boolean; message: string }
+class AppErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBoundaryState> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, message: '' };
+  }
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, message: error?.message ?? 'Unknown error' };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('[AppErrorBoundary]', error, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
+          <div className="max-w-md text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h1 className="text-2xl font-bold text-slate-800 mb-2">Something went wrong</h1>
+            <p className="text-slate-500 mb-6 text-sm">{this.state.message}</p>
+            <button
+              onClick={() => { this.setState({ hasError: false, message: '' }); window.location.href = '/'; }}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              Back to home
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /** Syncs the URL /:lang prefix with i18next language */
 const LocaleLayout: React.FC = () => {
@@ -140,15 +177,19 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <HelmetProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <ToastProvider>
-            <AppRoutes />
-          </ToastProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </HelmetProvider>
+    <AppErrorBoundary>
+      <HelmetProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <ToastProvider>
+              <AppErrorBoundary>
+                <AppRoutes />
+              </AppErrorBoundary>
+            </ToastProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </HelmetProvider>
+    </AppErrorBoundary>
   );
 };
 
