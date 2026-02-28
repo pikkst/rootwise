@@ -2,7 +2,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Quest } from '../types';
+import { Quest, QuestRarity } from '../types';
+
+// Rarity colours and labels
+const rarityStyle: Record<QuestRarity, string> = {
+  common:    'bg-slate-200/90 text-slate-700',
+  rare:      'bg-sky-500/90 text-white',
+  epic:      'bg-violet-600/90 text-white',
+  legendary: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white',
+};
+const rarityEmoji: Record<QuestRarity, string> = {
+  common: '⚪',
+  rare:   '🔵',
+  epic:   '🟣',
+  legendary: '🟡',
+};
 
 // Category to emoji mapping for quest images
 const categoryEmoji: Record<string, string> = {
@@ -72,6 +86,12 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, isParticipant, onJoin, onC
         <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-lg text-xs font-bold text-indigo-600 shadow-sm">
           {isCompleted ? t('questCard.completed') : t('questCard.xpReward', { xp: quest.rewardXP })}
         </div>
+        {/* Rarity badge — bottom-left of image */}
+        {quest.rarity && quest.rarity !== 'common' && (
+          <div className={`absolute bottom-3 left-3 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm ${rarityStyle[quest.rarity]}`}>
+            {rarityEmoji[quest.rarity]} {t(`rarity.${quest.rarity}`)}
+          </div>
+        )}
       </div>
       <div className="p-5">
         <div className="flex items-center gap-2 mb-2">

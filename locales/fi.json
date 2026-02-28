@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Luo ilmainen tili",
     "ctaSecondary": "Selaa tehtäviä"
   }
+,
+  "badges": {
+    "title": "Merkit",
+    "seeAll": "Näytä kaikki",
+    "none": "Ei vielä merkkejä — suorita tehtäviä ansaitaksesi ensimmäisen!",
+    "unlocked": "🎉 {{count}} uusi merkki avattu!",
+    "lockedHint": "Jatka avataksesi tämän merkin",
+    "firstQuest": { "title": "Ensimmäinen tehtävä", "desc": "Liityt ensimmäiseen tehtävään" },
+    "quest5": { "title": "Tehtävien veteraani", "desc": "5 tehtävää suoritettu" },
+    "quest20": { "title": "Tehtävälegenda", "desc": "20 tehtävää suoritettu" },
+    "sage": { "title": "Viisas mestari", "desc": "Ohjasi 5 tehtävää Viisaana" },
+    "polyglot": { "title": "Polyglotti", "desc": "Puhuu 3 tai enemmän kieltä" },
+    "connector": { "title": "Yhdistäjä", "desc": "5 suoritettua yhteyttä" },
+    "communityBuilder": { "title": "Yhteisön rakentaja", "desc": "Jäsen 3+ yhteisössä" },
+    "profileComplete": { "title": "Täydellinen profiili", "desc": "Kaikki profiilin tiedot täytetty" },
+    "streak7": { "title": "Viikon soturi", "desc": "7 päivän kirjautumisputki" },
+    "streak30": { "title": "Omistautunut", "desc": "30 päivän kirjautumisputki" },
+    "legendLevel": { "title": "Elävä legenda", "desc": "Saavutti tason 20" }
+  },
+  "streak": {
+    "title": "Päivittäinen putki",
+    "days_one": "{{count}} päivän putki",
+    "days_other": "{{count}} päivän putki",
+    "best": "Ennätys: {{days}} päivää",
+    "loginDaily": "Kirjaudu päivittäin putken ylläpitämiseksi",
+    "onFire": "Olet tulessa! Jatka samaan malliin!",
+    "startToday": "Kirjaudu huomenna aloittaaksesi putkesi"
+  },
+  "leaderboard": {
+    "title": "Tulostaulukko",
+    "levelXp": "Taso {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Tavallinen",
+    "rare": "Harvinainen",
+    "epic": "Eeppinen",
+    "legendary": "Legendaarinen"
+  }
 }

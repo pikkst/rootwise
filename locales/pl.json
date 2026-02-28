@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Utwórz darmowe konto",
     "ctaSecondary": "Przeglądaj zadania"
   }
+,
+  "badges": {
+    "title": "Odznaki",
+    "seeAll": "Pokaż wszystkie",
+    "none": "Brak odznak — ukończ misje, aby zdobyć pierwszą!",
+    "unlocked": "🎉 Odblokowano {{count}} nową odznakę!",
+    "lockedHint": "Kontynuuj, aby odblokować tę odznakę",
+    "firstQuest": { "title": "Pierwsza misja", "desc": "Dołączyłeś do swojej pierwszej misji" },
+    "quest5": { "title": "Weteran misji", "desc": "Ukończono 5 misji" },
+    "quest20": { "title": "Legenda misji", "desc": "Ukończono 20 misji" },
+    "sage": { "title": "Mądry mistrz", "desc": "Mentorował 5 misji jako Mędrzec" },
+    "polyglot": { "title": "Poliglota", "desc": "Mówi w 3 lub więcej językach" },
+    "connector": { "title": "Łącznik", "desc": "5 ukończonych połączeń" },
+    "communityBuilder": { "title": "Budowniczy społeczności", "desc": "Członek 3+ społeczności" },
+    "profileComplete": { "title": "Pełny profil", "desc": "Uzupełniono wszystkie informacje w profilu" },
+    "streak7": { "title": "Wojownik tygodnia", "desc": "7-dniowa seria logowań" },
+    "streak30": { "title": "Oddany", "desc": "30-dniowa seria logowań" },
+    "legendLevel": { "title": "Żywa legenda", "desc": "Osiągnięto poziom 20" }
+  },
+  "streak": {
+    "title": "Dzienna seria",
+    "days_one": "Seria {{count}} dnia",
+    "days_other": "Seria {{count}} dni",
+    "best": "Rekord: {{days}} dni",
+    "loginDaily": "Loguj się codziennie, aby utrzymać serię",
+    "onFire": "Jesteś w ogniu! Tak trzymaj!",
+    "startToday": "Zaloguj się jutro, aby rozpocząć serię"
+  },
+  "leaderboard": {
+    "title": "Tablica wyników",
+    "levelXp": "Poziom {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Zwykły",
+    "rare": "Rzadki",
+    "epic": "Epicki",
+    "legendary": "Legendarny"
+  }
 }

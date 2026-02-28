@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Sukurti nemokamą paskyrą",
     "ctaSecondary": "Naršyti užduotis"
   }
+,
+  "badges": {
+    "title": "Ženkliukai",
+    "seeAll": "Rodyti visus",
+    "none": "Dar nėra ženkliukų — atlikite užduotis, kad uždirbtumėte pirmąjį!",
+    "unlocked": "🎉 Atblokuotas {{count}} naujas ženkliukas!",
+    "lockedHint": "Tęskite, kad atblokuotumėte šį ženkliuką",
+    "firstQuest": { "title": "Pirmoji užduotis", "desc": "Prisijungėte prie pirmosios užduoties" },
+    "quest5": { "title": "Užduočių veteranas", "desc": "Atlikta 5 užduotys" },
+    "quest20": { "title": "Užduočių legenda", "desc": "Atlikta 20 užduočių" },
+    "sage": { "title": "Išmintingumo meistras", "desc": "5 užduotys mentoriuotos kaip Išminčius" },
+    "polyglot": { "title": "Poliglotas", "desc": "Kalba 3 ar daugiau kalbų" },
+    "connector": { "title": "Jungiklis", "desc": "5 baigti ryšiai" },
+    "communityBuilder": { "title": "Bendruomenės kūrėjas", "desc": "Narys 3+ bendruomenėse" },
+    "profileComplete": { "title": "Pilnas profilis", "desc": "Užpildyta visa profilio informacija" },
+    "streak7": { "title": "Savaitės karys", "desc": "7 dienų prisijungimų serija" },
+    "streak30": { "title": "Atsidavęs", "desc": "30 dienų prisijungimų serija" },
+    "legendLevel": { "title": "Gyva legenda", "desc": "Pasiektas 20 lygis" }
+  },
+  "streak": {
+    "title": "Kasdienė serija",
+    "days_one": "{{count}} dienos serija",
+    "days_other": "{{count}} dienų serija",
+    "best": "Rekordas: {{days}} dienos",
+    "loginDaily": "Prisijunkite kasdien, kad išlaikytumėte seriją",
+    "onFire": "Tu degantis! Tęsk!",
+    "startToday": "Prisijunkite rytoj, kad pradėtumėte seriją"
+  },
+  "leaderboard": {
+    "title": "Lyderiai",
+    "levelXp": "Lygis {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Įprastas",
+    "rare": "Retas",
+    "epic": "Epinis",
+    "legendary": "Legendinis"
+  }
 }

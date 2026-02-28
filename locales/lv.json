@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Izveidojiet bezmaksas kontu",
     "ctaSecondary": "Pārlūkojiet uzdevumus"
   }
+,
+  "badges": {
+    "title": "Nozīmītes",
+    "seeAll": "Skatīt visas",
+    "none": "Pagaidām nav nozīmīšu — pabeidz uzdevumus, lai iegūtu pirmo!",
+    "unlocked": "🎉 Atbloķēta {{count}} jauna nozīmīte!",
+    "lockedHint": "Turpini, lai atbloķētu šo nozīmīti",
+    "firstQuest": { "title": "Pirmais uzdevums", "desc": "Pievienojies pirmajam uzdevumam" },
+    "quest5": { "title": "Uzdevumu veterāns", "desc": "Pabeigti 5 uzdevumi" },
+    "quest20": { "title": "Uzdevumu leģenda", "desc": "Pabeigti 20 uzdevumi" },
+    "sage": { "title": "Gudrais meistars", "desc": "Vadīti 5 uzdevumi kā Gudrais" },
+    "polyglot": { "title": "Poliglots", "desc": "Runā 3 vai vairāk valodās" },
+    "connector": { "title": "Savienotājs", "desc": "5 pabeigtas savienošanas" },
+    "communityBuilder": { "title": "Kopienas veidotājs", "desc": "Dalībnieks 3+ kopienās" },
+    "profileComplete": { "title": "Pilns profils", "desc": "Aizpildīta visa profila informācija" },
+    "streak7": { "title": "Nedēļas karotājs", "desc": "7 dienu pieteikšanās sērija" },
+    "streak30": { "title": "Uzticīgais", "desc": "30 dienu pieteikšanās sērija" },
+    "legendLevel": { "title": "Dzīvā leģenda", "desc": "Sasniegts 20. līmenis" }
+  },
+  "streak": {
+    "title": "Ikdienas sērija",
+    "days_one": "{{count}} dienas sērija",
+    "days_other": "{{count}} dienu sērija",
+    "best": "Labākā: {{days}} dienas",
+    "loginDaily": "Piesakies katru dienu, lai saglabātu sēriju",
+    "onFire": "Tu deg! Turpini!",
+    "startToday": "Piesakies rīt, lai sāktu sēriju"
+  },
+  "leaderboard": {
+    "title": "Līderu tabula",
+    "levelXp": "Līmenis {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Parasts",
+    "rare": "Rets",
+    "epic": "Episkais",
+    "legendary": "Leģendārais"
+  }
 }

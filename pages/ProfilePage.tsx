@@ -3,10 +3,13 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
 import PlanBadge from '../components/PlanBadge';
+import BadgeDisplay from '../components/BadgeDisplay';
+import StreakWidget from '../components/StreakWidget';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
 import { usePlan } from '../hooks/usePlan';
+import { useBadges } from '../hooks/useBadges';
 import { Follower, Friendship, Post, PostComment, PostLike, Profile, getInitials, profileToUser } from '../types';
 import { formatDateNumeric, formatDateTime } from '../utils/formatDate';
 import { redirectToCheckout, openBillingPortal } from '../services/stripeService';
@@ -29,9 +32,10 @@ const ProfilePage: React.FC = () => {
   const { showToast } = useToast();
   const { quests } = useQuests();
   const planInfo = usePlan();
+  const { earnedIds, badges, loading: badgesLoading, checkAndRefresh } = useBadges();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [billingLoading, setBillingLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'posts' | 'friends' | 'followers' | 'about' | 'photos' | 'quests'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'friends' | 'followers' | 'about' | 'photos' | 'quests' | 'badges'>('posts');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
 
@@ -766,6 +770,7 @@ const ProfilePage: React.FC = () => {
               { key: 'followers', label: t('profile.tabFollowers') },
               { key: 'about', label: t('profile.tabAbout') },
               { key: 'quests', label: `🏆 ${t('profile.tabQuests')}` },
+              { key: 'badges', label: `🏅 ${t('badges.title')}` },
               { key: 'photos', label: t('profile.tabPhotos') },
             ].map((tab) => (
               <button
@@ -1547,6 +1552,26 @@ const ProfilePage: React.FC = () => {
                       )}
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Badges Tab */}
+              {activeTab === 'badges' && (
+                <div className="space-y-6">
+                  <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 className="font-bold text-lg mb-6 flex items-center gap-2">🏅 {t('badges.title')}</h3>
+                    {badgesLoading ? (
+                      <div className="text-center py-8 text-slate-400">{t('common.loading')}</div>
+                    ) : earnedIds.size === 0 ? (
+                      <div className="text-center py-12 text-slate-400">
+                        <p className="text-4xl mb-3">🏅</p>
+                        <p className="text-sm">{t('badges.none')}</p>
+                      </div>
+                    ) : (
+                      <BadgeDisplay earnedIds={earnedIds} showLocked={true} variant="full" />
+                    )}
+                  </section>
+                  <StreakWidget profile={profile} />
                 </div>
               )}
 

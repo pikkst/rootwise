@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SEOHead from '../components/SEOHead';
+import BadgeDisplay from '../components/BadgeDisplay';
+import { useBadges } from '../hooks/useBadges';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useLocalePath } from '../hooks/useLocalePath';
@@ -11,6 +13,8 @@ import { RootwiseAIService } from '../services/geminiService';
 import { formatDateTime } from '../utils/formatDate';
 
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'avatar_url' | 'role'>;
+
+// Badge hook is called unconditionally; we pass the viewed user id once loaded
 type CommentWithMeta = PostComment & { author: ProfileLite };
 type PostWithMeta = Post & {
   author: ProfileLite;
@@ -27,6 +31,7 @@ const PublicProfilePage: React.FC = () => {
   const { showToast } = useToast();
   const lp = useLocalePath();
   const [viewedProfile, setViewedProfile] = useState<Profile | null>(null);
+  const { earnedIds: viewedEarnedIds } = useBadges(viewedProfile?.id);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<PostWithMeta[]>([]);
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
@@ -544,6 +549,13 @@ const PublicProfilePage: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {viewedEarnedIds.size > 0 && (
+                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                  <h4 className="font-bold mb-4">🏅 {t('badges.title')}</h4>
+                  <BadgeDisplay earnedIds={viewedEarnedIds} showLocked={false} variant="compact" />
+                </div>
+              )}
             </div>
 
             <div className="lg:col-span-2 space-y-6">

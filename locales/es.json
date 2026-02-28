@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Crear cuenta gratuita",
     "ctaSecondary": "Explorar misiones"
   }
+,
+  "badges": {
+    "title": "Insignias",
+    "seeAll": "Ver todas",
+    "none": "Aún no tienes insignias — ¡completa misiones para ganar la primera!",
+    "unlocked": "🎉 ¡{{count}} nueva insignia desbloqueada!",
+    "lockedHint": "Sigue adelante para desbloquear esta insignia",
+    "firstQuest": { "title": "Primera misión", "desc": "Te uniste a tu primera misión" },
+    "quest5": { "title": "Veterano de misiones", "desc": "5 misiones completadas" },
+    "quest20": { "title": "Leyenda de misiones", "desc": "20 misiones completadas" },
+    "sage": { "title": "Maestro sabio", "desc": "Guiaste 5 misiones como Sabio" },
+    "polyglot": { "title": "Políglota", "desc": "Habla 3 o más idiomas" },
+    "connector": { "title": "Conector", "desc": "5 conexiones completadas" },
+    "communityBuilder": { "title": "Constructor de comunidad", "desc": "Miembro de 3+ comunidades" },
+    "profileComplete": { "title": "Perfil completo", "desc": "Completaste toda la información del perfil" },
+    "streak7": { "title": "Guerrero semanal", "desc": "Racha de 7 días de inicio de sesión" },
+    "streak30": { "title": "Devoto", "desc": "Racha de 30 días de inicio de sesión" },
+    "legendLevel": { "title": "Leyenda viviente", "desc": "Alcanzaste el nivel 20" }
+  },
+  "streak": {
+    "title": "Racha diaria",
+    "days_one": "Racha de {{count}} día",
+    "days_other": "Racha de {{count}} días",
+    "best": "Mejor: {{days}} días",
+    "loginDaily": "Inicia sesión diariamente para mantener tu racha",
+    "onFire": "¡Estás en llamas! ¡Sigue así!",
+    "startToday": "Inicia sesión mañana para comenzar tu racha"
+  },
+  "leaderboard": {
+    "title": "Clasificación",
+    "levelXp": "Nivel {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Común",
+    "rare": "Raro",
+    "epic": "Épico",
+    "legendary": "Legendario"
+  }
 }

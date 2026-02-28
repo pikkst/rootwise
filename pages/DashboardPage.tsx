@@ -4,10 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import QuestCard from '../components/QuestCard';
 import SEOHead from '../components/SEOHead';
+import StreakWidget from '../components/StreakWidget';
+import LeaderboardWidget from '../components/LeaderboardWidget';
+import BadgeDisplay from '../components/BadgeDisplay';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useQuests } from '../hooks/useQuests';
 import { useConnections } from '../hooks/useConnections';
+import { useBadges } from '../hooks/useBadges';
 import { profileToUser } from '../types';
 import { supabase } from '../services/supabase';
 import { isPro, isOrg } from '../services/planService';
@@ -20,6 +24,7 @@ const DashboardPage: React.FC = () => {
   const { showToast } = useToast();
   const { quests, completeQuest } = useQuests();
   const { connections, fetchConnections } = useConnections(profile?.id);
+  const { earnedIds, checkAndRefresh } = useBadges();
   const [xpHistory, setXpHistory] = useState<{ name: string; xp: number }[]>([]);
 
   const currentUser = profile ? profileToUser(profile) : null;
@@ -60,6 +65,11 @@ const DashboardPage: React.FC = () => {
     } else {
       showToast('success', t('dashboard.questCompleted'));
       await refreshProfile();
+      // Check for newly unlocked badges after quest completion
+      const newBadges = await checkAndRefresh();
+      if (newBadges.length > 0) {
+        showToast('success', t('badges.unlocked', { count: newBadges.length }));
+      }
     }
   };
 
@@ -78,7 +88,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
-      <SEOHead title="Dashboard - Rootwise" description="Track your learning journey, quests, and connections." path="/dashboard" />
+      <SEOHead title="Dashboard - Rootwise" description="Track your learning journey, quests, streaks, badges and leaderboard rank on Rootwise." path="/dashboard" />
 
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
@@ -150,6 +160,26 @@ const DashboardPage: React.FC = () => {
         </div>
 
         <div className="space-y-6">
+          {/* Streak */}
+          {profile && <StreakWidget profile={profile} />}
+
+          {/* Badges preview */}
+          <section className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold flex items-center gap-2">🏅 {t('badges.title')}</h3>
+              <button
+                onClick={() => navigate('/profile')}
+                className="text-xs text-indigo-600 font-semibold hover:underline"
+              >
+                {t('badges.seeAll')}
+              </button>
+            </div>
+            <BadgeDisplay earnedIds={earnedIds} showLocked={false} variant="compact" />
+          </section>
+
+          {/* Leaderboard */}
+          <LeaderboardWidget />
+
           {/* Quick Actions */}
           <section className="bg-indigo-600 p-6 rounded-3xl text-white shadow-xl">
             <h3 className="font-bold text-lg mb-4">{t('dashboard.quickActions')}</h3>

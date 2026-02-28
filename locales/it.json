@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Crea un account gratuito",
     "ctaSecondary": "Sfoglia le missioni"
   }
+,
+  "badges": {
+    "title": "Badge",
+    "seeAll": "Vedi tutti",
+    "none": "Nessun badge ancora — completa le quest per guadagnarne il primo!",
+    "unlocked": "🎉 {{count}} nuovo badge sbloccato!",
+    "lockedHint": "Continua per sbloccare questo badge",
+    "firstQuest": { "title": "Prima quest", "desc": "Hai partecipato alla tua prima quest" },
+    "quest5": { "title": "Veterano delle quest", "desc": "5 quest completate" },
+    "quest20": { "title": "Leggenda delle quest", "desc": "20 quest completate" },
+    "sage": { "title": "Saggio maestro", "desc": "Guidato 5 quest come Saggio" },
+    "polyglot": { "title": "Poliglotta", "desc": "Parla 3 o più lingue" },
+    "connector": { "title": "Connettore", "desc": "5 connessioni completate" },
+    "communityBuilder": { "title": "Costruttore di comunità", "desc": "Membro di 3+ comunità" },
+    "profileComplete": { "title": "Profilo completo", "desc": "Tutte le informazioni del profilo inserite" },
+    "streak7": { "title": "Guerriero della settimana", "desc": "7 giorni consecutivi di accesso" },
+    "streak30": { "title": "Devoto", "desc": "30 giorni consecutivi di accesso" },
+    "legendLevel": { "title": "Leggenda vivente", "desc": "Raggiunto il livello 20" }
+  },
+  "streak": {
+    "title": "Serie quotidiana",
+    "days_one": "Serie di {{count}} giorno",
+    "days_other": "Serie di {{count}} giorni",
+    "best": "Record: {{days}} giorni",
+    "loginDaily": "Accedi ogni giorno per mantenere la tua serie",
+    "onFire": "Sei in forma! Continua così!",
+    "startToday": "Accedi domani per iniziare la tua serie"
+  },
+  "leaderboard": {
+    "title": "Classifica",
+    "levelXp": "Livello {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Comune",
+    "rare": "Raro",
+    "epic": "Epico",
+    "legendary": "Leggendario"
+  }
 }

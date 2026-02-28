@@ -1144,4 +1144,42 @@
     "label": "Keel",
     "select": "Vali keel"
   }
+,
+  "badges": {
+    "title": "Märgid",
+    "seeAll": "Vaata kõiki",
+    "none": "Veel märke pole — lõpeta ülesandeid, et esimene teenida!",
+    "unlocked": "🎉 {{count}} uus märk avati!",
+    "lockedHint": "Jätka, et see märk avada",
+    "firstQuest": { "title": "Esimene ülesanne", "desc": "Liitusid oma esimese ülesandega" },
+    "quest5": { "title": "Ülesannete veteran", "desc": "Lõpetasid 5 ülesannet" },
+    "quest20": { "title": "Ülesannete legend", "desc": "Lõpetasid 20 ülesannet" },
+    "sage": { "title": "Targamees", "desc": "Juhendas 5 ülesannet targana" },
+    "polyglot": { "title": "Polüglott", "desc": "Räägib 3 või rohkem keelt" },
+    "connector": { "title": "Ühendaja", "desc": "5 lõpetatud ühendust" },
+    "communityBuilder": { "title": "Kogukonna looja", "desc": "Liige 3+ kogukonnas" },
+    "profileComplete": { "title": "Täielik profiil", "desc": "Täitis kõik profiiliteabe" },
+    "streak7": { "title": "Nädala sõdalane", "desc": "7-päevane sisselogimisseeria" },
+    "streak30": { "title": "Pühendunu", "desc": "30-päevane sisselogimisseeria" },
+    "legendLevel": { "title": "Elav legend", "desc": "Jõudis tasemeni 20" }
+  },
+  "streak": {
+    "title": "Igapäevane seeria",
+    "days_one": "{{count}}-päevane seeria",
+    "days_other": "{{count}}-päevane seeria",
+    "best": "Parim: {{days}} päeva",
+    "loginDaily": "Logi iga päev sisse, et seeriat hoida",
+    "onFire": "Sa oled hoos! Jätka!",
+    "startToday": "Logi homme sisse, et alustada seeriat"
+  },
+  "leaderboard": {
+    "title": "Edetabel",
+    "levelXp": "Tase {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Tavaline",
+    "rare": "Haruldane",
+    "epic": "Eepiline",
+    "legendary": "Legendaarne"
+  }
 }

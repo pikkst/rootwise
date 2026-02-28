@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Crie uma conta gratuita",
     "ctaSecondary": "Navegar nas missões"
   }
+,
+  "badges": {
+    "title": "Conquistas",
+    "seeAll": "Ver todas",
+    "none": "Ainda sem conquistas — complete missões para ganhar a primeira!",
+    "unlocked": "🎉 {{count}} nova conquista desbloqueada!",
+    "lockedHint": "Continue para desbloquear esta conquista",
+    "firstQuest": { "title": "Primeira missão", "desc": "Ingressou na sua primeira missão" },
+    "quest5": { "title": "Veterano de missões", "desc": "5 missões concluídas" },
+    "quest20": { "title": "Lenda das missões", "desc": "20 missões concluídas" },
+    "sage": { "title": "Mestre sábio", "desc": "Orientou 5 missões como Sábio" },
+    "polyglot": { "title": "Poliglota", "desc": "Fala 3 ou mais idiomas" },
+    "connector": { "title": "Conector", "desc": "5 conexões concluídas" },
+    "communityBuilder": { "title": "Construtor de comunidade", "desc": "Membro de 3+ comunidades" },
+    "profileComplete": { "title": "Perfil completo", "desc": "Preencheu todas as informações do perfil" },
+    "streak7": { "title": "Guerreiro semanal", "desc": "7 dias consecutivos de login" },
+    "streak30": { "title": "Devotado", "desc": "30 dias consecutivos de login" },
+    "legendLevel": { "title": "Lenda viva", "desc": "Atingiu o nível 20" }
+  },
+  "streak": {
+    "title": "Sequência diária",
+    "days_one": "Sequência de {{count}} dia",
+    "days_other": "Sequência de {{count}} dias",
+    "best": "Melhor: {{days}} dias",
+    "loginDaily": "Faça login diariamente para manter sua sequência",
+    "onFire": "Você está em chamas! Continue assim!",
+    "startToday": "Faça login amanhã para começar sua sequência"
+  },
+  "leaderboard": {
+    "title": "Classificação",
+    "levelXp": "Nível {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Comum",
+    "rare": "Raro",
+    "epic": "Épico",
+    "legendary": "Lendário"
+  }
 }

@@ -19,7 +19,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const SAFE_PROFILE_COLUMNS =
-  'id, name, age, role, preferred_language, spoken_languages, skills, interests, avatar_url, banner_url, banner_position_x, banner_position_y, bio, xp, level, plan, created_at, updated_at, last_seen_at';
+  'id, name, age, role, preferred_language, spoken_languages, skills, interests, avatar_url, banner_url, banner_position_x, banner_position_y, bio, xp, level, plan, login_streak_days, best_streak_days, last_login_date, created_at, updated_at, last_seen_at';
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
@@ -54,6 +54,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       level: data?.level ?? 1,
       plan: data?.plan ?? 'free',
       stripe_customer_id: data?.stripe_customer_id ?? null,
+      login_streak_days: data?.login_streak_days ?? 0,
+      best_streak_days: data?.best_streak_days ?? 0,
+      last_login_date: data?.last_login_date ?? null,
       created_at: data?.created_at ?? now,
       updated_at: data?.updated_at ?? now,
       last_seen_at: data?.last_seen_at ?? null,
@@ -129,8 +132,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Avoid UI hanging on refresh while profile fetch runs
         setProfile(normalizeProfile(null, session.user));
         void fetchProfile(session.user);
-        // Update last_seen_at for activeUsers7d metric — fire and forget
-        void supabase.rpc('update_last_seen');
+        // Update streak + last_seen_at — fire and forget
+        void supabase.rpc('update_streak').then(({ data }) => {
+          if (data) {
+            setProfile((prev) => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                login_streak_days: (data as { streak_days: number }).streak_days ?? prev.login_streak_days,
+                best_streak_days: (data as { best_streak_days: number }).best_streak_days ?? prev.best_streak_days,
+              };
+            });
+          }
+        });
       } else {
         setProfile(null);
       }

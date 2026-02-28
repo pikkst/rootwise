@@ -686,7 +686,7 @@
     "deletePostError": "Unable to delete the post.",
     "ageNotSet": "Age not set",
     "bannerAlt": "Profile banner",
-    "seoDesc": "Your Rootwise profile.",
+    "seoDesc": "Your Rootwise profile — quests, badges, streak achievements and connections.",
     "subscriptionActive": "Subscription active: {{plan}} plan enabled.",
     "paymentSuccessful": "Payment successful. Plan update may take a moment—refresh if needed.",
     "newRequest": "New request",
@@ -1143,5 +1143,43 @@
   "language": {
     "label": "Language",
     "select": "Select language"
+  }
+,
+  "badges": {
+    "title": "Badges",
+    "seeAll": "See all",
+    "none": "No badges yet — complete quests to earn your first!",
+    "unlocked": "🎉 {{count}} new badge unlocked!",
+    "lockedHint": "Keep going to unlock this badge",
+    "firstQuest": { "title": "First Quest", "desc": "Joined your first quest" },
+    "quest5": { "title": "Quest Veteran", "desc": "Completed 5 quests" },
+    "quest20": { "title": "Quest Legend", "desc": "Completed 20 quests" },
+    "sage": { "title": "Sage Master", "desc": "Mentored 5 quests as Sage" },
+    "polyglot": { "title": "Polyglot", "desc": "Speaks 3 or more languages" },
+    "connector": { "title": "Connector", "desc": "5 completed connections" },
+    "communityBuilder": { "title": "Community Builder", "desc": "Member of 3+ communities" },
+    "profileComplete": { "title": "Full Profile", "desc": "Filled in all profile info" },
+    "streak7": { "title": "Week Warrior", "desc": "7-day login streak" },
+    "streak30": { "title": "Devotee", "desc": "30-day login streak" },
+    "legendLevel": { "title": "Living Legend", "desc": "Reached level 20" }
+  },
+  "streak": {
+    "title": "Daily Streak",
+    "days_one": "{{count}} day streak",
+    "days_other": "{{count}} day streak",
+    "best": "Best: {{days}} days",
+    "loginDaily": "Log in daily to keep your streak",
+    "onFire": "You're on fire! Keep it up!",
+    "startToday": "Log in tomorrow to start your streak"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "levelXp": "Level {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Common",
+    "rare": "Rare",
+    "epic": "Epic",
+    "legendary": "Legendary"
   }
 }

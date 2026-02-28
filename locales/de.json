@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Erstellen Sie ein kostenloses Konto",
     "ctaSecondary": "Durchsuchen Sie Quests"
   }
+,
+  "badges": {
+    "title": "Abzeichen",
+    "seeAll": "Alle anzeigen",
+    "none": "Noch keine Abzeichen — schließe Quests ab, um dein erstes zu verdienen!",
+    "unlocked": "🎉 {{count}} neues Abzeichen freigeschaltet!",
+    "lockedHint": "Mach weiter, um dieses Abzeichen freizuschalten",
+    "firstQuest": { "title": "Erste Quest", "desc": "Deiner ersten Quest beigetreten" },
+    "quest5": { "title": "Quest-Veteran", "desc": "5 Quests abgeschlossen" },
+    "quest20": { "title": "Quest-Legende", "desc": "20 Quests abgeschlossen" },
+    "sage": { "title": "Weiser Meister", "desc": "5 Quests als Weiser betreut" },
+    "polyglot": { "title": "Polyglott", "desc": "Spricht 3 oder mehr Sprachen" },
+    "connector": { "title": "Verbinder", "desc": "5 abgeschlossene Verbindungen" },
+    "communityBuilder": { "title": "Gemeinschaftsbauer", "desc": "Mitglied in 3+ Communities" },
+    "profileComplete": { "title": "Vollständiges Profil", "desc": "Alle Profilinformationen ausgefüllt" },
+    "streak7": { "title": "Wochenkämpfer", "desc": "7 Tage Anmelde-Streak" },
+    "streak30": { "title": "Hingabe", "desc": "30 Tage Anmelde-Streak" },
+    "legendLevel": { "title": "Lebende Legende", "desc": "Level 20 erreicht" }
+  },
+  "streak": {
+    "title": "Tägliche Serie",
+    "days_one": "{{count}} Tag Serie",
+    "days_other": "{{count}} Tage Serie",
+    "best": "Bestleistung: {{days}} Tage",
+    "loginDaily": "Melde dich täglich an, um deine Serie zu halten",
+    "onFire": "Du bist in Hochform! Weiter so!",
+    "startToday": "Melde dich morgen an, um deine Serie zu beginnen"
+  },
+  "leaderboard": {
+    "title": "Bestenliste",
+    "levelXp": "Level {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Gewöhnlich",
+    "rare": "Selten",
+    "epic": "Episch",
+    "legendary": "Legendär"
+  }
 }

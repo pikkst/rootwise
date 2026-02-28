@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Créer un compte gratuit",
     "ctaSecondary": "Parcourir les quêtes"
   }
+,
+  "badges": {
+    "title": "Badges",
+    "seeAll": "Voir tout",
+    "none": "Pas encore de badges — complète des quêtes pour en gagner !",
+    "unlocked": "🎉 {{count}} nouveau badge débloqué !",
+    "lockedHint": "Continue pour débloquer ce badge",
+    "firstQuest": { "title": "Première quête", "desc": "Rejoint ta première quête" },
+    "quest5": { "title": "Vétéran des quêtes", "desc": "5 quêtes complétées" },
+    "quest20": { "title": "Légende des quêtes", "desc": "20 quêtes complétées" },
+    "sage": { "title": "Maître sage", "desc": "Guidé 5 quêtes en tant que sage" },
+    "polyglot": { "title": "Polyglotte", "desc": "Parle 3 langues ou plus" },
+    "connector": { "title": "Connecteur", "desc": "5 connexions complétées" },
+    "communityBuilder": { "title": "Bâtisseur de communauté", "desc": "Membre de 3+ communautés" },
+    "profileComplete": { "title": "Profil complet", "desc": "Toutes les infos du profil renseignées" },
+    "streak7": { "title": "Guerrier de la semaine", "desc": "7 jours de connexion consécutifs" },
+    "streak30": { "title": "Dévoué", "desc": "30 jours de connexion consécutifs" },
+    "legendLevel": { "title": "Légende vivante", "desc": "Atteint le niveau 20" }
+  },
+  "streak": {
+    "title": "Série quotidienne",
+    "days_one": "Série de {{count}} jour",
+    "days_other": "Série de {{count}} jours",
+    "best": "Meilleur : {{days}} jours",
+    "loginDaily": "Connecte-toi chaque jour pour garder ta série",
+    "onFire": "Tu es en feu ! Continue comme ça !",
+    "startToday": "Connecte-toi demain pour commencer ta série"
+  },
+  "leaderboard": {
+    "title": "Classement",
+    "levelXp": "Niveau {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Commun",
+    "rare": "Rare",
+    "epic": "Épique",
+    "legendary": "Légendaire"
+  }
 }

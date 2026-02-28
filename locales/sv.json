@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Skapa gratis konto",
     "ctaSecondary": "Bläddra bland uppdrag"
   }
+,
+  "badges": {
+    "title": "Märken",
+    "seeAll": "Visa alla",
+    "none": "Inga märken än — slutför uppdrag för att tjäna ditt första!",
+    "unlocked": "🎉 {{count}} nytt märke upplåst!",
+    "lockedHint": "Fortsätt för att låsa upp detta märke",
+    "firstQuest": { "title": "Första uppdraget", "desc": "Gick med i ditt första uppdrag" },
+    "quest5": { "title": "Uppdragsveteran", "desc": "Slutfört 5 uppdrag" },
+    "quest20": { "title": "Uppdragslegende", "desc": "Slutfört 20 uppdrag" },
+    "sage": { "title": "Vis mästare", "desc": "Handledde 5 uppdrag som Vis" },
+    "polyglot": { "title": "Polyglott", "desc": "Talar 3 eller fler språk" },
+    "connector": { "title": "Förbindare", "desc": "5 slutförda förbindelser" },
+    "communityBuilder": { "title": "Gemenskapsbyggare", "desc": "Medlem i 3+ gemenskaper" },
+    "profileComplete": { "title": "Komplett profil", "desc": "Fyllt i all profilinformation" },
+    "streak7": { "title": "Veckokrigare", "desc": "7 dagars inloggningssvit" },
+    "streak30": { "title": "Hängiven", "desc": "30 dagars inloggningssvit" },
+    "legendLevel": { "title": "Levande legend", "desc": "Nådde nivå 20" }
+  },
+  "streak": {
+    "title": "Daglig svit",
+    "days_one": "{{count}} dagars svit",
+    "days_other": "{{count}} dagars svit",
+    "best": "Bäst: {{days}} dagar",
+    "loginDaily": "Logga in dagligen för att behålla din svit",
+    "onFire": "Du är i brand! Fortsätt!",
+    "startToday": "Logga in imorgon för att starta din svit"
+  },
+  "leaderboard": {
+    "title": "Topplista",
+    "levelXp": "Nivå {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Vanlig",
+    "rare": "Sällsynt",
+    "epic": "Episk",
+    "legendary": "Legendarisk"
+  }
 }

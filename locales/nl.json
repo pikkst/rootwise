@@ -1144,4 +1144,42 @@
     "ctaPrimary": "Maak een gratis account aan",
     "ctaSecondary": "Blader door missies"
   }
+,
+  "badges": {
+    "title": "Badges",
+    "seeAll": "Alles bekijken",
+    "none": "Nog geen badges — voltooi quests om je eerste te verdienen!",
+    "unlocked": "🎉 {{count}} nieuwe badge ontgrendeld!",
+    "lockedHint": "Ga door om deze badge te ontgrendelen",
+    "firstQuest": { "title": "Eerste quest", "desc": "Deed mee aan je eerste quest" },
+    "quest5": { "title": "Quest-veteraan", "desc": "5 quests voltooid" },
+    "quest20": { "title": "Quest-legende", "desc": "20 quests voltooid" },
+    "sage": { "title": "Wijze meester", "desc": "5 quests begeleid als Wijze" },
+    "polyglot": { "title": "Polyglot", "desc": "Spreekt 3 of meer talen" },
+    "connector": { "title": "Verbinder", "desc": "5 verbindingen voltooid" },
+    "communityBuilder": { "title": "Gemeenschapsbouwer", "desc": "Lid van 3+ gemeenschappen" },
+    "profileComplete": { "title": "Volledig profiel", "desc": "Alle profielinformatie ingevuld" },
+    "streak7": { "title": "Week-strijder", "desc": "7 dagen inlogstreek" },
+    "streak30": { "title": "Toegewijde", "desc": "30 dagen inlogstreek" },
+    "legendLevel": { "title": "Levende legende", "desc": "Niveau 20 bereikt" }
+  },
+  "streak": {
+    "title": "Dagelijkse reeks",
+    "days_one": "Reeks van {{count}} dag",
+    "days_other": "Reeks van {{count}} dagen",
+    "best": "Beste: {{days}} dagen",
+    "loginDaily": "Log dagelijks in om je reeks te behouden",
+    "onFire": "Je bent on fire! Ga zo door!",
+    "startToday": "Log morgen in om je reeks te beginnen"
+  },
+  "leaderboard": {
+    "title": "Ranglijst",
+    "levelXp": "Niveau {{level}} · {{xp}} XP"
+  },
+  "rarity": {
+    "common": "Gewoon",
+    "rare": "Zeldzaam",
+    "epic": "Episch",
+    "legendary": "Legendarisch"
+  }
 }

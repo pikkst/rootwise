@@ -57,6 +57,7 @@ export function useQuests() {
         ageRangeMax: q.age_range_max ?? undefined,
         participants: participantMap[q.id] || [],
         rewardXP: q.reward_xp ?? 0,
+        rarity: q.rarity ?? 'common',
         imageUrl: q.image_url ?? undefined,
         steps: q.steps ?? [],
         createdBy: q.created_by ?? undefined,

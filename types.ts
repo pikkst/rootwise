@@ -116,8 +116,16 @@ export interface Database {
         Insert: Omit<PlatformEvent, 'id' | 'created_at'>;
         Update: Partial<PlatformEvent>;
       };
+      user_badges: {
+        Row: UserBadge;
+        Insert: Omit<UserBadge, 'id' | 'unlocked_at'>;
+        Update: Partial<UserBadge>;
+      };
     };
     Views: {
+      leaderboard: {
+        Row: LeaderboardEntry;
+      };
       community_with_member_count: {
         Row: Community & { member_count: number };
       };
@@ -147,6 +155,9 @@ export interface Profile {
   level: number;
   plan: 'free' | 'pro' | 'org' | 'admin';
   stripe_customer_id: string | null;
+  login_streak_days: number;
+  best_streak_days: number;
+  last_login_date: string | null;
   created_at: string;
   updated_at: string;
   last_seen_at: string | null;
@@ -180,6 +191,8 @@ export function profileToUser(p: Profile): User {
   };
 }
 
+export type QuestRarity = 'common' | 'rare' | 'epic' | 'legendary';
+
 export interface DbQuest {
   id: string;
   title: string;
@@ -196,6 +209,7 @@ export interface DbQuest {
   age_range_min: number | null;
   age_range_max: number | null;
   reward_xp: number;
+  rarity: QuestRarity;
   image_url: string | null;
   steps: string[];
   created_by: string | null;
@@ -219,9 +233,44 @@ export interface Quest {
   ageRangeMax?: number;
   participants: string[];
   rewardXP: number;
+  rarity?: QuestRarity;
   imageUrl?: string;
   steps?: string[];
   createdBy?: string;
+}
+
+// ============================================================
+// Gamification
+// ============================================================
+
+export type BadgeId =
+  | 'first_quest'
+  | 'quest_5'
+  | 'quest_20'
+  | 'sage'
+  | 'polyglot'
+  | 'connector'
+  | 'community_builder'
+  | 'profile_complete'
+  | 'streak_7'
+  | 'streak_30'
+  | 'legend_level';
+
+export interface UserBadge {
+  id: string;
+  user_id: string;
+  badge_id: BadgeId;
+  unlocked_at: string;
+}
+
+export interface LeaderboardEntry {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  role: 'Sage' | 'Seeker' | 'Hybrid';
+  xp: number;
+  level: number;
+  rank: number;
 }
 
 /** Quest Member with role and proof tracking */
