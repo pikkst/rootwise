@@ -209,7 +209,7 @@ const AiNexusPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 pt-24 pb-32 min-h-screen flex flex-col">
+    <div className="max-w-4xl mx-auto px-6 pt-24 pb-4 h-screen flex flex-col overflow-hidden">
       <SEOHead
         title={`${t('ai.title')} - Rootwise`}
         description={t('ai.subtitle')}
@@ -282,7 +282,7 @@ const AiNexusPage: React.FC = () => {
         </div>
       )}
 
-      <div className="flex-1 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col mb-4">
+      <div className="flex-1 min-h-0 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col mb-2">
         <div
           ref={chatScrollRef}
           onScroll={updateChatBottomState}
