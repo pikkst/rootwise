@@ -447,18 +447,31 @@ const ProfilePage: React.FC = () => {
     const setUploading = kind === 'avatar' ? setIsUploadingAvatar : setIsUploadingBanner;
     setUploading(true);
 
-    const { error } = await supabase.storage
+    console.log('[uploadProfileMedia] Starting upload:', { kind, path, fileSize: file.size, fileType: file.type });
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from('profile-media')
       .upload(path, file, { upsert: true, contentType: file.type });
 
-    if (error) {
-      console.error('uploadProfileMedia error:', error.message);
-      showToast('error', t('profile.uploadFailed'));
+    console.log('[uploadProfileMedia] Upload result:', { uploadData, uploadError });
+
+    if (uploadError) {
+      console.error('[uploadProfileMedia] Upload error:', uploadError);
+      showToast('error', t('profile.uploadFailed') + ': ' + uploadError.message);
       setUploading(false);
       return;
     }
 
-    const { data } = supabase.storage.from('profile-media').getPublicUrl(path);
+    if (!uploadData?.path) {
+      console.error('[uploadProfileMedia] No path returned from upload');
+      showToast('error', t('profile.uploadFailed') + ': no path returned');
+      setUploading(false);
+      return;
+    }
+
+    const { data } = supabase.storage.from('profile-media').getPublicUrl(uploadData.path);
+    console.log('[uploadProfileMedia] Public URL:', data?.publicUrl);
+
     if (data?.publicUrl) {
       if (kind === 'avatar') setEditAvatar(data.publicUrl);
       if (kind === 'banner') {
@@ -466,6 +479,8 @@ const ProfilePage: React.FC = () => {
         setEditBannerPosition({ x: 50, y: 50 });
       }
       showToast('success', t('profile.imageUpdated'));
+    } else {
+      showToast('error', t('profile.uploadFailed') + ': no public URL');
     }
     setUploading(false);
   };
