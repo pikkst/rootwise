@@ -447,12 +447,20 @@ const ProfilePage: React.FC = () => {
     const setUploading = kind === 'avatar' ? setIsUploadingAvatar : setIsUploadingBanner;
     setUploading(true);
 
+    const previewUrl = URL.createObjectURL(file);
+    if (kind === 'avatar') setEditAvatar(previewUrl);
+    else {
+      setEditBanner(previewUrl);
+      setEditBannerPosition({ x: 50, y: 50 });
+    }
+
     console.log('[uploadProfileMedia] Starting upload:', { kind, path, fileSize: file.size, fileType: file.type });
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('profile-media')
       .upload(path, file, { upsert: true, contentType: file.type });
 
+    URL.revokeObjectURL(previewUrl);
     console.log('[uploadProfileMedia] Upload result:', { uploadData, uploadError });
 
     if (uploadError) {
@@ -474,7 +482,7 @@ const ProfilePage: React.FC = () => {
 
     if (data?.publicUrl) {
       if (kind === 'avatar') setEditAvatar(data.publicUrl);
-      if (kind === 'banner') {
+      else {
         setEditBanner(data.publicUrl);
         setEditBannerPosition({ x: 50, y: 50 });
       }
