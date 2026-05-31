@@ -734,9 +734,6 @@ const ProfilePage: React.FC = () => {
                   {[profile.preferred_language, primaryLocationLabel].filter(Boolean).join(' • ')}
                 </p>
               )}
-              {profile.bio && !isEditingProfile && (
-                <p className="mt-3 text-sm text-slate-600 max-w-2xl">{profile.bio}</p>
-              )}
             </div>
 
             <div className="flex items-center gap-2">
