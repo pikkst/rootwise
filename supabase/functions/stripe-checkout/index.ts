@@ -93,7 +93,7 @@ Deno.serve(async (req: Request) => {
     // Check if user already has a Stripe customer
     const { data: profile } = await supabase
       .from('profiles')
-      .select('stripe_customer_id, plan')
+      .select('stripe_customer_id, plan, trial_used')
       .eq('id', user.id)
       .single();
 
@@ -116,7 +116,8 @@ Deno.serve(async (req: Request) => {
 
     // Create checkout session
     const isFreeUser = profile?.plan === 'free' || profile?.plan === null || profile?.plan === undefined;
-    const future = isFreeUser ? Math.floor(Date.now() / 1000) + TRIAL_DAYS * 24 * 60 * 60 : undefined;
+    const hasTrial = isFreeUser && !profile?.trial_used;
+    const future = hasTrial ? Math.floor(Date.now() / 1000) + TRIAL_DAYS * 24 * 60 * 60 : undefined;
     const session = await stripeRequest('/checkout/sessions', {
       'customer': customerId,
       'mode': 'subscription',
@@ -128,6 +129,10 @@ Deno.serve(async (req: Request) => {
       'subscription_data[metadata][supabase_user_id]': user.id,
       ...(future ? { 'subscription_data[trial_end]': future } : {}),
     });
+
+    if (hasTrial) {
+      await supabase.from('profiles').update({ trial_used: true }).eq('id', user.id);
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
