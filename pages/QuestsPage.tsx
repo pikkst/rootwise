@@ -212,26 +212,25 @@ const QuestsPage: React.FC = () => {
               imageUrl = publicUrlData.publicUrl;
             }
           }
-        }
 
-        // Create quest with image if available
-        await createQuest({
-          title: data.title,
-          description: data.description,
-          category: data.category,
-          reward_xp: 150,
-          steps: data.steps,
-          created_by: profile.id,
-          quest_type: 'solo',
-          is_virtual: true,
-          image_url: imageUrl,
-        });
-        void trackEvent('quest_generated_ai', {
-          source: 'quests_page',
-          category: data.category,
-        });
-        showToast('success', t('quests.generatedToast'));
-      }
+          // Create quest with image if available
+          await createQuest({
+            title: data.title,
+            description: data.description,
+            category: data.category,
+            reward_xp: 150,
+            steps: data.steps,
+            created_by: profile.id,
+            quest_type: 'solo',
+            is_virtual: true,
+            image_url: imageUrl,
+          });
+          void trackEvent('quest_generated_ai', {
+            source: 'quests_page',
+            category: data.category,
+          });
+          showToast('success', t('quests.generatedToast'));
+        }
     } catch {
       showToast('error', t('quests.generationFailed'));
     }
