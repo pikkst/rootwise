@@ -13,7 +13,7 @@ import { redirectToCheckout, openBillingPortal } from '../services/stripeService
 import { useToast } from '../context/ToastContext';
 import { PLAN_FEATURES } from '../services/planService';
 import { supabase } from '../services/supabase';
-import { profileToUser, getInitials } from '../types';
+import { profileToUser, getInitials, Profile, Post, PostComment, PostLike, Follower, Friendship, Quest } from '../types';
 import { formatDateNumeric, formatDateTime } from '../utils/formatDate';
 
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'avatar_url' | 'role'>;
