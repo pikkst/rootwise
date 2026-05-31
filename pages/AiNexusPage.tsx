@@ -61,8 +61,7 @@ const AiNexusPage: React.FC = () => {
         .select('locations(country, county, city, locality)')
         .eq('profile_id', profile.id)
         .eq('is_primary', true)
-        .limit(1)
-        .single();
+        .maybeSingle();
       const loc = (locData as any)?.locations;
       if (loc) ctx.location = [loc.locality, loc.city, loc.county, loc.country].filter(Boolean).join(', ');
     } catch { /* no location */ }
