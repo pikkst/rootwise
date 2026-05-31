@@ -11,7 +11,7 @@ interface QuestVideoCallProps {
   userName: string;
   userAvatar?: string;
   rewardXP: number;
-  isModerator?: boolean;
+  isHost?: boolean;
   userPlan?: string;
   onClose: () => void;
 }
@@ -143,23 +143,23 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         await loadScript();
         if (!mounted || !containerRef.current) return;
 
-        // Fetch JaaS JWT for Pro users (moderators); free users join as guests
-        let jwt: string | undefined;
-        if (isPro) {
-          try {
-            const { data, error: fnError } = await supabase.functions.invoke('jaas-token', {
-              body: {
-                roomName: roomSuffix,
-                userName,
-                userAvatar: userAvatar || '',
-                isModerator,
-              },
-            });
-            if (!fnError) jwt = data?.token;
-          } catch {
-            // JWT fetch error — continue without auth
-          }
-        }
+         // Fetch JaaS JWT only for the host (moderator); guests join without token
+         let jwt: string | undefined;
+         if (isHost) {
+           try {
+             const { data, error: fnError } = await supabase.functions.invoke('jaas-token', {
+               body: {
+                 roomName: roomSuffix,
+                 userName,
+                 userAvatar: userAvatar || '',
+                 isModerator: true, // request moderator rights
+               },
+             });
+             if (!fnError) jwt = data?.token;
+           } catch {
+             // JWT fetch error — continue without auth
+           }
+         }
 
         if (!mounted || !containerRef.current) return;
 
@@ -169,24 +169,25 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
           parentNode: containerRef.current,
           width: '100%',
           height: '100%',
-          configOverrides: {
-            subject: questTitle,
-            prejoinPageEnabled: false,
-            startWithAudioMuted: !hasMic,
-            startWithVideoMuted: !hasCamera,
-            disableDeepLinking: true,
-            enableClosePage: false,
-            disableInviteFunctions: true,
-            enableCalendarIntegration: false,
-            enableNoisyMicDetection: true,
-            enableNoAudioDetection: true,
-            disableThirdPartyRequests: true,
-            notifications: [],
-            hideConferenceSubject: true,
-            hideConferenceTimer: true,
-            hideParticipantsStats: true,
-            remoteVideoMenu: { disableKick: true, disableGrantModerator: true },
-          },
+           configOverrides: {
+             subject: questTitle,
+             enableLobby: true,
+             prejoinPageEnabled: false,
+             startWithAudioMuted: !hasMic,
+             startWithVideoMuted: !hasCamera,
+             disableDeepLinking: true,
+             enableClosePage: false,
+             disableInviteFunctions: true,
+             enableCalendarIntegration: false,
+             enableNoisyMicDetection: true,
+             enableNoAudioDetection: true,
+             disableThirdPartyRequests: true,
+             notifications: [],
+             hideConferenceSubject: true,
+             hideConferenceTimer: true,
+             hideParticipantsStats: true,
+             remoteVideoMenu: { disableKick: true, disableGrantModerator: true },
+           },
           interfaceConfigOverrides: {
             TOOLBAR_BUTTONS: [
               'microphone',

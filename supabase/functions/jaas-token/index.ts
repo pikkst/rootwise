@@ -5,7 +5,7 @@
 
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SignJWT, importPKCS8 } from 'https://deno.land/x/jose@v5.2.2/index.ts';
+import { SignJWT, importPKCS8, importRSAPrivateKey } from 'https://deno.land/x/jose@v5.2.2/index.ts';
 
 const JAAS_APP_ID = Deno.env.get('JAAS_APP_ID') || 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028';
 const JAAS_KID = Deno.env.get('JAAS_KID') || 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028/bd8234';
@@ -72,22 +72,29 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Parse request body
-    const { roomName, userName, userAvatar } = await req.json();
+     // Parse request body
+     const { roomName, userName, userAvatar, isModerator: requestedIsModerator } = await req.json();
 
-    if (!roomName || !userName) {
-      return new Response(JSON.stringify({ error: 'roomName and userName required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+     if (!roomName || !userName) {
+       return new Response(JSON.stringify({ error: 'roomName and userName required' }), {
+         status: 400,
+         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+       });
+     }
 
-    // Moderator status is determined server-side only — never trust client
-    const isModerator = hasPro || isPlatformAdmin;
+     // Moderator status: honor client request if user is allowed to be moderator
+     const isModerator = (requestedIsModerator === true) && (hasPro || isPlatformAdmin);
 
-    // Import private key
-    const privateKeyPem = Deno.env.get('JAAS_PRIVATE_KEY')!;
-    const privateKey = await importPKCS8(privateKeyPem, 'RS256');
+     // Import private key
+     const privateKeyPem = Deno.env.get('JAAS_PRIVATE_KEY')!;
+     let privateKey;
+     try {
+       // Try RSA private key (PKCS#1) first
+       privateKey = await importRSAPrivateKey(privateKeyPem, 'RS256');
+     } catch {
+       // Fallback to PKCS#8 format
+       privateKey = await importPKCS8(privateKeyPem, 'RS256');
+     }
 
     const now = Math.floor(Date.now() / 1000);
 
