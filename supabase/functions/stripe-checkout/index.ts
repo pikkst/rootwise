@@ -23,7 +23,20 @@ async function stripeRequest(endpoint: string, body: Record<string, string>) {
     },
     body: new URLSearchParams(body).toString(),
   });
-  return res.json();
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    console.error(`Stripe API error ${res.status}: ${text}`);
+    throw new Error(`Stripe API error (${res.status}): ${text}`);
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    console.error('Invalid Stripe response:', text);
+    throw new Error('Invalid response from Stripe');
+  }
 }
 
 Deno.serve(async (req: Request) => {

@@ -34,24 +34,37 @@ export async function getUserPlan(): Promise<Plan> {
   return (data?.plan as Plan) || 'free';
 }
 
-export async function createCheckoutSession(plan: 'pro' | 'org'): Promise<string | null> {
+export async function createCheckoutSession(plan: 'pro' | 'org'): Promise<string> {
   const { data, error } = await supabase.functions.invoke('stripe-checkout', {
     body: { plan },
   });
 
   if (error) {
     console.error('Checkout error:', error);
-    return null;
+    throw new Error(error.message || 'Failed to create checkout session');
   }
 
-  return data?.url || null;
+  const url = data?.url;
+  if (!url) {
+    throw new Error('No checkout URL returned');
+  }
+
+  return url;
 }
 
-export async function redirectToCheckout(plan: 'pro' | 'org', source?: string) {
+export async function redirectToCheckout(
+  plan: 'pro' | 'org',
+  source?: string,
+  onError?: (message: string) => void
+) {
   void trackEvent('checkout_started', { plan, source: source ?? 'unknown' });
-  const url = await createCheckoutSession(plan);
-  if (url) {
+  try {
+    const url = await createCheckoutSession(plan);
     window.location.href = url;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Checkout failed';
+    console.error('Checkout error:', message);
+    onError?.(message);
   }
 }
 

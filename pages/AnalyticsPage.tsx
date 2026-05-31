@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { useQuests } from '../hooks/useQuests';
 import { isPro } from '../services/planService';
 import { redirectToCheckout } from '../services/stripeService';
+import { useToast } from '../context/ToastContext';
 import { supabase } from '../services/supabase';
 import { formatChartDate } from '../utils/formatDate';
 
@@ -20,6 +21,7 @@ const AnalyticsPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { quests } = useQuests();
+  const { showToast } = useToast();
   const [xpHistory, setXpHistory] = useState<{ name: string; xp: number }[]>([]);
   const [aiUsage, setAiUsage] = useState<{ messages: number; quests: number }>({ messages: 0, quests: 0 });
 
@@ -117,7 +119,7 @@ const AnalyticsPage: React.FC = () => {
           </p>
           <p className="text-slate-400 text-sm mb-8">{t('analytics.upgradeHint')}</p>
           <button
-            onClick={() => redirectToCheckout('pro')}
+            onClick={() => redirectToCheckout('pro', 'analytics_page', (msg) => showToast('error', msg))}
             className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/30"
           >
             {t('analytics.upgradeCta')}

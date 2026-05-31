@@ -6,6 +6,7 @@ import PlanBadge from '../components/PlanBadge';
 import { useAuth } from '../context/AuthContext';
 import { usePlan } from '../hooks/usePlan';
 import { redirectToCheckout, openBillingPortal } from '../services/stripeService';
+import { useToast } from '../context/ToastContext';
 import { formatDateLong } from '../utils/formatDate';
 import { trackEvent } from '../services/analyticsService';
 
@@ -14,6 +15,7 @@ const PricingPage: React.FC = () => {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
   const planInfo = usePlan();
+  const { showToast } = useToast();
   const [billingLoading, setBillingLoading] = useState(false);
 
   const currentPlan = planInfo.plan;
@@ -37,7 +39,7 @@ const PricingPage: React.FC = () => {
       navigate('/auth');
       return;
     }
-    redirectToCheckout(plan, 'pricing_page');
+    redirectToCheckout(plan, 'pricing_page', (msg) => showToast('error', msg));
   };
 
   const handleManageBilling = async () => {

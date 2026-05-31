@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { redirectToCheckout } from '../services/stripeService';
+import { useToast } from '../context/ToastContext';
 import { trackEvent } from '../services/analyticsService';
 
 interface UpgradeModalProps {
@@ -14,6 +15,7 @@ interface UpgradeModalProps {
 const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, requiredPlan = 'pro' }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { showToast } = useToast();
 
   React.useEffect(() => {
     if (!isOpen) return;
@@ -78,7 +80,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, feature, r
                 requiredPlan,
                 source: 'upgrade_modal_primary',
               });
-              redirectToCheckout(requiredPlan, 'upgrade_modal');
+              redirectToCheckout(requiredPlan, 'upgrade_modal', (msg) => showToast('error', msg));
             }}
             className={`w-full py-4 font-bold rounded-2xl transition-all shadow-lg ${
               isPro

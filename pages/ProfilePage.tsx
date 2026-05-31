@@ -6,13 +6,9 @@ import PlanBadge from '../components/PlanBadge';
 import BadgeDisplay from '../components/BadgeDisplay';
 import StreakWidget from '../components/StreakWidget';
 import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import { useQuests } from '../hooks/useQuests';
 import { usePlan } from '../hooks/usePlan';
-import { useBadges } from '../hooks/useBadges';
-import { Follower, Friendship, Post, PostComment, PostLike, Profile, getInitials, profileToUser } from '../types';
-import { formatDateNumeric, formatDateTime } from '../utils/formatDate';
 import { redirectToCheckout, openBillingPortal } from '../services/stripeService';
+import { useToast } from '../context/ToastContext';
 import { PLAN_FEATURES } from '../services/planService';
 import { supabase } from '../services/supabase';
 
@@ -891,7 +887,7 @@ const ProfilePage: React.FC = () => {
                       ))}
                     </ul>
                     <button
-                      onClick={() => redirectToCheckout('pro')}
+                      onClick={() => redirectToCheckout('pro', 'profile_page', (msg) => showToast('error', msg))}
                       className="w-full py-2 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors"
                     >
                       {t('profile.upgradeBtn')}

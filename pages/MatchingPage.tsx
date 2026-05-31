@@ -188,7 +188,7 @@ const MatchingPage: React.FC = () => {
           </p>
           <p className="text-slate-400 text-sm mb-8">{t('matching.upgradeHint')}</p>
           <button
-            onClick={() => redirectToCheckout('pro')}
+            onClick={() => redirectToCheckout('pro', 'matching_page', (msg) => showToast('error', msg))}
             className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/30"
           >
             {t('matching.upgradeCta')}

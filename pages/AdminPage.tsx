@@ -889,7 +889,7 @@ const AdminPage: React.FC = () => {
           </p>
           <p className="text-slate-400 text-sm mb-8">{t('admin.authWallNote')}</p>
           <button
-            onClick={() => redirectToCheckout('org', 'admin_paywall')}
+            onClick={() => redirectToCheckout('org', 'admin_paywall', (msg) => showToast('error', msg))}
             className="px-8 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/30"
           >
             {t('admin.authWallBtn')}
