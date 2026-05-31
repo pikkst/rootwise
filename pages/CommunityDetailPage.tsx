@@ -352,7 +352,7 @@ const CommunityDetailPage: React.FC = () => {
         return;
       }
 
-      let imageUrl: string | null = null;
+let imageUrl: string | null = null;
       try {
         const imageBase64 = await aiService.current.generateQuestImage(
           generated.title,
@@ -380,10 +380,10 @@ const CommunityDetailPage: React.FC = () => {
             const { data: publicUrlData } = supabase.storage
               .from('profile-media')
               .getPublicUrl(uploadData.path);
-          imageUrl = publicUrlData.publicUrl;
+            imageUrl = publicUrlData.publicUrl;
+          }
         }
-      }
-      }
+      } catch { /* image generation failed */ }
 
       const { data: createdQuest, error: questError } = await supabaseAny
         .from('quests')

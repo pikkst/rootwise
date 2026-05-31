@@ -230,9 +230,12 @@ const QuestsPage: React.FC = () => {
             category: data.category,
           });
           showToast('success', t('quests.generatedToast'));
-        }
+        } catch { /* image generation failed, continue without image */ }
+      }
     } catch {
       showToast('error', t('quests.generationFailed'));
+    } finally {
+      setIsAiLoading(false);
     }
   };
 
