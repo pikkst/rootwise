@@ -138,13 +138,12 @@ const AuthPage: React.FC = () => {
           setCooldownUntil(null);
         }
       }
-    } catch (err: unknown) {
-      console.error('Auth error:', err);
+    } catch {
       void trackEvent('auth_failed', {
         mode: isLogin ? 'sign_in' : 'sign_up',
-        reason: err instanceof Error ? err.message : 'unknown_error',
+        reason: 'unknown_error',
       });
-      setError(err instanceof Error ? err.message : t('common.error'));
+      setError(t('common.error'));
     }
     setLoading(false);
   };

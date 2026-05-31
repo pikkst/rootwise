@@ -46,7 +46,7 @@ class AppErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBou
     return { hasError: true, message: error?.message ?? 'Unknown error' };
   }
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('[AppErrorBoundary]', error, info.componentStack);
+    // Error silently caught — boundary shows fallback UI
   }
   render() {
     if (this.state.hasError) {

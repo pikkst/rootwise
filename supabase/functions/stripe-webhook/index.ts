@@ -6,6 +6,31 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!;
 const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SIGNING_SECRET')!;
+const SERVICE_ROLE_KEY = Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+async function logPlatformEvent(
+  supabase: any,
+  params: {
+    eventName?: string;
+    userId?: string | null;
+    payload?: any;
+    status?: 'success' | 'error';
+    errorMessage?: string;
+  }
+) {
+  try {
+    await supabase.from('platform_events').insert({
+      event_type: 'stripe_webhook',
+      event_name: params.eventName || null,
+      user_id: params.userId || null,
+      payload: params.payload || null,
+      status: params.status || 'success',
+      error_message: params.errorMessage || null,
+    });
+  } catch (logErr) {
+    console.error('Failed to log platform event:', logErr);
+  }
+}
 
 async function resolveUserIdFromCustomer(supabase: any, customerId?: string | null): Promise<string | null> {
   if (!customerId) return null;

@@ -75,7 +75,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .single();
 
     if (error) {
-      console.error('createProfile Supabase error:', error.message, error);
       return null;
     }
     return normalizeProfile(data as Profile, authUser);
@@ -96,7 +95,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return;
           }
         }
-        console.error('fetchProfile Supabase error:', error.message, error);
         setProfile(normalizeProfile(null, authUser));
         return;
       }
@@ -112,7 +110,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setProfile(normalizeProfile(null, authUser));
       }
     } catch (err) {
-      console.error('fetchProfile exception:', err);
       setProfile(normalizeProfile(null, authUser));
     }
   };
@@ -156,8 +153,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .then(({ data: { session } }) => {
         applySession(session);
       })
-      .catch((err) => {
-        console.error('getSession error:', err);
+      .catch(() => {
+        applySession(null);
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -197,9 +194,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
       });
       return { error: error?.message ?? null };
-    } catch (err) {
-      console.error('signIn exception:', err);
-      return { error: err instanceof Error ? err.message : t('hooks.signInFailed') };
+    } catch {
+      return { error: t('hooks.signInFailed') };
     }
   };
 
@@ -247,3 +243,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     </AuthContext.Provider>
   );
 };
+

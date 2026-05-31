@@ -161,8 +161,7 @@ const CreateQuestPage: React.FC = () => {
 
       showToast('success', t('createQuest.successToast'));
       navigate('/quests');
-    } catch (e) {
-      console.error('Create quest error:', e);
+    } catch {
       showToast('error', t('createQuest.errorToast'));
     }
     setSubmitting(false);

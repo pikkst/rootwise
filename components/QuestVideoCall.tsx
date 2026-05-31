@@ -157,13 +157,9 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
                 isModerator,
               },
             });
-            if (fnError) {
-              console.warn('JaaS token fetch failed, proceeding without JWT:', fnError);
-            } else {
-              jwt = data?.token;
-            }
-          } catch (tokenErr) {
-            console.warn('JaaS token fetch error, proceeding without JWT:', tokenErr);
+            if (!fnError) jwt = data?.token;
+          } catch {
+            // JWT fetch error — continue without auth
           }
         }
 

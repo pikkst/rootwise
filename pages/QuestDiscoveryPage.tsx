@@ -162,8 +162,7 @@ const QuestDiscoveryPage: React.FC = () => {
         .sort((a, b) => b.matchScore - a.matchScore);
 
       setQuests(matched);
-    } catch (err) {
-      console.error('Error fetching quests:', err);
+    } catch {
       showToast('error', t('questDiscovery.failedToLoad'));
     }
     setLoading(false);

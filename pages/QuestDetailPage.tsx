@@ -231,8 +231,7 @@ const QuestDetailPage: React.FC = () => {
           .order('created_at', { ascending: true });
         setMilestones((milestonesData as QuestMilestone[]) ?? []);
       } catch { setMilestones([]); }
-    } catch (err) {
-      console.error('Error fetching quest details:', err);
+    } catch {
       showToast('error', t('questDetail.toastLoadFailed'));
     }
     setLoading(false);
@@ -526,15 +525,14 @@ const QuestDetailPage: React.FC = () => {
       const { error } = await supabase.from('quest_files').delete().eq('id', file.id);
       if (error) throw error;
 
-      await fetchQuestDetails();
-      showToast('success', t('questDetail.toastFileDeleted'));
-    } catch (err: any) {
-      console.error('File delete error:', err);
-      showToast('error', err?.message || t('questDetail.toastDeleteFailed'));
-    } finally {
-      setDeletingFileId(null);
-    }
-  };
+    await fetchQuestDetails();
+    showToast('success', t('questDetail.toastFileDeleted'));
+  } catch (err: any) {
+    showToast('error', err?.message || t('questDetail.toastDeleteFailed'));
+  } finally {
+    setDeletingFileId(null);
+  }
+};
 
   // Video call handlers — must be before early returns to satisfy Rules of Hooks
   const handleStartCall = useCallback(() => {
@@ -1411,3 +1409,4 @@ const QuestDetailPage: React.FC = () => {
 };
 
 export default QuestDetailPage;
+

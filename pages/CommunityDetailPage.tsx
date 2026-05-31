@@ -237,8 +237,7 @@ const CommunityDetailPage: React.FC = () => {
 
       // Fetch community messages
       await fetchMessages();
-    } catch (error) {
-      console.error('Error fetching community details:', error);
+    } catch {
       showToast('error', t('communityDetail.errorLoading'));
     } finally {
       setLoading(false);
@@ -381,11 +380,9 @@ const CommunityDetailPage: React.FC = () => {
             const { data: publicUrlData } = supabase.storage
               .from('profile-media')
               .getPublicUrl(uploadData.path);
-            imageUrl = publicUrlData.publicUrl;
-          }
+          imageUrl = publicUrlData.publicUrl;
         }
-      } catch (imageError) {
-        console.warn('Community quest image generation failed:', imageError);
+      }
       }
 
       const { data: createdQuest, error: questError } = await supabaseAny
@@ -429,8 +426,7 @@ const CommunityDetailPage: React.FC = () => {
       await fetchCommunityDetails();
       setActiveTab('quests');
       showToast('success', t('communityDetail.questGenerated', { title: createdQuest.title }));
-    } catch (error) {
-      console.error('Error generating community quest:', error);
+    } catch {
       showToast('error', t('communityDetail.questGenerateFailed'));
     } finally {
       setGeneratingCommunityQuest(false);
@@ -1061,3 +1057,4 @@ const CommunityDetailPage: React.FC = () => {
 };
 
 export default CommunityDetailPage;
+

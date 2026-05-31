@@ -248,7 +248,6 @@ const ProfilePage: React.FC = () => {
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('handleProfileUpdate called');
     await updateProfile({
       name: editName,
       age: editAge,
@@ -295,7 +294,6 @@ const ProfilePage: React.FC = () => {
       .select('id, name, avatar_url, role')
       .in('id', ids);
     if (error) {
-      console.error('fetchProfilesByIds error:', error.message);
       return [];
     }
     return (data as ProfileLite[]) ?? [];
@@ -308,7 +306,6 @@ const ProfilePage: React.FC = () => {
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false });
     if (error) {
-      console.error('loadPosts error:', error.message);
       return;
     }
 
@@ -454,31 +451,25 @@ const ProfilePage: React.FC = () => {
       setEditBannerPosition({ x: 50, y: 50 });
     }
 
-    console.log('[uploadProfileMedia] Starting upload:', { kind, path, fileSize: file.size, fileType: file.type });
-
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('profile-media')
       .upload(path, file, { upsert: true, contentType: file.type });
 
     URL.revokeObjectURL(previewUrl);
-    console.log('[uploadProfileMedia] Upload result:', { uploadData, uploadError });
 
     if (uploadError) {
-      console.error('[uploadProfileMedia] Upload error:', uploadError);
       showToast('error', t('profile.uploadFailed') + ': ' + uploadError.message);
       setUploading(false);
       return;
     }
 
     if (!uploadData?.path) {
-      console.error('[uploadProfileMedia] No path returned from upload');
       showToast('error', t('profile.uploadFailed') + ': no path returned');
       setUploading(false);
       return;
     }
 
     const { data } = supabase.storage.from('profile-media').getPublicUrl(uploadData.path);
-    console.log('[uploadProfileMedia] Public URL:', data?.publicUrl);
 
     if (data?.publicUrl) {
       if (kind === 'avatar') setEditAvatar(data.publicUrl);
@@ -642,7 +633,6 @@ const ProfilePage: React.FC = () => {
       .ilike('name', `%${query}%`)
       .limit(8);
     if (error) {
-      console.error('handleSearch error:', error.message);
       return;
     }
     const results = (data as ProfileLite[]).filter((item) => item.id !== profile.id);

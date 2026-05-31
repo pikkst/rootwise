@@ -212,8 +212,6 @@ const QuestsPage: React.FC = () => {
               imageUrl = publicUrlData.publicUrl;
             }
           }
-        } catch (imgErr) {
-          console.warn('Image generation failed, continuing without image:', imgErr);
         }
 
         // Create quest with image if available
@@ -234,12 +232,9 @@ const QuestsPage: React.FC = () => {
         });
         showToast('success', t('quests.generatedToast'));
       }
-    } catch (err) {
-      console.error('Quest generation error:', err);
-      showToast('error', t('quests.aiFailToast'));
+    } catch {
+      showToast('error', t('quests.generationFailed'));
     }
-    setIsAiLoading(false);
-    aiUsage.refresh();
   };
 
   return (
