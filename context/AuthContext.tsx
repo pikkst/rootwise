@@ -178,11 +178,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
+    const redirectTo = import.meta.env.VITE_CLIENT_URL || 'https://rootwise.site';
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { name },
+        emailRedirectTo: redirectTo,
       },
     });
     return { error: error?.message ?? null };

@@ -1,6 +1,6 @@
 // Stripe Webhook — handles subscription lifecycle events
 // Deploy: supabase functions deploy stripe-webhook --no-verify-jwt
-// Env vars needed: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUPABASE_SERVICE_ROLE_KEY
+// Env vars needed: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SIGNING_SECRET, SERVICE_ROLE_KEY
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -90,7 +90,7 @@ Deno.serve(async (req: Request) => {
   // Use service role to bypass RLS
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    Deno.env.get('SERVICE_ROLE_KEY')!
   );
 
   try {
