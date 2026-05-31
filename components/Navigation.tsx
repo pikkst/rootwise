@@ -110,7 +110,7 @@ const Navigation: React.FC = () => {
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <div
           className="hidden md:flex items-center gap-2 font-bold text-indigo-600 text-xl cursor-pointer"
-          onClick={() => navigate(lp('/'))}
+          onClick={() => navigate(user ? lp('/dashboard') : lp('/'))}
         >
           <span>ROOTWISE</span>
         </div>
