@@ -7,6 +7,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!;
 const CLIENT_URL = Deno.env.get('CLIENT_URL') || 'https://rootwise.site';
+const TRIAL_DAYS = parseInt(Deno.env.get('TRIAL_DAYS') || '30', 10);
 
 function resolveAppUrl(req: Request) {
   const origin = req.headers.get('origin');
@@ -114,6 +115,7 @@ Deno.serve(async (req: Request) => {
     }
 
     // Create checkout session
+    const future = Math.floor(Date.now() / 1000) + TRIAL_DAYS * 24 * 60 * 60;
     const session = await stripeRequest('/checkout/sessions', {
       'customer': customerId,
       'mode': 'subscription',
@@ -123,6 +125,7 @@ Deno.serve(async (req: Request) => {
       'cancel_url': `${appUrl}/pricing?checkout=cancelled`,
       'metadata[supabase_user_id]': user.id,
       'subscription_data[metadata][supabase_user_id]': user.id,
+      'subscription_data[trial_end]': future,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
