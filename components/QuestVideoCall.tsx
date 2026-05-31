@@ -55,7 +55,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   userName,
   userAvatar,
   rewardXP,
-  isModerator = false,
+  isHost = false,
   userPlan = 'free',
   onClose,
 }) => {
