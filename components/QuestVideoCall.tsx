@@ -87,18 +87,16 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
   const isPro = userPlan === 'pro' || userPlan === 'org' || userPlan === 'admin';
   const FREE_CALL_LIMIT = 5 * 60; // 5 minutes in seconds
 
-  // JaaS (Jitsi as a Service) app ID — only used for Pro users
-  const JAAS_APP_ID = 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028';
+   // JaaS (Jitsi as a Service) app ID — used for all users (guests or authenticated)
+   const JAAS_APP_ID = 'vpaas-magic-cookie-cd11b47983b2480881514268912c6028';
 
-  // Room name differs by plan:
-  // Pro: JaaS room with appId prefix
-  // Free: simple room name on public Jitsi
-  const roomSuffix = `Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`;
-  const roomName = isPro ? `${JAAS_APP_ID}/${roomSuffix}` : roomSuffix;
-  const jitsiDomain = isPro ? '8x8.vc' : 'meet.jit.si';
-  const scriptUrl = isPro
-    ? 'https://8x8.vc/external_api.js'
-    : 'https://meet.jit.si/external_api.js';
+   // Unique room suffix per quest
+   const roomSuffix = `Rootwise_${questId.replace(/-/g, '').slice(0, 16)}`;
+
+   // Room name includes app ID prefix for JaaS (same for all participants)
+   const roomName = `${JAAS_APP_ID}/${roomSuffix}`;
+   const jitsiDomain = '8x8.vc';
+   const scriptUrl = 'https://8x8.vc/external_api.js';
 
   // Load Jitsi Meet External API and initialize
   useEffect(() => {
@@ -145,7 +143,7 @@ const QuestVideoCall: React.FC<QuestVideoCallProps> = ({
         await loadScript();
         if (!mounted || !containerRef.current) return;
 
-        // Only fetch JaaS JWT for Pro users (free users use public meet.jit.si)
+        // Fetch JaaS JWT for Pro users (moderators); free users join as guests
         let jwt: string | undefined;
         if (isPro) {
           try {
