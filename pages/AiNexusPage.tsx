@@ -40,7 +40,7 @@ const AiNexusPage: React.FC = () => {
   const userProfileRef = useRef<ChatUserProfile | null>(null);
   const buildUserProfile = useCallback(async () => {
     if (!profile) return;
-    const ctx: ChatUserProfile = {
+    let ctx: ChatUserProfile = {
       name: profile.name,
       age: profile.age,
       role: profile.role,
@@ -55,6 +55,7 @@ const AiNexusPage: React.FC = () => {
     };
 
     // Fetch primary location
+    let resolvedLocation: string | null = null;
     try {
       const { data: locData } = await supabase
         .from('profile_locations')
@@ -63,7 +64,10 @@ const AiNexusPage: React.FC = () => {
         .eq('is_primary', true)
         .maybeSingle();
       const loc = (locData as any)?.locations;
-      if (loc) ctx.location = [loc.locality, loc.city, loc.county, loc.country].filter(Boolean).join(', ');
+      if (loc) {
+        resolvedLocation = [loc.locality, loc.city, loc.county, loc.country].filter(Boolean).join(', ');
+        ctx.location = resolvedLocation;
+      }
     } catch { /* no location */ }
 
     // Fetch completed quest count
@@ -87,6 +91,25 @@ const AiNexusPage: React.FC = () => {
         ctx.communityNames = memberships.map((m: any) => m.communities?.name).filter(Boolean);
       }
     } catch { /* ok */ }
+
+    ctx.profileCompleteness = Math.round(
+      (
+        [
+          profile.name ? 1 : 0,
+          profile.age != null ? 1 : 0,
+          profile.role ? 1 : 0,
+          profile.skills?.length ? 1 : 0,
+          profile.interests?.length ? 1 : 0,
+          profile.bio ? 1 : 0,
+          resolvedLocation ? 1 : 0,
+          profile.spoken_languages?.length ? 1 : 0,
+          profile.level != null ? 1 : 0,
+          profile.xp != null ? 1 : 0,
+          profile.plan ? 1 : 0,
+          ctx.communityNames?.length ? 1 : 0,
+        ].reduce((sum, value) => sum + value, 0) / 12
+      ) * 100
+    );
 
     userProfileRef.current = ctx;
   }, [profile]);

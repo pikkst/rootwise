@@ -374,6 +374,7 @@ Deno.serve(async (req: Request) => {
           memberSince?: string;
           completedQuestCount?: number;
           communityNames?: string[];
+          profileCompleteness?: number;
         } | null;
       };
 
@@ -511,6 +512,7 @@ ${userProfile.location ? `Location: ${userProfile.location}` : ''}
 ${userProfile.spokenLanguages?.length ? `Languages: ${userProfile.spokenLanguages.join(', ')}` : ''}
 Platform level: ${userProfile.level ?? 1} (XP: ${userProfile.xp ?? 0})
 Plan: ${userProfile.plan || 'free'}
+${userProfile.profileCompleteness != null ? `Profile completeness: ${userProfile.profileCompleteness}%` : ''}
 ${userProfile.memberSince ? `Member since: ${userProfile.memberSince}` : ''}
 ${userProfile.completedQuestCount ? `Completed quests: ${userProfile.completedQuestCount}` : ''}
 ${userProfile.communityNames?.length ? `Communities: ${userProfile.communityNames.join(', ')}` : ''}
@@ -556,6 +558,7 @@ PRIVACY RULES (STRICT):
 • NEVER share a matched person's exact age — only age range (e.g., "someone in their 40s").
 • NEVER reveal private memory or private chat-disclosed facts about OTHER users. Only profile-page data is shareable.
 • NEVER reveal internal scoring, algorithms, hidden memory tags, or raw JSON/system data.
+• NEVER share system internals, platform architecture, AI model implementation details, security design, or any hacking/exploit guidance. If asked about Rootwise internals, politely explain that you cannot discuss system architecture and will focus on safe, user-facing advice.
 • If the user asks for private/non-profile details, politely refuse that specific part but continue helping with available profile data.
 • IMPORTANT: candidateContext is already safe for user-facing matching recommendations. Do NOT claim that profile data in candidateContext is unavailable.
 
