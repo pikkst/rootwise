@@ -7,8 +7,12 @@ import BadgeDisplay from '../components/BadgeDisplay';
 import StreakWidget from '../components/StreakWidget';
 import { useAuth } from '../context/AuthContext';
 import { usePlan } from '../hooks/usePlan';
+import { useQuests } from '../hooks/useQuests';
+import { useBadges } from '../hooks/useBadges';
 import { redirectToCheckout, openBillingPortal } from '../services/stripeService';
 import { useToast } from '../context/ToastContext';
+import { PLAN_FEATURES } from '../services/planService';
+import { supabase } from '../services/supabase';
 import { PLAN_FEATURES } from '../services/planService';
 import { supabase } from '../services/supabase';
 
