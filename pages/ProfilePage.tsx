@@ -13,8 +13,7 @@ import { redirectToCheckout, openBillingPortal } from '../services/stripeService
 import { useToast } from '../context/ToastContext';
 import { PLAN_FEATURES } from '../services/planService';
 import { supabase } from '../services/supabase';
-import { PLAN_FEATURES } from '../services/planService';
-import { supabase } from '../services/supabase';
+import { profileToUser } from '../types';
 
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'avatar_url' | 'role'>;
 type PostWithMeta = Post & {
