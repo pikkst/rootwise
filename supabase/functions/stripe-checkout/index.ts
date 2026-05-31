@@ -123,7 +123,6 @@ Deno.serve(async (req: Request) => {
       'cancel_url': `${appUrl}/pricing?checkout=cancelled`,
       'metadata[supabase_user_id]': user.id,
       'subscription_data[metadata][supabase_user_id]': user.id,
-      'trial_from_plan': 'true',
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
