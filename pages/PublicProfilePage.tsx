@@ -463,8 +463,8 @@ const PublicProfilePage: React.FC = () => {
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="rounded-3xl bg-white/95 p-4 shadow-sm ring-1 ring-slate-200/70">
-                <h2 className="text-3xl font-bold text-slate-800 break-words leading-tight">{viewedProfile.name}</h2>
+              <div className="relative z-10 rounded-3xl bg-white/95 p-4 shadow-sm ring-1 ring-slate-200/70">
+                <h2 className="text-3xl font-bold text-slate-900 break-words leading-tight">{viewedProfile.name}</h2>
                 <p className="text-slate-500">{viewedProfile.role} • {viewedProfile.age ?? t('publicProfile.ageNotSet')}</p>
                 {viewedProfile.bio && (
                   <p className="mt-3 text-sm text-slate-600 max-w-2xl">{viewedProfile.bio}</p>

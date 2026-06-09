@@ -689,7 +689,7 @@ const ProfilePage: React.FC = () => {
         </div>
 
         <div className="px-4 sm:px-8 pb-8">
-          <div className="-mt-14 flex flex-col lg:flex-row lg:items-end gap-6">
+          <div className="-mt-10 flex flex-col lg:flex-row lg:items-end gap-6">
             <div className="relative">
               {currentUser.avatar ? (
                 <img
@@ -717,8 +717,8 @@ const ProfilePage: React.FC = () => {
             </div>
 
             <div className="flex-1">
-              <div className="rounded-3xl bg-white/95 p-4 shadow-sm ring-1 ring-slate-200/70">
-                <h2 className="text-3xl font-bold text-slate-800">{currentUser.name}</h2>
+              <div className="relative z-10 rounded-3xl bg-white/95 p-4 shadow-sm ring-1 ring-slate-200/70">
+                <h2 className="text-3xl font-bold text-slate-900">{currentUser.name || profile.name}</h2>
                 <p className="text-slate-500">{profile.role}  {profile.age ?? t('profile.ageNotSet')}</p>
                 {!isEditingProfile && (profile.preferred_language || primaryLocationLabel) && (
                   <p className="text-sm text-slate-500 mt-1">
