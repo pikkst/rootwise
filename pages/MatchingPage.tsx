@@ -126,7 +126,7 @@ const MatchingPage: React.FC = () => {
       }
 
       if (matchReasons.length === 0) {
-        matchReasons.push(t('matching.exploreConnection'));
+        matchReasons.push(t('matching.exploreConnection', { defaultValue: 'Explore connection' }));
       }
 
       return { ...p, score, matchReasons };
@@ -228,7 +228,7 @@ const MatchingPage: React.FC = () => {
             <div key={match.id} className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all overflow-hidden">
               {/* Match score badge */}
               <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 flex items-center justify-between">
-                <span className="text-white font-bold text-sm">{t('matching.matchNumber', { number: index + 1 })}</span>
+                <span className="text-white font-bold text-sm">{t('matching.matchLabel', { n: index + 1 })}</span>
                 <span className="px-3 py-1 bg-white/20 rounded-full text-white text-xs font-bold">
                   {t('matching.matchScore', { score: match.score })}
                 </span>
@@ -300,9 +300,9 @@ const MatchingPage: React.FC = () => {
       ) : (
         <div className="text-center py-20 bg-white rounded-3xl border border-slate-200">
           <p className="text-6xl mb-4">🔍</p>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">{t('matching.noMatches')}</h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">{t('matching.noMatchesTitle')}</h3>
           <p className="text-slate-500 max-w-md mx-auto">
-            {t('matching.noMatchesHint')}
+            {t('matching.noMatchesDesc')}
           </p>
         </div>
       )}

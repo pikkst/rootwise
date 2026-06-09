@@ -770,6 +770,7 @@
     "loading": "Finding your best matches...",
     "matchLabel": "Match #{{n}}",
     "matchScore": "{{score}}% match",
+    "exploreConnection": "Explore connection",
     "age": "Age {{n}}",
     "connect": "Connect",
     "connecting": "Connecting...",
