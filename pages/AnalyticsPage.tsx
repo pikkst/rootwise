@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-} from 'recharts';
+import React, { Suspense } from 'react';
+const LineChartWrapper = React.lazy(() => import('../components/charts/LineChartWrapper'));
+const PieChartWrapper = React.lazy(() => import('../components/charts/PieChartWrapper'));
+const BarChartWrapper = React.lazy(() => import('../components/charts/BarChartWrapper'));
+
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
 import { useQuests } from '../hooks/useQuests';
@@ -166,15 +167,9 @@ const AnalyticsPage: React.FC = () => {
           </h3>
           {xpHistory.length > 0 ? (
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={xpHistory}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgb(0 0 0 / 0.1)' }} />
-                  <Line type="monotone" dataKey="xp" stroke="#6366f1" strokeWidth={3} dot={{ fill: '#6366f1', r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
+              <Suspense fallback={<div className="h-64 flex items-center justify-center">Loading chart…</div>}>
+                <LineChartWrapper data={xpHistory} dataKey="xp" />
+              </Suspense>
             </div>
           ) : (
             <p className="text-slate-400 text-center py-16">{t('analytics.noXpData')}</p>
@@ -188,24 +183,9 @@ const AnalyticsPage: React.FC = () => {
           </h3>
           {categoryData.length > 0 ? (
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={90}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {categoryData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+              <Suspense fallback={<div className="h-64 flex items-center justify-center">Loading chart…</div>}>
+                <PieChartWrapper data={categoryData} colors={COLORS} />
+              </Suspense>
             </div>
           ) : (
             <p className="text-slate-400 text-center py-16">{t('analytics.noCategoryData')}</p>
@@ -221,15 +201,9 @@ const AnalyticsPage: React.FC = () => {
           </h3>
           {skillData.length > 0 ? (
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={skillData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                  <YAxis type="category" dataKey="skill" axisLine={false} tickLine={false} tick={{ fill: '#334155', fontSize: 12 }} width={100} />
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                  <Bar dataKey="quests" fill="#8b5cf6" radius={[0, 8, 8, 0]} name={t('analytics.relatedQuests')} />
-                </BarChart>
-              </ResponsiveContainer>
+              <Suspense fallback={<div className="h-64 flex items-center justify-center">Loading chart…</div>}>
+                <BarChartWrapper data={skillData} dataKey="quests" layout="vertical" />
+              </Suspense>
             </div>
           ) : (
             <p className="text-slate-400 text-center py-16">{t('analytics.noSkillData')}</p>

@@ -25,7 +25,7 @@ export function useQuests() {
     if (questsData) {
       // Fetch all members for these quests to get participant list
       const questIds = questsData.map((q: DbQuest) => q.id);
-      let members: QuestMember[] = [];
+      let members: Array<{ quest_id: string; user_id: string }> = [];
       if (questIds.length > 0) {
         const { data: membersData } = await supabase
           .from('quest_members')
@@ -171,10 +171,10 @@ export function useQuests() {
     }
 
     // Set proof_verified through SECURITY DEFINER RPC — enforces creator/mentor check at DB level
-    const { error: rpcError } = await supabase.rpc('verify_quest_member_proof', {
-      p_quest_id: questId,
-      p_member_user_id: userId,
-      p_verified: verified,
+      const { error: rpcError } = await supabase.rpc('verify_quest_member_proof', {
+        p_quest_id: questId,
+        p_member_user_id: userId,
+        p_verified: verified,
     });
 
     if (rpcError) {
@@ -198,7 +198,14 @@ export function useQuests() {
   };
 
   // Create quest (creator workflow)
-  const createQuest = async (questData: Omit<DbQuest, 'id' | 'created_at' | 'updated_at'>) => {
+  const createQuest = async (
+    questData: Partial<DbQuest> & {
+      title: string;
+      category: string;
+      quest_type: DbQuest['quest_type'];
+      is_virtual: boolean;
+    }
+  ) => {
     // Enforce quest limit for free users on creation too
     if (questData.created_by) {
       const { data: profileData } = await supabase

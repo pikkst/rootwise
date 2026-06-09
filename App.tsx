@@ -1,5 +1,5 @@
 
-import React, { useEffect, Component, ErrorInfo } from 'react';
+import React, { useEffect, Component, ErrorInfo, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
@@ -8,27 +8,28 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
-import LandingPage from './pages/LandingPage';
-import AuthPage from './pages/AuthPage';
-import DashboardPage from './pages/DashboardPage';
-import QuestsPage from './pages/QuestsPage';
-import QuestDiscoveryPage from './pages/QuestDiscoveryPage';
-import QuestDetailPage from './pages/QuestDetailPage';
-import CommunityPage from './pages/CommunityPage';
-import CommunityDetailPage from './pages/CommunityDetailPage';
-import AiNexusPage from './pages/AiNexusPage';
-import ProfilePage from './pages/ProfilePage';
-import PublicProfilePage from './pages/PublicProfilePage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import MatchingPage from './pages/MatchingPage';
-import AdminPage from './pages/AdminPage';
-import PricingPage from './pages/PricingPage';
-import HowItWorksPage from './pages/HowItWorksPage';
-import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
-import TermsOfServicePage from './pages/TermsOfServicePage';
-import ReportsPage from './pages/ReportsPage';
-import MessagesPage from './pages/MessagesPage';
-import CreateQuestPage from './pages/CreateQuestPage';
+// Lazy-load route pages to split code by route
+const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const AuthPage = React.lazy(() => import('./pages/AuthPage'));
+const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
+const QuestsPage = React.lazy(() => import('./pages/QuestsPage'));
+const QuestDiscoveryPage = React.lazy(() => import('./pages/QuestDiscoveryPage'));
+const QuestDetailPage = React.lazy(() => import('./pages/QuestDetailPage'));
+const CommunityPage = React.lazy(() => import('./pages/CommunityPage'));
+const CommunityDetailPage = React.lazy(() => import('./pages/CommunityDetailPage'));
+const AiNexusPage = React.lazy(() => import('./pages/AiNexusPage'));
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
+const PublicProfilePage = React.lazy(() => import('./pages/PublicProfilePage'));
+const AnalyticsPage = React.lazy(() => import('./pages/AnalyticsPage'));
+const MatchingPage = React.lazy(() => import('./pages/MatchingPage'));
+const AdminPage = React.lazy(() => import('./pages/AdminPage'));
+const PricingPage = React.lazy(() => import('./pages/PricingPage'));
+const HowItWorksPage = React.lazy(() => import('./pages/HowItWorksPage'));
+const PrivacyPolicyPage = React.lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsOfServicePage = React.lazy(() => import('./pages/TermsOfServicePage'));
+const ReportsPage = React.lazy(() => import('./pages/ReportsPage'));
+const MessagesPage = React.lazy(() => import('./pages/MessagesPage'));
+const CreateQuestPage = React.lazy(() => import('./pages/CreateQuestPage'));
 import { trackEvent } from './services/analyticsService';
 
 const LANG_CODES = new Set<string>(SUPPORTED_LANGUAGES.map(l => l.code));
@@ -87,7 +88,9 @@ const LocaleLayout: React.FC = () => {
     <div className="min-h-screen bg-slate-50 transition-colors">
       <Navigation />
       <main>
-        <Outlet />
+        <Suspense fallback={<div className="py-12 text-center">Loading…</div>}>
+          <Outlet />
+        </Suspense>
       </main>
       <Footer />
     </div>
@@ -101,7 +104,11 @@ const RootRedirect: React.FC = () => {
   if (lang !== 'en' && LANG_CODES.has(lang)) {
     return <Navigate to={`/${lang}/`} replace />;
   }
-  return <LandingPage />;
+  return (
+    <Suspense fallback={<div className="py-12 text-center">Loading…</div>}>
+      <LandingPage />
+    </Suspense>
+  );
 };
 
 /** Wrapper that redirects unauthenticated users to /auth */

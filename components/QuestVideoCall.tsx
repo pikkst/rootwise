@@ -12,6 +12,7 @@ interface QuestVideoCallProps {
   userAvatar?: string;
   rewardXP: number;
   isHost?: boolean;
+  isModerator?: boolean;
   userPlan?: string;
   onClose: () => void;
 }

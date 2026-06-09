@@ -3,131 +3,207 @@
 // Supabase Database Types
 // ============================================================
 
+type DatabaseRow<T> = T & Record<string, any>;
+type DatabaseInsert<T> = Partial<T> & Record<string, any>;
+type DatabaseUpdate<T> = Partial<T> & Record<string, any>;
+
 export interface Database {
   public: {
     Tables: {
+      [key: string]: {
+        Row: Record<string, any>;
+        Insert: Record<string, any>;
+        Update: Record<string, any>;
+        Relationships: [];
+      };
       profiles: {
-        Row: Profile;
-        Insert: Partial<Profile> & { id: string };
-        Update: Partial<Profile>;
+        Row: DatabaseRow<Profile>;
+        Insert: DatabaseInsert<Partial<Profile> & { id: string }>;
+        Update: DatabaseUpdate<Partial<Profile>>;
+        Relationships: [];
       };
       quests: {
-        Row: DbQuest;
-        Insert: Partial<DbQuest>;
-        Update: Partial<DbQuest>;
+        Row: DatabaseRow<DbQuest>;
+        Insert: DatabaseInsert<Partial<DbQuest>>;
+        Update: DatabaseUpdate<Partial<DbQuest>>;
+        Relationships: [];
       };
       communities: {
-        Row: Community;
-        Insert: Partial<Community>;
-        Update: Partial<Community>;
+        Row: DatabaseRow<Community>;
+        Insert: DatabaseInsert<Partial<Community>>;
+        Update: DatabaseUpdate<Partial<Community>>;
+        Relationships: [];
       };
       community_members: {
-        Row: CommunityMember;
-        Insert: Omit<CommunityMember, 'joined_at'>;
-        Update: Partial<CommunityMember>;
+        Row: DatabaseRow<CommunityMember>;
+        Insert: DatabaseInsert<Omit<CommunityMember, 'joined_at'>>;
+        Update: DatabaseUpdate<Partial<CommunityMember>>;
+        Relationships: [];
       };
       chat_messages: {
-        Row: DbChatMessage;
-        Insert: Omit<DbChatMessage, 'id' | 'created_at'>;
-        Update: Partial<DbChatMessage>;
+        Row: DatabaseRow<DbChatMessage>;
+        Insert: DatabaseInsert<Omit<DbChatMessage, 'id' | 'created_at'>>;
+        Update: DatabaseUpdate<Partial<DbChatMessage>>;
+        Relationships: [];
       };
       connections: {
-        Row: Connection;
-        Insert: Omit<Connection, 'id' | 'created_at'>;
-        Update: Partial<Connection>;
+        Row: DatabaseRow<Connection>;
+        Insert: DatabaseInsert<Omit<Connection, 'id' | 'created_at'>>;
+        Update: DatabaseUpdate<Partial<Connection>>;
+        Relationships: [];
       };
       posts: {
-        Row: Post;
-        Insert: Omit<Post, 'id' | 'created_at'>;
-        Update: Partial<Post>;
+        Row: DatabaseRow<Post>;
+        Insert: DatabaseInsert<Omit<Post, 'id' | 'created_at'>>;
+        Update: DatabaseUpdate<Partial<Post>>;
+        Relationships: [];
       };
       post_comments: {
-        Row: PostComment;
-        Insert: Omit<PostComment, 'id' | 'created_at'>;
-        Update: Partial<PostComment>;
+        Row: DatabaseRow<PostComment>;
+        Insert: DatabaseInsert<Omit<PostComment, 'id' | 'created_at'>>;
+        Update: DatabaseUpdate<Partial<PostComment>>;
+        Relationships: [];
       };
       post_likes: {
-        Row: PostLike;
-        Insert: Omit<PostLike, 'created_at'>;
-        Update: Partial<PostLike>;
+        Row: DatabaseRow<PostLike>;
+        Insert: DatabaseInsert<Omit<PostLike, 'created_at'>>;
+        Update: DatabaseUpdate<Partial<PostLike>>;
+        Relationships: [];
       };
       followers: {
-        Row: Follower;
-        Insert: Omit<Follower, 'created_at'>;
-        Update: Partial<Follower>;
+        Row: DatabaseRow<Follower>;
+        Insert: DatabaseInsert<Omit<Follower, 'created_at'>>;
+        Update: DatabaseUpdate<Partial<Follower>>;
+        Relationships: [];
       };
       friendships: {
-        Row: Friendship;
-        Insert: Omit<Friendship, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<Friendship>;
+        Row: DatabaseRow<Friendship>;
+        Insert: DatabaseInsert<Omit<Friendship, 'id' | 'created_at' | 'updated_at'>>;
+        Update: DatabaseUpdate<Partial<Friendship>>;
+        Relationships: [];
       };
       quest_members: {
-        Row: QuestMember;
-        Insert: Omit<QuestMember, 'id' | 'joined_at'>;
-        Update: Partial<QuestMember>;
+        Row: DatabaseRow<QuestMember>;
+        Insert: DatabaseInsert<Omit<QuestMember, 'id' | 'joined_at'>>;
+        Update: DatabaseUpdate<Partial<QuestMember>>;
+        Relationships: [];
       };
       quest_messages: {
-        Row: QuestMessage;
-        Insert: Omit<QuestMessage, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<QuestMessage>;
+        Row: DatabaseRow<QuestMessage>;
+        Insert: DatabaseInsert<Omit<QuestMessage, 'id' | 'created_at' | 'updated_at'>>;
+        Update: DatabaseUpdate<Partial<QuestMessage>>;
+        Relationships: [];
       };
       quest_files: {
-        Row: QuestFile;
-        Insert: Omit<QuestFile, 'id' | 'uploaded_at'>;
-        Update: Partial<QuestFile>;
+        Row: DatabaseRow<QuestFile>;
+        Insert: DatabaseInsert<Omit<QuestFile, 'id' | 'uploaded_at'>>;
+        Update: DatabaseUpdate<Partial<QuestFile>>;
+        Relationships: [];
       };
       quest_milestones: {
-        Row: QuestMilestone;
-        Insert: Omit<QuestMilestone, 'id' | 'created_at'>;
-        Update: Partial<QuestMilestone>;
+        Row: DatabaseRow<QuestMilestone>;
+        Insert: DatabaseInsert<Omit<QuestMilestone, 'id' | 'created_at'>>;
+        Update: DatabaseUpdate<Partial<QuestMilestone>>;
+        Relationships: [];
       };
       quest_matches: {
-        Row: QuestMatch;
-        Insert: Omit<QuestMatch, 'id' | 'created_at'>;
-        Update: Partial<QuestMatch>;
+        Row: DatabaseRow<QuestMatch>;
+        Insert: DatabaseInsert<Omit<QuestMatch, 'id' | 'created_at'>>;
+        Update: DatabaseUpdate<Partial<QuestMatch>>;
+        Relationships: [];
       };
       xp_history: {
-        Row: XpHistoryEntry;
-        Insert: Omit<XpHistoryEntry, 'id' | 'created_at'>;
-        Update: Partial<XpHistoryEntry>;
+        Row: DatabaseRow<XpHistoryEntry>;
+        Insert: DatabaseInsert<Omit<XpHistoryEntry, 'id' | 'created_at'>>;
+        Update: DatabaseUpdate<Partial<XpHistoryEntry>>;
+        Relationships: [];
       };
       platform_admins: {
-        Row: PlatformAdmin;
-        Insert: Omit<PlatformAdmin, 'created_at'>;
-        Update: Partial<PlatformAdmin>;
+        Row: DatabaseRow<PlatformAdmin>;
+        Insert: DatabaseInsert<Omit<PlatformAdmin, 'created_at'>>;
+        Update: DatabaseUpdate<Partial<PlatformAdmin>>;
+        Relationships: [];
       };
       locations: {
-        Row: Location;
-        Insert: Omit<Location, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<Location>;
+        Row: DatabaseRow<Location>;
+        Insert: DatabaseInsert<Omit<Location, 'id' | 'created_at' | 'updated_at'>>;
+        Update: DatabaseUpdate<Partial<Location>>;
+        Relationships: [];
       };
       profile_locations: {
-        Row: ProfileLocation;
-        Insert: Omit<ProfileLocation, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<ProfileLocation>;
+        Row: DatabaseRow<ProfileLocation>;
+        Insert: DatabaseInsert<Omit<ProfileLocation, 'id' | 'created_at' | 'updated_at'>>;
+        Update: DatabaseUpdate<Partial<ProfileLocation>>;
+        Relationships: [];
+      };
+      ai_usage: {
+        Row: DatabaseRow<{ user_id: string; usage_date: string; message_count: number; quest_gen_count: number }>;
+        Insert: DatabaseInsert<Partial<{ user_id: string; usage_date: string; message_count: number; quest_gen_count: number }>>;
+        Update: DatabaseUpdate<Partial<{ user_id: string; usage_date: string; message_count: number; quest_gen_count: number }>>;
+        Relationships: [];
+      };
+      subscriptions: {
+        Row: DatabaseRow<{ user_id: string; stripe_subscription_id: string | null; plan: string; status: string; current_period_end: string | null }>;
+        Insert: DatabaseInsert<Partial<{ user_id: string; stripe_subscription_id: string | null; plan: string; status: string; current_period_end: string | null }>>;
+        Update: DatabaseUpdate<Partial<{ user_id: string; stripe_subscription_id: string | null; plan: string; status: string; current_period_end: string | null }>>;
+        Relationships: [];
+      };
+      quest_translations: {
+        Row: DatabaseRow<{ quest_id: string; locale: string; title: string; description: string; steps: string[] | null }>;
+        Insert: DatabaseInsert<Partial<{ quest_id: string; locale: string; title: string; description: string; steps: string[] | null }>>;
+        Update: DatabaseUpdate<Partial<{ quest_id: string; locale: string; title: string; description: string; steps: string[] | null }>>;
+        Relationships: [];
       };
       user_reports: {
-        Row: UserReport;
-        Insert: Omit<UserReport, 'id' | 'created_at' | 'updated_at' | 'reviewed_at'>;
-        Update: Partial<UserReport>;
+        Row: DatabaseRow<UserReport>;
+        Insert: DatabaseInsert<Omit<UserReport, 'id' | 'created_at' | 'updated_at' | 'reviewed_at'>>;
+        Update: DatabaseUpdate<Partial<UserReport>>;
+        Relationships: [];
       };
       platform_events: {
-        Row: PlatformEvent;
-        Insert: Omit<PlatformEvent, 'id' | 'created_at'>;
-        Update: Partial<PlatformEvent>;
+        Row: DatabaseRow<PlatformEvent>;
+        Insert: DatabaseInsert<Omit<PlatformEvent, 'id' | 'created_at'>>;
+        Update: DatabaseUpdate<Partial<PlatformEvent>>;
+        Relationships: [];
       };
       user_badges: {
-        Row: UserBadge;
-        Insert: Omit<UserBadge, 'id' | 'unlocked_at'>;
-        Update: Partial<UserBadge>;
+        Row: DatabaseRow<UserBadge>;
+        Insert: DatabaseInsert<Omit<UserBadge, 'id' | 'unlocked_at'>>;
+        Update: DatabaseUpdate<Partial<UserBadge>>;
+        Relationships: [];
       };
     };
     Views: {
+      [key: string]: {
+        Row: Record<string, any>;
+        Relationships: [];
+      };
       leaderboard: {
-        Row: LeaderboardEntry;
+        Row: DatabaseRow<LeaderboardEntry>;
+        Relationships: [];
       };
       community_with_member_count: {
-        Row: Community & { member_count: number };
+        Row: DatabaseRow<Community & { member_count: number }>;
+        Relationships: [];
+      };
+    };
+    Functions: {
+      [key: string]: { Args: Record<string, unknown> | never; Returns: unknown };
+      check_ai_usage: {
+        Args: { p_user_id?: string | null; p_type: 'chat' | 'quest_gen' };
+        Returns: { allowed: boolean; limit: number } | null;
+      };
+      count_user_created_quests: {
+        Args: { p_user_id: string };
+        Returns: number | null;
+      };
+      increment_xp: {
+        Args: { p_user_id: string | null; p_amount: number };
+        Returns: null;
+      };
+      verify_quest_member_proof: {
+        Args: { p_quest_id: string; p_member_user_id: string; p_verified: boolean };
+        Returns: null;
       };
     };
   };
@@ -158,6 +234,8 @@ export interface Profile {
   login_streak_days: number;
   best_streak_days: number;
   last_login_date: string | null;
+  lat?: number | null;
+  lng?: number | null;
   created_at: string;
   updated_at: string;
   last_seen_at: string | null;
@@ -227,6 +305,7 @@ export interface Quest {
   communityId?: string;
   status: 'draft' | 'published' | 'matched' | 'in_progress' | 'submitted' | 'verified' | 'completed';
   questType: 'duo' | 'team' | 'solo';
+  type?: 'duo' | 'team' | 'solo';
   isVirtual: boolean;
   location?: string;
   skillsRequired?: string[];
@@ -234,6 +313,7 @@ export interface Quest {
   ageRangeMax?: number;
   participants: string[];
   rewardXP: number;
+  reward_xp?: number;
   rarity?: QuestRarity;
   imageUrl?: string;
   steps?: string[];
@@ -281,7 +361,7 @@ export interface QuestMember {
   user_id: string;
   role: 'creator' | 'mentor' | 'learner';
   status: 'invited' | 'accepted' | 'active' | 'declined' | 'in_progress' | 'completed';
-  proof_submitted: { type: 'photo' | 'video' | 'text'; content: string } | null;
+  proof_submitted: { type: 'text' | 'image' | 'photo' | 'video'; content: string } | null;
   proof_submitted_at: string | null;
   proof_verified: boolean;
   proof_verified_by: string | null;

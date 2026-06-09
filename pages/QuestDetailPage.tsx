@@ -339,7 +339,7 @@ const QuestDetailPage: React.FC = () => {
       const proofData = {
         type: 'text',
         content: proofText,
-      };
+      } as const;
 
       const { error } = await supabase
         .from('quest_members')

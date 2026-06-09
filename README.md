@@ -80,6 +80,15 @@ GEMINI_API_KEY=your-gemini-api-key
 npm run dev
 ```
 
+### Local development and secret handling
+- This repository is configured for a live deploy workflow where production secrets are provided by Cloudflare and Supabase at build/runtime.
+- `local .env` may be intentionally empty in the repository. If you run locally, populate your local environment with the required variables first.
+- Required variables for local development and production builds:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+  - `GEMINI_API_KEY` (for AI features)
+- The project now fails fast if required client or server environment variables are missing, so missing config is detected immediately instead of causing hidden runtime failures.
+
 ## Deployment (Cloudflare Pages)
 
 ### Why Cloudflare Pages instead of GitHub Pages?

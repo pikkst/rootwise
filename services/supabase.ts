@@ -1,14 +1,9 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../types';
+import { getRequiredEnvVar } from '../utils/env';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const env = import.meta.env as Record<string, string | undefined>;
+const supabaseUrl = getRequiredEnvVar(env, 'VITE_SUPABASE_URL');
+const supabaseAnonKey = getRequiredEnvVar(env, 'VITE_SUPABASE_ANON_KEY');
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials not found. Check your .env.local file.');
-}
-
-export const supabase = createClient<Database>(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
-);
+export const supabase: SupabaseClient<Database, 'public', 'public'> = createClient<Database, 'public', 'public'>(supabaseUrl, supabaseAnonKey);

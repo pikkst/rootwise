@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatChartDate, formatDateNumeric, formatDateTime } from '../utils/formatDate';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from 'recharts';
+import React, { Suspense } from 'react';
+const BarChartWrapper = React.lazy(() => import('../components/charts/BarChartWrapper'));
+const MultiBarChartWrapper = React.lazy(() => import('../components/charts/MultiBarChartWrapper'));
+const OverviewTab = React.lazy(() => import('../components/admin/OverviewTab'));
+
 import SEOHead from '../components/SEOHead';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -12,7 +14,7 @@ import { isOrg, canAddOrgMember, remainingOrgSlots, PLAN_LIMITS } from '../servi
 import { redirectToCheckout } from '../services/stripeService';
 import { supabase } from '../services/supabase';
 import { Profile, UserReport, getInitials } from '../types';
-import { SUPPORTED_LANGUAGES } from '../i18n';
+import { SUPPORTED_LANGUAGES, type LanguageCode } from '../i18n';
 
 interface CommunityWithMembers {
   id: string;
@@ -721,7 +723,7 @@ const AdminPage: React.FC = () => {
 
   const buildLocalePath = (path: string) => {
     const match = location.pathname.match(/^\/([a-z]{2})(?:\/|$)/i);
-    const lang = match?.[1]?.toLowerCase();
+    const lang = match?.[1]?.toLowerCase() as LanguageCode | undefined;
     if (lang && LANG_CODES.has(lang) && lang !== 'en') {
       return `/${lang}${path}`;
     }
@@ -961,63 +963,9 @@ const AdminPage: React.FC = () => {
           {/* Overview Tab */}
           {activeTab === 'overview' && (isPlatformAdmin ? !!platformStats : !!stats) && (
             <div className="space-y-6">
-              {isPlatformAdmin && platformStats ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalUsers')}</p>
-                    <p className="text-3xl font-black text-indigo-600">{platformStats.totalUsers}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">{t('admin.activeUsers')}</p>
-                    <p className="text-3xl font-black text-emerald-600">{platformStats.activeUsers7d}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalQuests')}</p>
-                    <p className="text-3xl font-black text-amber-600">{platformStats.totalQuests}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalCommunities')}</p>
-                    <p className="text-3xl font-black text-purple-600">{platformStats.totalCommunities}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalMembers')}</p>
-                    <p className="text-3xl font-black text-indigo-600">{stats.totalMembers}</p>
-                    <p className="text-xs text-slate-400 mt-1">{t('admin.ofMax', { max: PLAN_LIMITS.org.maxOrgMembers })}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">{t('admin.tabCommunities')}</p>
-                    <p className="text-3xl font-black text-emerald-600">{stats.totalCommunities}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">{t('admin.questActivity')}</p>
-                    <p className="text-3xl font-black text-amber-600">{stats.totalQuests}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-sm text-slate-500 mb-1">{t('admin.totalXp')}</p>
-                    <p className="text-3xl font-black text-purple-600">{stats.totalXp}</p>
-                  </div>
-                </div>
-              )}
-
-              {stats.memberActivity.length > 0 && (
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                  <h3 className="text-lg font-bold mb-4">{t('admin.rolesChart')}</h3>
-                  <div className="h-48">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={stats.memberActivity}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                        <YAxis axisLine={false} tickLine={false} />
-                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                        <Bar dataKey="members" fill="#6366f1" radius={[8, 8, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              )}
+              <Suspense fallback={<div className="py-8 text-center">Loading overview…</div>}>
+                <OverviewTab isPlatformAdmin={isPlatformAdmin} platformStats={platformStats} stats={stats} />
+              </Suspense>
             </div>
           )}
 
@@ -1043,17 +991,9 @@ const AdminPage: React.FC = () => {
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                 <h3 className="text-lg font-bold mb-4">{t('admin.activityChart')}</h3>
                 <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={trendData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="date" axisLine={false} tickLine={false} />
-                      <YAxis axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                      <Bar dataKey="users" fill="#6366f1" radius={[8, 8, 0, 0]} />
-                      <Bar dataKey="quests" fill="#10b981" radius={[8, 8, 0, 0]} />
-                      <Bar dataKey="posts" fill="#f59e0b" radius={[8, 8, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <Suspense fallback={<div className="h-64 flex items-center justify-center">Loading chart…</div>}>
+                    <MultiBarChartWrapper data={trendData} xKey="date" bars={[{ dataKey: 'users', fill: '#6366f1' }, { dataKey: 'quests', fill: '#10b981' }, { dataKey: 'posts', fill: '#f59e0b' }]} />
+                  </Suspense>
                 </div>
               </div>
 

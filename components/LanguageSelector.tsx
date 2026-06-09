@@ -65,7 +65,8 @@ const LanguageSelector: React.FC<Props> = ({ compact = false, footer = false, up
     // Update URL to reflect new language
     const pathSegments = location.pathname.split('/');
     // Strip existing lang prefix if present
-    if (pathSegments[1] && LANG_CODES.has(pathSegments[1])) {
+    const currentPathLang = pathSegments[1] as LanguageCode | undefined;
+    if (currentPathLang && LANG_CODES.has(currentPathLang)) {
       pathSegments.splice(1, 1);
     }
     const barePath = pathSegments.join('/') || '/';

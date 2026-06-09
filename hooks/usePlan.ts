@@ -11,7 +11,7 @@ export interface PlanInfo {
   isPro: boolean;
   isOrg: boolean;
   label: string;
-  limits: typeof PLAN_LIMITS['free'];
+  limits: typeof PLAN_LIMITS[keyof typeof PLAN_LIMITS];
   loading: boolean;
   trialEndsAt: string | null;
   canUseFeature: (feature: 'unlimited_quests' | 'unlimited_ai' | 'quest_generation' | 'analytics' | 'matching' | 'video_calls' | 'admin' | 'branded_communities' | 'reporting') => boolean;

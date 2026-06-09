@@ -1,23 +1,28 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-
-// Import all locale files
 import en from './locales/en.json';
-import et from './locales/et.json';
-import de from './locales/de.json';
-import fr from './locales/fr.json';
-import es from './locales/es.json';
-import it from './locales/it.json';
-import ru from './locales/ru.json';
-import fi from './locales/fi.json';
-import sv from './locales/sv.json';
-import lv from './locales/lv.json';
-import lt from './locales/lt.json';
-import pl from './locales/pl.json';
-import pt from './locales/pt.json';
-import nl from './locales/nl.json';
-import uk from './locales/uk.json';
+
+const localeLoaders = import.meta.glob('./locales/!(*en).json');
+
+const normalizeLanguageCode = (lng: string) => (lng?.split?.('-')?.[0] ?? 'en') as LanguageCode;
+
+const loadLocale = async (lng: string) => {
+  const normalizedLng = normalizeLanguageCode(lng);
+  if (i18n.hasResourceBundle(normalizedLng, 'translation')) return;
+
+  const loader = localeLoaders[`./locales/${normalizedLng}.json`];
+  if (!loader) return;
+
+  const resources = await loader();
+  i18n.addResourceBundle(
+    normalizedLng,
+    'translation',
+    (resources as { default: Record<string, any> }).default ?? resources,
+    true,
+    true,
+  );
+};
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
@@ -45,21 +50,8 @@ i18n
   .init({
     resources: {
       en: { translation: en },
-      et: { translation: et },
-      de: { translation: de },
-      fr: { translation: fr },
-      es: { translation: es },
-      it: { translation: it },
-      ru: { translation: ru },
-      fi: { translation: fi },
-      sv: { translation: sv },
-      lv: { translation: lv },
-      lt: { translation: lt },
-      pl: { translation: pl },
-      pt: { translation: pt },
-      nl: { translation: nl },
-      uk: { translation: uk },
     },
+    supportedLngs: SUPPORTED_LANGUAGES.map((lang) => lang.code),
     fallbackLng: 'en',
     compatibilityJSON: 'v4',   // Enables proper plural rules (one/few/many/other)
     interpolation: {
@@ -71,5 +63,13 @@ i18n
       caches: ['localStorage'],
     },
   });
+
+i18n.on('languageChanged', (lng) => {
+  void loadLocale(lng);
+});
+
+if (i18n.language && i18n.language !== 'en') {
+  void loadLocale(i18n.language);
+}
 
 export default i18n;

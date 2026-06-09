@@ -5,11 +5,35 @@
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!;
+const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
 const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_IMAGE_MODEL = 'gemini-2.0-flash-exp';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 const GEMINI_IMAGE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+function buildMissingServerEnvResponse(headers: Record<string, string>) {
+  const missingVars = [
+    { key: 'GEMINI_API_KEY', value: GEMINI_API_KEY },
+    { key: 'SUPABASE_URL', value: Deno.env.get('SUPABASE_URL') ?? '' },
+    { key: 'SUPABASE_ANON_KEY', value: Deno.env.get('SUPABASE_ANON_KEY') ?? '' },
+  ]
+    .filter((entry) => !entry.value)
+    .map((entry) => entry.key);
+
+  if (missingVars.length === 0) {
+    return null;
+  }
+
+  return new Response(
+    JSON.stringify({
+      error: `Missing required server environment variable(s): ${missingVars.join(', ')}`,
+    }),
+    {
+      status: 500,
+      headers: { ...headers, 'Content-Type': 'application/json' },
+    }
+  );
+}
 
 type ChatPart = { text: string };
 type ChatContent = { role: 'user' | 'model'; parts: ChatPart[] };
@@ -298,6 +322,11 @@ async function createSupportQuest(
 Deno.serve(async (req: Request) => {
   // Per-request CORS headers — restricts to allowed origins
   const corsHeaders = getCorsHeaders(req);
+
+  const missingEnvResponse = buildMissingServerEnvResponse(corsHeaders);
+  if (missingEnvResponse) {
+    return missingEnvResponse;
+  }
 
   // CORS preflight
   if (req.method === 'OPTIONS') {

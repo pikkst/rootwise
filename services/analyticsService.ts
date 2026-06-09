@@ -34,6 +34,7 @@ export type EventName =
   | 'ai_limit_reached'       // Free AI message quota hit
   | 'quest_gen_limit_reached' // Free quest gen quota hit
   | 'quest_generated_ai'      // AI-generated quest successfully created
+  | 'user_quest_created'
   | 'ai_intro_requested';     // User asked AI to initiate contact with a match
 
 export interface EventProperties {
