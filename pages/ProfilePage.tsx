@@ -717,13 +717,15 @@ const ProfilePage: React.FC = () => {
             </div>
 
             <div className="flex-1">
-              <h2 className="text-3xl font-bold text-slate-800">{currentUser.name}</h2>
-              <p className="text-slate-500">{profile.role}  {profile.age ?? t('profile.ageNotSet')}</p>
-              {!isEditingProfile && (profile.preferred_language || primaryLocationLabel) && (
-                <p className="text-sm text-slate-500 mt-1">
-                  {[profile.preferred_language, primaryLocationLabel].filter(Boolean).join(' • ')}
-                </p>
-              )}
+              <div className="rounded-3xl bg-white/95 p-4 shadow-sm ring-1 ring-slate-200/70">
+                <h2 className="text-3xl font-bold text-slate-800">{currentUser.name}</h2>
+                <p className="text-slate-500">{profile.role}  {profile.age ?? t('profile.ageNotSet')}</p>
+                {!isEditingProfile && (profile.preferred_language || primaryLocationLabel) && (
+                  <p className="text-sm text-slate-500 mt-1">
+                    {[profile.preferred_language, primaryLocationLabel].filter(Boolean).join(' • ')}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-2">

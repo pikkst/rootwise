@@ -447,7 +447,7 @@ const PublicProfilePage: React.FC = () => {
         </div>
 
         <div className="px-4 sm:px-8 pb-8">
-          <div className="pt-3 sm:pt-4 flex flex-col lg:flex-row lg:items-end gap-6">
+          <div className="pt-6 sm:pt-8 flex flex-col lg:flex-row lg:items-end gap-6">
             <div className="relative -mt-14 sm:-mt-16 lg:-mt-20">
               {viewedProfile.avatar_url ? (
                 <img
@@ -463,11 +463,13 @@ const PublicProfilePage: React.FC = () => {
             </div>
 
             <div className="flex-1 min-w-0">
-              <h2 className="text-3xl font-bold text-slate-800 break-words leading-tight">{viewedProfile.name}</h2>
-              <p className="text-slate-500">{viewedProfile.role} • {viewedProfile.age ?? t('publicProfile.ageNotSet')}</p>
-              {viewedProfile.bio && (
-                <p className="mt-3 text-sm text-slate-600 max-w-2xl">{viewedProfile.bio}</p>
-              )}
+              <div className="rounded-3xl bg-white/95 p-4 shadow-sm ring-1 ring-slate-200/70">
+                <h2 className="text-3xl font-bold text-slate-800 break-words leading-tight">{viewedProfile.name}</h2>
+                <p className="text-slate-500">{viewedProfile.role} • {viewedProfile.age ?? t('publicProfile.ageNotSet')}</p>
+                {viewedProfile.bio && (
+                  <p className="mt-3 text-sm text-slate-600 max-w-2xl">{viewedProfile.bio}</p>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
