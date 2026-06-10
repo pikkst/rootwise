@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatChartDate, formatDateNumeric, formatDateTime } from '../utils/formatDate';
-import React, { Suspense } from 'react';
 const BarChartWrapper = React.lazy(() => import('../components/charts/BarChartWrapper'));
 const MultiBarChartWrapper = React.lazy(() => import('../components/charts/MultiBarChartWrapper'));
 const OverviewTab = React.lazy(() => import('../components/admin/OverviewTab'));

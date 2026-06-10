@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import React, { Suspense } from 'react';
 const LineChartWrapper = React.lazy(() => import('../components/charts/LineChartWrapper'));
 const PieChartWrapper = React.lazy(() => import('../components/charts/PieChartWrapper'));
 const BarChartWrapper = React.lazy(() => import('../components/charts/BarChartWrapper'));
