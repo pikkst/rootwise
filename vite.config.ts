@@ -45,6 +45,12 @@ export default defineConfig(() => {
             }
           }
         }
+      },
+      optimizeDeps: {
+        exclude: ['lightningcss']
+      },
+      ssr: {
+        noExternal: ['lightningcss']
       }
     };
 });

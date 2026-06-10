@@ -11,10 +11,6 @@ const StreakWidget: React.FC<StreakWidgetProps> = ({ profile }) => {
   const streak = profile.login_streak_days ?? 0;
   const best = profile.best_streak_days ?? 0;
 
-  // Build 7-day visual dots
-  const today = new Date();
-  const lastLoginDate = profile.last_login_date ? new Date(profile.last_login_date) : null;
-
   // How many trailing active days to show (up to 7)
   const activeDays = Math.min(streak, 7);
 

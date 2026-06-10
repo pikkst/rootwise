@@ -1,6 +1,6 @@
 
 import React, { useEffect, Component, ErrorInfo, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation, Outlet } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES } from './i18n';
@@ -46,8 +46,9 @@ class AppErrorBoundary extends Component<{ children: React.ReactNode }, ErrorBou
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, message: error?.message ?? 'Unknown error' };
   }
-  componentDidCatch(error: Error, info: ErrorInfo) {
-    // Error silently caught — boundary shows fallback UI
+  componentDidCatch(_error: Error, _info: ErrorInfo): void {
+    void _error;
+    void _info;
   }
   render() {
     if (this.state.hasError) {
@@ -98,7 +99,7 @@ const LocaleLayout: React.FC = () => {
 };
 
 /** Redirects bare "/" to "/:detectedLang/" if the user's language isn't English */
-const RootRedirect: React.FC = () => {
+const _RootRedirect: React.FC = () => {
   const { i18n } = useTranslation();
   const lang = i18n.language || 'en';
   if (lang !== 'en' && LANG_CODES.has(lang)) {
@@ -134,7 +135,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 /** The full set of page routes — used both bare and under /:lang */
 const pageRoutes = (
   <>
-    <Route index element={<LandingPage />} />
     <Route path="auth" element={<AuthPage />} />
     <Route path="pricing" element={<PricingPage />} />
     <Route path="how-it-works" element={<HowItWorksPage />} />
@@ -158,6 +158,13 @@ const pageRoutes = (
   </>
 );
 
+const translatedPageRoutes = (
+  <>
+    <Route index element={<_RootRedirect />} />
+    {pageRoutes}
+  </>
+);
+
 const AppRoutes: React.FC = () => {
   const location = useLocation();
 
@@ -173,7 +180,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       {/* Bare routes (English / default) */}
       <Route element={<LocaleLayout />}>
-        {pageRoutes}
+        {translatedPageRoutes}
       </Route>
 
       {/* /:lang prefixed routes — syncs URL lang with i18n */}

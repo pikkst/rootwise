@@ -15,7 +15,7 @@ import { useConnections } from '../hooks/useConnections';
 import { useBadges } from '../hooks/useBadges';
 import { profileToUser } from '../types';
 import { supabase } from '../services/supabase';
-import { isPro, isOrg } from '../services/planService';
+import { isPro } from '../services/planService';
 import { formatChartDate, formatDateTime } from '../utils/formatDate';
 
 const DashboardPage: React.FC = () => {

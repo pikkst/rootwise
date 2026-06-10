@@ -161,7 +161,7 @@ export function useQuests() {
   };
 
   // Verify proof and award XP (mentor/creator workflow)
-  const verifyProof = async (questId: string, userId: string, verified: boolean, verifierId?: string) => {
+  const verifyProof = async (questId: string, userId: string, verified: boolean, _verifierId?: string) => {
     if (verified) {
       // Award XP atomically via RPC
       const quest = quests.find((q) => q.id === questId);

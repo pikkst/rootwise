@@ -13,7 +13,7 @@ import { trackEvent } from '../services/analyticsService';
 const PricingPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { profile, user } = useAuth();
+  const { user } = useAuth();
   const planInfo = usePlan();
   const { showToast } = useToast();
   const [billingLoading, setBillingLoading] = useState(false);

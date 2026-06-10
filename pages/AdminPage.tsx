@@ -2,7 +2,6 @@ import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatChartDate, formatDateNumeric, formatDateTime } from '../utils/formatDate';
-const BarChartWrapper = React.lazy(() => import('../components/charts/BarChartWrapper'));
 const MultiBarChartWrapper = React.lazy(() => import('../components/charts/MultiBarChartWrapper'));
 const OverviewTab = React.lazy(() => import('../components/admin/OverviewTab'));
 
@@ -331,9 +330,9 @@ const AdminPage: React.FC = () => {
     events.forEach((event) => {
       byName[event.name] = (byName[event.name] ?? 0) + 1;
 
-      const props = event.properties ?? {};
-      const src = (props.utm_source as string | undefined)
-        ?? (props.referrer_host as string | undefined)
+      const props = event.properties ?? ({} as Record<string, any>);
+      const src = (props['utm_source'] as string | undefined)
+        ?? (props['referrer_host'] as string | undefined)
         ?? 'direct';
       bySource[src] = (bySource[src] ?? 0) + 1;
 
@@ -458,7 +457,7 @@ const AdminPage: React.FC = () => {
 
     const reports = (data as UserReport[]) ?? [];
     const reporterIds = [...new Set(reports.map((r) => r.reporter_id))];
-    let reporterNameMap: Record<string, string> = {};
+    const reporterNameMap: Record<string, string> = {};
 
     if (reporterIds.length > 0) {
       const { data: reporters } = await supabase
@@ -756,7 +755,7 @@ const AdminPage: React.FC = () => {
 
     setToolkitLoading(mode);
     try {
-      const payload = templates.map((template, index) => ({
+      const payload = templates.map((template, _index) => ({
         title: template.title,
         description: template.description,
         category: template.category,

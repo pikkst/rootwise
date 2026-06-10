@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BadgeId, UserBadge } from '../types';
+import { BadgeId } from '../types';
 import { BADGE_META, ALL_BADGE_IDS } from '../hooks/useBadges';
 
 interface BadgeDisplayProps {

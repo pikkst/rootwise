@@ -13,7 +13,7 @@ import { redirectToCheckout, openBillingPortal } from '../services/stripeService
 import { useToast } from '../context/ToastContext';
 import { PLAN_FEATURES } from '../services/planService';
 import { supabase } from '../services/supabase';
-import { profileToUser, getInitials, Profile, Post, PostComment, PostLike, Follower, Friendship, Quest } from '../types';
+import { profileToUser, getInitials, Profile, Post, PostComment, PostLike, Follower, Friendship } from '../types';
 import { formatDateNumeric, formatDateTime } from '../utils/formatDate';
 
 type ProfileLite = Pick<Profile, 'id' | 'name' | 'avatar_url' | 'role'>;
@@ -32,7 +32,7 @@ const ProfilePage: React.FC = () => {
   const { showToast } = useToast();
   const { quests } = useQuests();
   const planInfo = usePlan();
-  const { earnedIds, badges, loading: badgesLoading, checkAndRefresh } = useBadges();
+  const { earnedIds, loading: badgesLoading } = useBadges();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [billingLoading, setBillingLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'posts' | 'friends' | 'followers' | 'about' | 'photos' | 'quests' | 'badges'>('posts');
@@ -133,13 +133,7 @@ const ProfilePage: React.FC = () => {
     };
   }, [location.search, profile?.id]);
 
-  if (!profile) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-    </div>
-  );
-
-  const currentUser = profileToUser(profile);
+const currentUser = profileToUser(profile);
   const completedQuestsArr = quests.filter(
     (q) => q.status === 'completed' && q.participants.includes(profile.id)
   );

@@ -48,7 +48,7 @@ const QuestDiscoveryPage: React.FC = () => {
 
     try {
       // Fetch published and in_progress quests
-      let query = supabase
+      const query = supabase
         .from('quests')
         .select('*')
         .in('status', ['published', 'in_progress']);

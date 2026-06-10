@@ -1,5 +1,4 @@
 import React, { Suspense, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 const LineChartWrapper = React.lazy(() => import('../components/charts/LineChartWrapper'));
 const PieChartWrapper = React.lazy(() => import('../components/charts/PieChartWrapper'));
@@ -18,7 +17,6 @@ const COLORS = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#818cf8', '#4f46e5'
 
 const AnalyticsPage: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { profile } = useAuth();
   const { quests } = useQuests();
   const { showToast } = useToast();

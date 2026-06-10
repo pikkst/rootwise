@@ -448,18 +448,18 @@ Deno.serve(async (req: Request) => {
           .eq('user_id', user.id);
         const joinedIds = (memberOf ?? []).map((m: any) => m.community_id);
 
-        let query = supabase
+        const _query = supabase
           .from('community_with_member_count')
           .select('id, name, category, member_count')
           .limit(10);
         if (joinedIds.length > 0) {
           // Supabase doesn't have a direct "not in" for arrays, filter client-side
-          const { data: cData } = await query;
-          if (cData) {
-            suggestedCommunities = cData.filter((c: any) => !joinedIds.includes(c.id));
-          }
-        } else {
-          const { data: cData } = await query;
+const { data: cData } = await _query;
+           if (cData) {
+             suggestedCommunities = cData.filter((c: any) => !joinedIds.includes(c.id));
+           }
+         } else {
+           const { data: cData } = await _query;
           if (cData) suggestedCommunities = cData;
         }
       } catch { /* ok */ }
@@ -515,8 +515,8 @@ Deno.serve(async (req: Request) => {
       const allowedCandidateNames = privacySafeCandidates.map((candidate) => candidate.name);
 
       // Keep full context for response metadata (but AI only sees privacy-safe version)
-      const candidateContext = ranked.slice(0, 3).map((c) => ({
-        id: c.id,
+const _candidateContext = ranked.slice(0, 3).map((c) => ({
+         id: c.id,
         name: c.name,
         age: c.age,
         role: c.role,

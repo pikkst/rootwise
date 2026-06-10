@@ -40,7 +40,7 @@ const AiNexusPage: React.FC = () => {
   const userProfileRef = useRef<ChatUserProfile | null>(null);
   const buildUserProfile = useCallback(async () => {
     if (!profile) return;
-    let ctx: ChatUserProfile = {
+    const _ctx: ChatUserProfile = {
       name: profile.name,
       age: profile.age,
       role: profile.role,
@@ -66,7 +66,7 @@ const AiNexusPage: React.FC = () => {
       const loc = (locData as any)?.locations;
       if (loc) {
         resolvedLocation = [loc.locality, loc.city, loc.county, loc.country].filter(Boolean).join(', ');
-        ctx.location = resolvedLocation;
+        _ctx.location = resolvedLocation;
       }
     } catch { /* no location */ }
 
@@ -77,7 +77,7 @@ const AiNexusPage: React.FC = () => {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', profile.id)
         .eq('xp_awarded', true);
-      ctx.completedQuestCount = count ?? 0;
+      _ctx.completedQuestCount = count ?? 0;
     } catch { /* ok */ }
 
     // Fetch community memberships
@@ -88,11 +88,11 @@ const AiNexusPage: React.FC = () => {
         .eq('user_id', profile.id)
         .limit(10);
       if (memberships?.length) {
-        ctx.communityNames = memberships.map((m: any) => m.communities?.name).filter(Boolean);
+        _ctx.communityNames = memberships.map((m: any) => m.communities?.name).filter(Boolean);
       }
     } catch { /* ok */ }
 
-    ctx.profileCompleteness = Math.round(
+    _ctx.profileCompleteness = Math.round(
       (
         [
           profile.name ? 1 : 0,
@@ -106,12 +106,12 @@ const AiNexusPage: React.FC = () => {
           profile.level != null ? 1 : 0,
           profile.xp != null ? 1 : 0,
           profile.plan ? 1 : 0,
-          ctx.communityNames?.length ? 1 : 0,
+          _ctx.communityNames?.length ? 1 : 0,
         ].reduce((sum, value) => sum + value, 0) / 12
       ) * 100
     );
 
-    userProfileRef.current = ctx;
+    userProfileRef.current = _ctx;
   }, [profile]);
 
   useEffect(() => {

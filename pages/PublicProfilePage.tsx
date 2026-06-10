@@ -7,7 +7,7 @@ import { useBadges } from '../hooks/useBadges';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useLocalePath } from '../hooks/useLocalePath';
-import { Follower, Friendship, Post, PostComment, PostLike, Profile, getInitials } from '../types';
+import { Post, PostComment, PostLike, Profile, getInitials } from '../types';
 import { supabase } from '../services/supabase';
 import { RootwiseAIService } from '../services/geminiService';
 import { formatDateTime } from '../utils/formatDate';

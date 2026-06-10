@@ -80,9 +80,9 @@ const CommunityDetailPage: React.FC = () => {
           table: 'community_messages',
           filter: `community_id=eq.${communityId}`,
         },
-        (payload) => {
-          fetchMessages();
-        }
+(_payload) => {
+           fetchMessages();
+         }
       )
       .subscribe();
 
@@ -167,8 +167,8 @@ const CommunityDetailPage: React.FC = () => {
         setAllSkills(Array.from(skillsSet).sort());
 
         // Fetch friendship/follow status for current user
-        let friendStatuses: Record<string, boolean> = {};
-        let followStatuses: Record<string, boolean> = {};
+        const friendStatuses: Record<string, boolean> = {};
+        const followStatuses: Record<string, boolean> = {};
 
         if (profile?.id && mappedMembers.length > 0) {
           const memberIds = mappedMembers.map((m) => m.user_id);

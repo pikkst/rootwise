@@ -46,7 +46,7 @@ const QuestsPage: React.FC = () => {
 
   const plan = profile?.plan || 'free';
   const hasPro = isPro(plan);
-  const effectivePlan = getEffectivePlan(plan);
+  const _effectivePlan = getEffectivePlan(plan);
 
   const handleJoinQuest = async (id: string) => {
     if (!profile) {

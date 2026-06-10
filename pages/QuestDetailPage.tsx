@@ -461,7 +461,7 @@ const QuestDetailPage: React.FC = () => {
 
     setUploadingFile(true);
     try {
-      const ext = file.name.split('.').pop() || 'bin';
+      const _ext = file.name.split('.').pop() || 'bin';
       const storagePath = `${profile.id}/quest-files/${questId}/${Date.now()}-${file.name}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -1111,7 +1111,7 @@ const QuestDetailPage: React.FC = () => {
                           </p>
                           {typeof currentMember.proof_submitted === 'object' && 'content' in currentMember.proof_submitted && (
                             <p className="text-slate-700 bg-white p-3 rounded border border-slate-200 mb-3 italic">
-                              "{(currentMember.proof_submitted as any).content}"
+                              &ldquo;{(currentMember.proof_submitted as any).content}&rdquo;
                             </p>
                           )}
                           <div className={`p-4 rounded-lg ${
